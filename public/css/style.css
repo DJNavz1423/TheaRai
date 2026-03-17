@@ -1,0 +1,254 @@
+
+/* Merienda Font Variable */
+@font-face {
+  font-family: 'Merienda';
+  src: url('../fonts/merienda/Merienda-VariableFont_wght.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+/* Caveat Font Static | TheaRai Font */
+@font-face {
+  font-family: 'Caveat';
+  src: url('../fonts/caveat/CaveatBrush-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+/* Lato Fonts Static */ /* 1. Light */
+@font-face {
+  font-family: "Lato";
+  src: url('../fonts/lato/Lato-Light.ttf') format('truetype');
+  font-weight: 300;
+}
+
+/*2. Regular */
+@font-face {
+  font-family: "Lato";
+  src: url('../fonts/lato/Lato-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+/*3. Bold */
+@font-face {
+  font-family: "Lato";
+  src: url('../fonts/lato/Lato-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
+
+/*4. Black */
+@font-face {
+  font-family: "Lato";
+  src: url('../fonts/lato/Lato-Black.ttf') format('truetype');
+  font-weight: 900;
+}
+
+
+
+/* Color Variables  */
+:root{
+  --primary-light: #EB6167;
+  --primary: #e22028;
+  --primary-dark: #a80c11;
+  --primary-darker: #9f1d1d;
+
+   --secondary-soft: #E8E7E8; 
+  --secondary-light: #6C646E;
+  --secondary: #454043;
+  --secondary-dark: #2c292b;
+  --secondary-deep: #1f1c1e;
+
+  --light-pure:#FFFFFF;
+  --light-warm:#fff5ec;
+  --light-fresh:#faffe8;
+
+  --sky: #3b99fc;
+
+  --success:#0d884e;
+  --warning: #ebbf3e;
+  --danger: #c90a1d;
+
+  --dark:#000000;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html{
+  scroll-behavior: smooth;
+  font-family: 'Lato', sans-serif;
+}
+
+body{
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--light-fresh);
+  color: var(--secondary);
+  font-weight: 400;
+  line-height: 1.5;
+  text-wrap: nowrap;
+}
+
+/* headings */
+h1,h2,h3,h4,h5,h6{
+  font-family: 'Merienda', sans-serif;
+  font-weight: 700;
+  color: var(--secondary-dark);
+  width: fit-content;
+}
+
+p, a{
+  color: var(--secondary);
+  font-size: clamp(0.785rem, -1.5rem + 8vw, 1rem);
+}
+
+section{
+  padding: 60px 0;
+}
+
+/* lead text */
+.lead{
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+
+/* text colors */
+.text-muted{
+  color:var(--secondary-light);
+}
+.text-danger{
+  color:var(--danger);
+}
+.text-success{
+  color: var(--success);
+}
+.text-warning{
+  color: var(--warning);
+}
+
+.container{
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.row{
+  display: flex;
+}
+
+.row>*{
+  width: 100%;
+}
+
+/* red underline */
+.underline-fullwidth{
+  position: relative;
+}
+.underline-fullwidth::after{
+  content: '';
+  width: 70%;
+  height: 4px;
+  background: var(--primary);
+  position: absolute;
+  left: 15%;
+  bottom: -4px;
+  border-radius: 20px;
+}
+
+img, svg{
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+img{
+  max-width: 100%;
+  height: auto;
+  font-style: italic;
+  vertical-align: middle;
+  shape-margin: 1rem;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.logo{
+  max-width: 180px;
+}
+.logo img{
+  filter: drop-shadow(0 0 3px rgba(0,0,0,0.8))
+        drop-shadow(0 0 5px rgba(0,0,0,0.6));   
+}
+
+form{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+}
+
+button, a{
+  cursor: pointer;
+}
+
+a{
+  text-decoration: none;
+}
+
+.btn{
+  width: 100%;
+  border-radius: 20px;
+  border-top-left-radius: 0;
+  border: 0;
+  padding: 15px 15px;
+  font-weight: bold;
+  background: var(--primary);
+  color: var(--light-pure);
+  font-size: 1rem;
+  letter-spacing: 1px;
+  transition: ease 400ms;
+}
+
+.btn:hover{
+  background: var(--primary-dark);
+}
+.btn:active{
+  background: var(--primary-light);
+  color: var(--secondary-soft);
+}
+
+.icon-wrapper{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+input{
+  padding: 12px 24px;
+  color: var(--secondary);
+  border-color: var(--secondary-light);
+  font-size: 1rem;
+  border-radius: 25px;
+  border-top-left-radius: 0px;
+  background-color: var(--secondary-soft);
+  border: 0;
+  width: 100%;
+}
+
+input[type="checkbox"], input[type="radio"]{
+  cursor: pointer;
+  
+}
+
+input:focus{
+  outline:  var(--sky) solid 2px;
+}
+
+.heading{
+  font-size: 4rem;
+  font-weight: 800;
+}
