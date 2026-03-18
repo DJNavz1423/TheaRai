@@ -82,7 +82,7 @@
     @include('loader')
 
 
-    <script type="text/javascript" src="{{ asset('js/visibility-toggle.js') }}?v={{ time() }}"></script>
-    <script type="text/javascript" src="{{ asset('js/remember-user.js') }}?v={{ time() }}"></script>
+    <script type="text/javascript" src="{{ asset('js/login/visibility-toggle.js') }}?v={{ time() }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/login/remember-user.js') }}?v={{ time() }}" defer></script>
 </body>
 </html>
