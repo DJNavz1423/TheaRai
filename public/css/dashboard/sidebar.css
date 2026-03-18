@@ -1,0 +1,297 @@
+body{
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+#sidebar{
+  height: 100vh;
+  width: 250px;
+  padding: 12px 1em;
+  background-color: var(--primary-deep);
+  border-right: 1px solid var(--primary-border);
+  position: sticky;
+  top: 0;
+  align-self: self-start;
+  transition: 300ms ease-in-out;
+  overflow: hidden;
+  text-wrap: nowrap;
+}
+#sidebar.close{
+  padding: 5px;
+  width: 60px;
+
+  .nav-item{
+    opacity: 0;
+  }
+}
+
+#sidebar nav{
+  width: 100%;
+  height: 100%;
+}
+
+#sidebar nav ul, #sidebar nav ul li{
+  width: 100%;
+}
+
+#sidebar nav > ul > li:first-child{
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 1.2rem;
+}
+
+#sidebar nav > ul > li:not(:first-child){
+  margin-bottom: .5rem;
+}
+
+#sidebar nav > ul > li:last-child{
+  margin-bottom: 0px;
+}
+
+#sidebar a, #sidebar .dropdown-btn, #sidebar #logout-btn{
+  border-radius: .5em;
+  padding: .85em;
+  color: var(--secondary-soft);
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+#sidebar ul li.active a{
+  color: var(--tertiary);
+  background-color: var(--primary-hover);
+
+  svg{
+    fill: var(--tertiary);
+  }
+}
+
+.icon-wrapper{
+  white-space: nowrap;
+}
+
+#sidebar svg{
+  width: fit-content;
+  flex-shrink: 0;
+  fill: var(--secondary-soft);
+}
+
+#sidebar .nav-item{
+  flex-grow: 1;
+  transition: 300ms ease-in-out;
+}
+
+#logout-btn .nav-item{
+  text-align: start;
+}
+
+#sidebar li a:hover, #sidebar .dropdown-btn:hover, #sidebar #logout-btn:hover, #sidebar #toggle-btn:hover{
+  background-color: var(--primary-hover);
+}
+
+#sidebar .sub-menu{
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: 300ms ease-in-out;
+
+  > div{
+    overflow: hidden;
+  }
+}
+#sidebar .sub-menu.show{
+  grid-template-rows: 1fr;
+}
+.dropdown-arrow svg{
+  transition: 200ms ease;
+}
+.rotate .dropdown-arrow svg, #sidebar nav > ul > li:first-child .rotate svg{
+  rotate: 180deg;
+}
+
+#sidebar .sub-menu a{
+  padding-left: 3.2em;
+}
+
+.sidebar-btn{
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+}
+.dropdown-btn{
+  width: 100%;
+  text-align: left;
+  font: inherit;
+}
+#toggle-btn{
+  margin-left: auto;
+  padding: 1em;
+  border-radius: 0.5em;
+
+  svg{
+    transition: rotate 150ms ease;
+  }
+}
+#toggle-btn.rotate{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+#logout-btn{
+  width: 100%;
+}
+
+#sidebar nav form{
+  all: unset;
+}
+
+
+main{
+  padding: min(30px, 7%);
+}
+
+.logo{
+  width: clamp(60px, 10vw, 80px);
+  white-space: nowrap;
+  transition: 300ms ease-in-out;
+  img{
+     transition: 300ms ease-in-out;
+  }
+}
+
+
+
+/*
+  This is just for practice
+    not important styling just for testing
+*/
+
+main p{
+  margin-top: 5px;
+  margin-bottom: 15px;
+  text-wrap: wrap;
+}
+
+.container{
+  background: var(--light-pure);
+  border: 1px solid var(--primary-border);
+  border-radius: 1em;
+  margin-bottom: 20px;
+  padding: min(3em, 15%);
+
+  h2, p{
+    margin-top: 1em;
+  }
+}
+
+@media(max-width:800px){
+  body{
+    grid-template-columns: 1fr;
+  }
+
+  main{
+    padding: 2em 1em 60px 1em;
+  }
+
+  .container{
+    border: none;
+    padding: 0;
+  }
+
+  /* sidebar */
+  #sidebar{
+    height: 60px;
+    width: 100%;
+    border-right: none;
+    border-top: 1px solid var(--secondary-light);
+    padding: 0;
+    position: fixed;
+    z-index: 100;
+    top: unset;
+    bottom: 0;
+    overflow-x: hidden;
+      
+     ul{
+      padding: 0;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    ul li{
+      height: 100%;
+    }
+
+    ul a, ul .dropdown-btn, ul #logout-btn{
+      width: 100%;
+      height: 60px;
+      padding: 0;
+      border-radius: 0;
+      justify-content: center;
+    }
+  }
+
+  #sidebar nav > ul > li{
+    flex: 0 0 25%;
+  }
+
+
+  #sidebar nav > ul > li:not(:first-child){
+    margin-bottom: 0px;
+  }
+
+  #sidebar .nav-item, #sidebar nav > ul > li:first-child, .dropdown-btn .icon-wrapper:last-child{
+    display: none;
+  }
+
+  #sidebar ul li .sub-menu{
+    display: flex;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    opacity: 0;
+    grid-template-rows: unset;
+    transform: translateY(10px);
+    pointer-events: none;
+    height: 60px;
+    width: 100%;
+    transition: opacity 200ms ease-in-out, transform 150ms ease-in-out;
+  }
+
+  #sidebar ul li .sub-menu.show{
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+    position: fixed;
+    z-index: 2;
+    bottom: 60px;
+    left: 0;
+    height: 60px;
+    width: 100%;
+    background: var(--primary-hover);
+    display: flex;
+    justify-content: center;
+    
+    > div{
+      
+      overflow-x: auto;
+      overflow-y: hidden;
+      
+    }
+
+    li{
+      display: inline-flex;
+      width: auto;
+    }
+
+    a{
+      font-size: min(1rem);
+      padding: 1em;
+      width: auto;
+      justify-content: center;
+    }
+  }
+}
