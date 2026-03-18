@@ -13,6 +13,8 @@
 </head>
 <!-- MARCH 9 -->
 <body>
+     @include('loader')
+
     <div class="container">
         <div class="row">
             <div class="col">
@@ -77,9 +79,6 @@
             </div>
         </div>
     </div>
-
-    
-    @include('loader')
 
 
     <script type="text/javascript" src="{{ asset('js/login/visibility-toggle.js') }}?v={{ time() }}" defer></script>
