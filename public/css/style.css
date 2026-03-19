@@ -1,93 +1,6 @@
-
-/* Merienda Font Variable */
-@font-face {
-  font-family: 'Merienda';
-  src: url('../fonts/merienda/Merienda-VariableFont_wght.ttf') format('truetype-variations');
-  font-weight: 100 900;
-  font-style: normal;
-}
-
-/* Caveat Font Static | TheaRai Font */
-@font-face {
-  font-family: 'Caveat';
-  src: url('../fonts/caveat/CaveatBrush-Regular.ttf') format('truetype');
-  font-weight: 400;
-}
-
-/* Lato Fonts Static */ /* 1. Light */
-@font-face {
-  font-family: "Lato";
-  src: url('../fonts/lato/Lato-Light.ttf') format('truetype');
-  font-weight: 300;
-}
-
-/*2. Regular */
-@font-face {
-  font-family: "Lato";
-  src: url('../fonts/lato/Lato-Regular.ttf') format('truetype');
-  font-weight: 400;
-}
-
-/*3. Bold */
-@font-face {
-  font-family: "Lato";
-  src: url('../fonts/lato/Lato-Bold.ttf') format('truetype');
-  font-weight: 700;
-}
-
-/*4. Black */
-@font-face {
-  font-family: "Lato";
-  src: url('../fonts/lato/Lato-Black.ttf') format('truetype');
-  font-weight: 900;
-}
-
-
-
-/* Color Variables  */
-:root{
-  /* 
-    Primary Colors (RED)
-  */
-  --primary-light: #EB6167;
-  --primary: #e22028;
-  --primary-dark: #a80c11;
-  --primary-darker: #9f1d1d;
-  --primary-deep: #6F1414;
-
-  --primary-hover: #832222;
-  --primary-border: #1c00371c;
-
-  /*
-    SECONDARY (GRAY)
-  */
-   --secondary-soft: #E8E7E8; 
-  --secondary-light: #6C646E;
-  --secondary: #454043;
-  --secondary-dark: #2c292b;
-  --secondary-deep: #1f1c1e;
-
-  /*
-    TERTIARY (YELLOW)
-  */
-  --tertiary: #f0d124;
-
-
-  /* 
-    WHITE HUES
-  */
-  --light-pure:#FFFFFF;
-  --light-warm:#fff5ec;
-  --light-fresh:#faffe8;
-
-  --sky: #3b99fc;
-
-  --success:#0d884e;
-  --warning: #ebbf3e;
-  --danger: #c90a1d;
-
-  --dark:#000000;
-}
+@import url(../css/fonts.css);
+@import url(../css/variables.css); 
+@import url("../css/utilities.css");
 
 * {
   margin: 0;
@@ -97,8 +10,12 @@
   scroll-behavior: smooth;
 }
 
+
 html{
+  height: 100%;
   font-family: 'Lato', sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary-light) var(--secondary-soft);
 }
 
 body{
