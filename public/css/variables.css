@@ -1,0 +1,45 @@
+/* Color Variables  */
+:root{
+  /* 
+    Primary Colors (RED)
+  */
+  --primary-light: #EB6167;
+  --primary: #e22028;
+  --primary-dark: #a80c11;
+  --primary-darker: #9f1d1d;
+  --primary-deep: #6F1414;
+
+  --primary-hover: #832222;
+  --primary-border: #1c00371c;
+
+  /*
+    SECONDARY (GRAY)
+  */
+   --secondary-soft: #E8E7E8; 
+  --secondary-light: #6C646E;
+  --secondary: #454043;
+  --secondary-dark: #2c292b;
+  --secondary-deep: #1f1c1e;
+
+  /*
+    TERTIARY (YELLOW)
+  */
+  --tertiary: #f0d124;
+
+
+  /* 
+    WHITE HUES
+  */
+  --light-pure:#FFFFFF;
+  --light-warm:#fff5ec;
+  --light-fresh:#faffe8;
+
+  --sky: #3b99fc;
+
+  --success:#0d884e;
+  --warning: #ebbf3e;
+  --danger: #c90a1d;
+
+  --dark:#000000;
+  --primary-transparent: #9f1d1d0d;
+}
