@@ -10,10 +10,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
     if(type === 'text'){
       visibilityOn.style.display = 'none';
-      visibilityOff.style.display = 'flex';
+      visibilityOff.classList.toggle('d-flex')
     } else{
       visibilityOn.style.display = 'flex';
-      visibilityOff.style.display = 'none';
+      visibilityOff.classList.toggle('d-flex')
     }
   });
 });
