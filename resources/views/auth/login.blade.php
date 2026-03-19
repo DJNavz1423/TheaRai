@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- css links -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/utilities.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/login/login-style.css') }}?v={{ time() }}">
-    <link rel="stylesheet" href="{{ asset('css/loader.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/login/login-style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
+
+    @stack('styles')
+
     <title>TheaRai Eatery | Login Page</title>
 </head>
 <!-- MARCH 9 -->
@@ -81,7 +83,9 @@
     </div>
 
 
-    <script type="text/javascript" src="{{ asset('js/login/visibility-toggle.js') }}?v={{ time() }}" defer></script>
-    <script type="text/javascript" src="{{ asset('js/login/remember-user.js') }}?v={{ time() }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/login/visibility-toggle.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/login/remember-user.js') }}" defer></script>
+
+    @stack('scripts')
 </body>
 </html>
