@@ -10,7 +10,7 @@ class DashboardController extends Controller
 {
     public function index(): View{
         #get inventory value
-        $totalInventoryValue = DB::table('laravel.ingredients')->sum('total_value');
+        $totalInventoryValue = DB::table('laravel.ingredients')->sum('total_item_value');
 
         #get low stock count
         $lowStockCount = DB::table('laravel.ingredients')
