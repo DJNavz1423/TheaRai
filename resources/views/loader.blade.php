@@ -2,11 +2,14 @@
         <div class="loader"></div>
     </div>
 
-    @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
-    @endpush
+    @once
+        @push('styles')
+            <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
+        @endpush
+    @endonce
 
-
-    @push('scripts')
-        <script type="text/javascript" src="{{ asset('js/loader.js') }}"></script>
-    @endpush
+    @once
+        @push('scripts')
+            <script type="text/javascript" src="{{ asset('js/loader.js') }}"></script>
+        @endpush
+    @endonce
