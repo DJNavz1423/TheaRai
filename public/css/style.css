@@ -73,6 +73,7 @@ ul{
 
 .row{
   display: flex;
+  flex-direction: row;
 }
 
 .row>*{
@@ -133,6 +134,7 @@ button, a{
 
 a{
   text-decoration: none;
+   font-family: "Lato", sans-serif;
 }
 
 .btn{
