@@ -11,7 +11,8 @@
 
   --primary-hover: #832222;
   --primary-border: #1c00371c;
-
+  
+  --primary-transparent: #9f1d1d0d;
   /*
     SECONDARY (GRAY)
   */
@@ -22,24 +23,38 @@
   --secondary-deep: #1f1c1e;
 
   /*
-    TERTIARY (YELLOW)
+    Tertiary (GREEN)
   */
-  --tertiary: #f0d124;
+  --tertiary :#29ad82;
+  --tertiary-light: #00b960;
+  --tertiary-light-transparent:  #00b96029;
 
+
+  /*
+    Quaternary (YELLOWISH ORANGE)
+  */
+  --quaternary-light: #FFEB7A; 
+  --quaternary: #f0d124;
+  --quaternary-dark: #D4B400;       
+  --quaternary-darker: #B39600;     
+  --quaternary-deep: #8C7500; 
+
+  /*
+    Quinary (blue)
+  */
+    --sky: #3b99fc;
+    --quinary: #0b68cb;
 
   /* 
-    WHITE HUES
+    WHITES
   */
   --light-pure:#FFFFFF;
   --light-warm:#fff5ec;
   --light-fresh:#faffe8;
-
-  --sky: #3b99fc;
 
   --success:#0d884e;
   --warning: #ebbf3e;
   --danger: #c90a1d;
 
   --dark:#000000;
-  --primary-transparent: #9f1d1d0d;
 }
