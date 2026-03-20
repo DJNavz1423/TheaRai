@@ -5,7 +5,6 @@ body{
 }
 
 #sidebar{
-
   height: 100vh;
   width: 260px;
   padding: 12px 1em;
@@ -18,7 +17,6 @@ body{
   overflow: hidden;
   overflow-y: auto;
   text-wrap: nowrap;
- 
   scrollbar-width: thin;
   scrollbar-color: var(--secondary-soft) var(--primary-transparent);
 }
@@ -166,7 +164,7 @@ body{
 }
 
 main{
-  padding: min(30px, 7%);
+  padding: min(34px, 7%) min(30px, 7%);
 }
 
 main *{
