@@ -1,5 +1,8 @@
 <?php
 
+/* The RoleMiddleware class in PHP checks if the authenticated user has a specific role before allowing
+access to a route. */
+
 namespace App\Http\Middleware;
 
 use Closure;

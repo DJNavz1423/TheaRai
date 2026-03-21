@@ -1,41 +1,37 @@
 <?php
 
-namespace App\Http\Controllers; # Defines the folder location of this controller
+/* This PHP class is an AuthController that handles user authentication, login, and logout
+functionality in a Laravel application. */
 
-use Illuminate\Http\Request; #import the request class para mareceive ang html form data
-use Illuminate\Support\Facades\Auth; #import auth class to handle login/logout logic gets? :)
+namespace App\Http\Controllers; 
+
+use Illuminate\Http\Request; 
+use Illuminate\Support\Facades\Auth; 
 
 class Authcontroller extends Controller
 {
-    # show login form to user
     public function showLogin(){
-        return view('auth.login'); #loads the login.blade.php from the views
+        return view('auth.login'); 
     }
 
-    # handle login html form submission
     public function login(Request $request){
-        #checks if email and pass are provided and follow correct format
          $request->validate([
-            'email' => ['required', 'email', 'regex:/^.+@thearai\.com\.ph$/i'], #email must present and a valid email format
-            'password' => ['required'],], #password is required
+            'email' => ['required', 'email', 'regex:/^.+@thearai\.com\.ph$/i'], 
+            'password' => ['required'],], 
             [ 'email.regex' => 'Invalid email format!']);
 
-            $credentials = $request->only('email', 'password'); //put requests to credentials variable
-            $remember = $request->has('remember'); //store remember checkbox value
+            $credentials = $request->only('email', 'password'); 
+            $remember = $request->has('remember'); 
 
-            //check if email is valid and existing
             $userExists = \App\Models\User::where('email', $request->email)->exists();
 
             if(!$userExists){
                 return back()->withErrors(['email' => 'This email is not registered!'])->withInput();
             }
 
-        if(Auth::attempt($credentials, $remember)){ #try to log in the user using the provided email and passw
-            //generate new session id for user | prevents session fixation attacks
+        if(Auth::attempt($credentials, $remember)){ 
             $request->session()->regenerate(); 
-            $user = Auth::user(); #retrieves the current authenticated user data
-
-            # redirected based on role|send them to correct dashboard
+            $user = Auth::user(); 
             return match($user->role){
                 'admin' => redirect()->intended('/admin/dashboard'),
                 'staff' => redirect()->intended('/staff/POS'),
@@ -43,16 +39,24 @@ class Authcontroller extends Controller
                 default => redirect('/login'),
             };
         }
-        # if login fails, send user back to login page with error message
+    
         return back()->withErrors([
             'password' => 'Please check your password again'
-        ])->onlyInput('email'); # keep email in input box so they dont type it again
+        ])->onlyInput('email'); 
     }
     
-    public function logout(Request $request){//logout function
-        Auth::logout(); # remove user auth info from the session
-        $request->session()->invalidate(); #clear all data from the current user session
-        $request->session()->regenerateToken();#refresh CSRF token to prevent CSRF attacks
-        return redirect('/login'); #sends user back to login page after logout
+    public function logout(Request $request){
+        Auth::logout(); 
+        $request->session()->invalidate(); 
+        $request->session()->regenerateToken();
+        return redirect('/login'); 
     }
+
+    /**
+     * The above PHP code defines functions for user login, validation, authentication, and logout in a
+     * Laravel application.
+     * 
+     * return the `showLogin` function returns a view for the login page, the `login` function handles
+     * the login process, and the `logout` function handles the logout process.
+     */
 }
