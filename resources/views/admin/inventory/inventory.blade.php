@@ -1,6 +1,44 @@
 @extends('layouts.admin')
 
 @section('content')
+<section id="inventory">
+ <div class="container">
+    <div class="row mb-5">
+        <h1 class="heading">Item List (1)</h1>
+
+        <button class="btn" type="button">
+
+        <span class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+        </span>
+        <span>Add Item</span>
+        </button>
+    </div>
+ </div>
+
+ <div class="container">
+    <div class="row table-controls">
+        <div class="searchbox">
+            <span class="icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
+            </span>
+
+            <input type="text" id="searchBar" placeholder="Search products...">
+        </div>
+    </div>
+
+    <div class="container table-container">
+        <table>
+            <thead>
+                <tr class="border"></tr>
+            </thead>
+        </table>
+    </div>
+ </div>
+</section>
+
+
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h2 mb-0">Inventory</h1>
         <button class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addModal">
