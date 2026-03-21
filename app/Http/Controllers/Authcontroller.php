@@ -26,7 +26,7 @@ class Authcontroller extends Controller
             $userExists = \App\Models\User::where('email', $request->email)->exists();
 
             if(!$userExists){
-                return back()->withErrors(['email' => 'This email is not registered!'])->withInput();
+                return back()->withErrors(['email' => 'Invalid credentials'])->withInput();
             }
 
         if(Auth::attempt($credentials, $remember)){ 

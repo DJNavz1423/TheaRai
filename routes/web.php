@@ -15,17 +15,15 @@ Route::get('/', function(){ #if someone visits the main website, automatically s
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 
 #process data when user click the login button
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:4,1');
 
 #process logout request when user clicks logout
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth');
 
 // auth middleware | check if user is logged in before letting them inside this group
 Route::middleware(['auth'])->group(function(){
-
-    Route::get('/admin/dashboard', function(){ //allowed if user is logged in and has a role of admin
-        return view('admin.dashboard');
-    })->middleware('role:admin');
 
     #dashboard route
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->middleware('role:admin');
@@ -45,7 +43,7 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/staff/pos', function(){ //allowed if user is logged in and has a role of staff
         return view('staff.pos');
-    })->middleware('role:staff');
+    })->middleware('role:admin|staff');
 
     Route::get('/cook/dashboard', function(){ //allowed if user is logged in and has a role of cook
         return view('cook.dashboard');
