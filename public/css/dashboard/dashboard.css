@@ -1,9 +1,3 @@
-#dashboard{
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-}
-
 .heading{
   font-size: 2rem;
   color: var(--secondary-deep);
@@ -14,21 +8,18 @@
 }
 
 .quick-btn-row{
-  gap: 8px;
+  gap: 12px;
   align-items: center;
 }
 
 .quick-btn{
   display: flex;
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: normal;
   letter-spacing: normal;
   background-color: var(--light-pure);
-  border: 2px solid var(--primary);
-  .icon-wrapper svg{
-    fill: var(--tertiary-light);
-  }
+  border: 1px solid var(--primary);
 }
 .quick-btn a{
   font: inherit;
@@ -42,7 +33,38 @@
   text-align: center;
 }
 
+.quick-btn:first-child{
+  a{
+    color: var(--tertiary-light);
+  }
+
+  .icon-wrapper svg{
+    fill: var(--tertiary-light);
+  }
+}
+
+.quick-btn:nth-child(2){
+  a{
+    color: var(--tertiary);
+  }
+  .icon-wrapper svg{
+    fill: var(--tertiary);
+  }
+}
+
+.quick-btn:nth-child(3){
+  a{
+    color: var(--quinary);
+  }
+  .icon-wrapper svg{
+    fill: var(--quinary);
+  }
+}
+
 .quick-btn:last-child{
+  a{
+    color: var(--quaternary);
+  }
   .icon-wrapper svg{
     fill: var(--quaternary);
   }
@@ -93,22 +115,22 @@
 }
 
 .kpi-label{
-  font-family: "Lato", sans-serif;
+  font-family: "Merienda", sans-serif;
   color: var(--secondary);
-  font-size: .95rem;
+  font-size: 14px;
+  font-weight: 600;
   margin-bottom: 1rem;
 }
 
 .month{
-  font-size: .85rem;
-  font-weight: 700;
-  letter-spacing: normal;
+  font-size: .75rem;
+  font-weight: 400;
 }
 
 .kpi-value{
   display: block;
   margin-bottom: 0.5rem;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 900;
   color: var(--quaternary-dark);
 }
@@ -120,12 +142,39 @@
 .kpi-icon{
   max-width: 2rem;
   width: clamp(1.5rem, 4vw, 2rem);
+  padding: 4px;
+  background-color: var(--tertiary-light-transparent);
+  border-radius: 6px;
 }
 
 .kpi-icon svg{
   fill: var(--tertiary);
   height: auto;
-  max-width: 2rem;
+  max-width: 1.6rem;
+}
+
+.kpi-card:first-child{
+  .icon-wrapper{
+    background-color: var(--quaternary-alpha-deep);
+  }
+  .icon-wrapper svg{
+    fill: var(--quaternary);
+  }
+}
+.kpi-card:first-child:hover{
+  background-color: var(--quaternary-alpha);
+}
+
+.kpi-card:nth-child(3){
+  .icon-wrapper{
+    background: var(--quinary-alpha);
+  }
+  .icon-wrapper svg{
+    fill: var(--quinary);
+  }
+}
+.kpi-card:nth-child(3):hover{
+  background-color: var(--quinary-alpha);
 }
 
 .kpi-card:last-child {
