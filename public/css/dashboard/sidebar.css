@@ -163,11 +163,11 @@ body{
   }
 }
 
-main{
+section{
   padding: min(34px, 7%) min(30px, 7%);
 }
 
-main *{
+section *{
   text-wrap: wrap;
 }
 
@@ -180,7 +180,7 @@ main *{
     grid-template-columns: 1fr;
   }
 
-  main{
+  section{
     padding: 2em 1em 60px 1em;
   }
 
