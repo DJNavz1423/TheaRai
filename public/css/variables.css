@@ -32,7 +32,7 @@
 
 
   /*
-    Quaternary (YELLOWISH ORANGE)
+    Quaternary (YELLOWISH)
   */
   --quaternary-light: #FFEB7A; 
   --quaternary: #f0d124;
@@ -40,11 +40,15 @@
   --quaternary-darker: #B39600;     
   --quaternary-deep: #8C7500; 
 
+  --quaternary-alpha: #f0d12412;
+  --quaternary-alpha-deep: #8c750012;
+
   /*
     Quinary (blue)
   */
     --sky: #3b99fc;
     --quinary: #0b68cb;
+    --quinary-alpha: #0280ff12;
 
   /* 
     WHITES
