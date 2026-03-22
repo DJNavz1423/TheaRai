@@ -14,8 +14,6 @@
 html{
   height: 100%;
   font-family: 'Lato', sans-serif;
-  scrollbar-width: thin;
-  scrollbar-color: var(--secondary-light) var(--secondary-soft);
 }
 
 body{
@@ -138,6 +136,7 @@ a{
 }
 
 .btn{
+  font-family: "Lato", sans-serif;
   width: 100%;
   border-radius: 20px;
   border-top-left-radius: 0;
