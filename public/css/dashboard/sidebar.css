@@ -17,15 +17,17 @@ body{
   overflow: hidden;
   overflow-y: auto;
   text-wrap: nowrap;
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: var(--secondary-soft) var(--primary-transparent);
 }
 #sidebar.close{
+  scrollbar-gutter: unset;
   padding: 5px;
   width: 60px;
   
 
-  .nav-item{
+  .nav-item, .dropdown-arrow{
     opacity: 0;
   }
 }
@@ -37,6 +39,7 @@ body{
 
 #sidebar nav ul, #sidebar nav ul li{
   width: 100%;
+  position: relative;
 }
 
 #sidebar nav > ul > li:first-child{
@@ -63,14 +66,29 @@ body{
   gap: 1em;
 }
 
-#sidebar ul li.active{
+#sidebar ul li.active, .dropdown-btn.active{
+  border-radius: .5em;
+  a,span{
+    color: var(--quaternary);
+  }
+
+  background-color: var(--primary-hover);
+  border-top-left-radius: 0px !important;
+  border-bottom-left-radius: 0px !important;
+  border-left: 2px solid var(--quaternary-darker);
+
+  svg{
+    fill: var(--quaternary);
+  }
+}
+
+#sidebar .sub-menu li.active{
+  border-radius: .5em;
   a{
     color: var(--quaternary);
   }
-  background-color: var(--primary-hover);
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;
-  border-left: 2px solid var(--quaternary-darker);
+  background: none;
+  border: 0;
 
   svg{
     fill: var(--quaternary);
@@ -104,6 +122,7 @@ body{
   display: grid;
   grid-template-rows: 0fr;
   transition: 300ms ease-in-out;
+  margin-top: 0.5rem;
 
   > div{
     overflow: hidden;
@@ -170,6 +189,8 @@ section{
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary-light) var(--secondary-soft);
 }
 
 section *{
@@ -242,7 +263,7 @@ section *{
     margin-bottom: 0px;
   }
 
-  #sidebar ul li.active{
+  #sidebar ul li.active, .dropdown-btn.active{
     border-left: none;
     border-top: 1px solid var(--quaternary);
   }
