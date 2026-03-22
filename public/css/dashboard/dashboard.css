@@ -3,6 +3,11 @@
   color: var(--secondary-deep);
 }
 
+.row{
+  align-items: center;
+  justify-content: center;
+}
+
 .row > *{
   width: unset;
 }
@@ -13,8 +18,8 @@
 }
 
 .quick-btn{
-  display: flex;
-  padding: 8px 12px;
+  display: inline-flex;
+  padding: 10px 12px;
   border-radius: 6px;
   font-weight: normal;
   letter-spacing: normal;
@@ -22,14 +27,14 @@
   border: 1px solid var(--primary);
 }
 .quick-btn a{
-  font: inherit;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
   color: var(--dark);
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.3rem;
   text-align: center;
 }
 
@@ -181,6 +186,10 @@
 
   .kpi-value{
     color: var(--primary);
+  }
+
+  .icon-wrapper{
+    background: var(--primary-alpha);
   }
 
   svg{
