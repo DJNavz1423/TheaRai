@@ -34,7 +34,7 @@
         <!-- Navigation tabs -->
 
 
-        <li class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
+        <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
           <a href="{{ url('/admin/dashboard') }}">
           <span class="icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M520-640v-160q0-17 11.5-28.5T560-840h240q17 0 28.5 11.5T840-800v160q0 17-11.5 28.5T800-600H560q-17 0-28.5-11.5T520-640ZM120-480v-320q0-17 11.5-28.5T160-840h240q17 0 28.5 11.5T440-800v320q0 17-11.5 28.5T400-440H160q-17 0-28.5-11.5T120-480Zm400 320v-320q0-17 11.5-28.5T560-520h240q17 0 28.5 11.5T840-480v320q0 17-11.5 28.5T800-120H560q-17 0-28.5-11.5T520-160Zm-400 0v-160q0-17 11.5-28.5T160-360h240q17 0 28.5 11.5T440-320v160q0 17-11.5 28.5T400-120H160q-17 0-28.5-11.5T120-160Zm80-360h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Zm160-320Zm240-160Zm0 240ZM360-280Z"/></svg>
@@ -45,7 +45,7 @@
 
         <!-- dropdown inventory -->
         <li>
-          <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn">
+          <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn {{ request()->routeIs('admin.inventory.*') ? 'active' : '' }}">
           <span class="icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m620-275 198-198q11-11 28-11t28 11q11 11 11 28t-11 28L648-191q-12 12-28 12t-28-12L478-305q-11-11-11-28t11-28q11-11 28-11t28 11l86 86ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h167q11-35 43-57.5t70-22.5q40 0 71.5 22.5T594-840h166q33 0 56.5 23.5T840-760v160q0 17-11.5 28.5T800-560q-17 0-28.5-11.5T760-600v-160h-80v80q0 17-11.5 28.5T640-640H320q-17 0-28.5-11.5T280-680v-80h-80v560h200q17 0 28.5 11.5T440-160q0 17-11.5 28.5T400-120H200Zm308.5-651.5Q520-783 520-800t-11.5-28.5Q497-840 480-840t-28.5 11.5Q440-817 440-800t11.5 28.5Q463-760 480-760t28.5-11.5Z"/></svg>
           </span>
@@ -59,7 +59,7 @@
 
           <ul class="sub-menu">
             <div>
-              <li class="{{ request()->is('admin/inventory') ? 'active' : '' }}"><a href="{{ url('admin/inventory/inventory') }}">Stock List</a></li>
+              <li class="{{ request()->is('admin/inventory') ? 'active' : '' }}"><a href="{{ url('/admin/inventory') }}">Stock List</a></li>
               <li><a href="#">Categories</a></li>
               <li><a href="#">Units of Measure</a></li>
             </div>

@@ -26,11 +26,15 @@ Route::post('/logout', [AuthController::class, 'logout'])
 Route::middleware(['auth'])->group(function(){
 
     #dashboard route
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->middleware('role:admin');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+        ->middleware('role:admin')
+        ->name('admin.dashboard');
 
     #Inventory routes
       // 1. READ (The list)
-    Route::get('/admin/inventory', [IngredientController::class, 'index'])->middleware('role:admin');
+    Route::get('/admin/inventory', [IngredientController::class, 'index'])
+        ->middleware('role:admin')
+        ->name('admin.inventory.index');
 
     // 2. CREATE (Saving the new ingredient)
     Route::post('/admin/inventory', [IngredientController::class, 'store'])->middleware('role:admin');

@@ -28,7 +28,7 @@ class IngredientController extends Controller
             $categories = DB::table('laravel.ingredient_categories')->get();
             $units = DB::table('laravel.units')->get();
 
-            return view('admin.inventory', compact('ingredients', 'categories', 'units'));
+            return view('admin.inventory.inventory', compact('ingredients', 'categories', 'units'));
     }
 
     public function store(Request $request){
