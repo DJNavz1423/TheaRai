@@ -62,4 +62,12 @@
   --danger: #c90a1d;
 
   --dark:#000000;
+
+  /*
+    Neutrals
+  */
+
+  --border-neutral-alpha: rgba(47,5,88,.02);
+
+  --hover-neutral-alpha: rgba(26,2,62,.08);
 }
