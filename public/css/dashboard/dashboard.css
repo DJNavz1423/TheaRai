@@ -1,3 +1,7 @@
+.container:first-child .row:first-child{
+  justify-content: space-between;
+}
+
 .heading{
   font-size: 2rem;
   color: var(--secondary-deep);
