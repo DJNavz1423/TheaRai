@@ -130,6 +130,7 @@
                 <li><a href="">Menu Items</a></li>
                 <li><a href="">Menu Categories</a></li>
                 <li><a href="">Quick POS</a></li>
+                <li><a href="">Table Management</a></li>
               </div>
             </ul>
           </li>
