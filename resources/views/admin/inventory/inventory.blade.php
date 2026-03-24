@@ -257,6 +257,7 @@
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
         <link rel="stylesheet" href="{{ asset('css/dashboard/inventory.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
     @endpush
 @endonce
 
