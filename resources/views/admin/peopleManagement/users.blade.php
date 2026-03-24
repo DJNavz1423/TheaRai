@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div class="container table-container border">
+    <div class="container table-container border mb-5">
         <table>
             <thead>
                 <tr>
@@ -34,7 +34,6 @@
                 <tr>
                     <td>
                         <div class="d-flex item-group">
-                            <span class="item-img"><span>{{ strtoupper($user->name[0]) }}</span></span>
                             <span class="item-data">{{ $user->name }}</span>
                         </div>
                     </td>
@@ -93,3 +92,10 @@
     </div>
 </section>
 @endsection
+
+@once 
+    @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/dashboard/peopleMng/users.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
+    @endpush
+@endonce
