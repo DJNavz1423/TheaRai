@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route; # import route class, handles url paths fo
 use App\Http\Controllers\AuthController; 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IngredientController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -52,6 +53,15 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/cook/dashboard', function(){ //allowed if user is logged in and has a role of cook
         return view('cook.dashboard');
     })->middleware('role:cook');
+
+     # User Management Routes
+    Route::get('/admin/users', [UserController::class, 'index'])
+        ->middleware('role:admin')
+        ->name('admin.peopleManagement.users');
+
+    Route::post('/admin/users', [UserController::class, 'store'])
+        ->middleware('role:admin')
+        ->name('admin.users.store');
 });
 
 
