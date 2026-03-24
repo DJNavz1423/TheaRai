@@ -8,6 +8,7 @@
   box-sizing: border-box;
   text-wrap: nowrap;
   scroll-behavior: smooth;
+  scrollbar-width: thin;
 }
 
 
@@ -184,6 +185,16 @@ input[type="checkbox"], input[type="radio"]{
 
 input:focus{
   outline:  var(--sky) solid 2px;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .heading{

@@ -1,3 +1,5 @@
+
+
 .row > *{
   width: unset;
 }
@@ -65,14 +67,17 @@
   }
 }
 
-#searchBar{
+.table-controls{
+  position: relative;
+}
+
+.searchBar{
   background: none;
   anchor-name: --searchbox_input;
   padding: 10px 16px 10px 40px;
   border-radius: 8px;
-  border-color: var(--secondary-soft);
+  border-color: var(--secondary-light);
 }
-
 
 
 /*
@@ -167,4 +172,187 @@ tr td:last-child .item-group{
 
 .more-actions:hover{
   background: var(--hover-neutral-alpha);
+}
+
+
+
+/*
+  modal
+*/
+
+.modal{
+  width: 100%;
+  
+  
+  form{
+    all: unset;
+  }
+  * {
+    text-wrap: nowrap;
+    scrollbar-color: var(--secondary) !important;
+  }
+
+  .row{
+    gap: 12px;
+  }
+}
+
+.modal-dialog{
+  max-width: 720px;
+  border: 2px solid black;
+  border-radius: 12px;
+  align-items: center;
+}
+
+.modal-header, .modal-body, .modal-footer{
+  padding: 1.5rem;
+}
+
+.modal-header{
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  .icon-wrapper{
+    cursor: pointer;
+  }
+  svg{
+    fill: var(--secondary-light);
+  }
+}
+
+.modal-footer{
+  padding-top: 0;
+}
+
+.modal-body{
+  padding-top: 0;
+}
+
+.input-group{
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  input{
+    background: none;
+    border: 1px solid var(--secondary-light) !important;
+    border-radius: 8px;
+  }
+}
+
+.tab-container{
+  flex-direction: column;
+}
+
+/* 1. Main container sizing */
+.ts-wrapper {
+    width: 100% !important;
+}
+
+/* 2. The Wrapper Shell (No padding, just the border/shape) */
+.ts-control {
+    padding: 0 !important; 
+    border: 1px solid var(--secondary-light) !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    position: relative !important;
+    min-height: 44px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: hidden !important; 
+}
+
+/* 3. The Input (Handles the padding, width, and caret size) */
+.ts-control > input {
+    width: 100% !important;
+    min-width: 100% !important; 
+    padding: 12px 24px !important; 
+    font-size: 1rem !important;
+    color: var(--secondary) !important;
+    line-height: normal!important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    cursor: text !important;
+    border: 0 !important;
+}
+
+/* 4. The Selected Item (Overlays exactly over the input) */
+.ts-control .item {
+    position: absolute !important; 
+    top: 0; left: 0; right: 0; bottom: 0;
+    padding: 12px 24px !important; 
+    font-size: 1rem !important;
+    color: var(--secondary) !important;
+    display: flex !important;
+    align-items: center !important;
+    pointer-events: none !important; 
+}
+
+/* 5. Dropdown list items styling */
+.ts-dropdown .option {
+    padding: 10px 24px !important; 
+    font-size: 1rem !important;
+    color: var(--secondary) !important;
+}
+
+/* 6. Clean up: Hide the empty placeholder option from the list */
+.ts-dropdown .option[data-value=""] {
+    display: none !important;
+}
+
+/* 7. State: Hide the selected item ONLY when actually typing */
+.ts-wrapper.is-typing .ts-control .item {
+    display: none !important;
+}
+
+.ts-wrapper.has-items:not(.is-typing) .ts-control > input {
+    color: transparent !important;
+    caret-color: transparent !important;
+    opacity: 1 !important; /* Keep input interactable, just invisible */
+}
+
+/* 9. Focus border color */
+.ts-wrapper.focus .ts-control {
+    border-color: #3b82f6 !important; 
+}
+
+/* 10. Placeholder text styling */
+.ts-wrapper .ts-control input::placeholder {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 11. Inject YOUR custom dropdown arrow */
+.ts-control::after {
+    content: "";
+    position: absolute !important;
+    right: 16px !important;       /* Adjusted slightly for the larger 24px icon */
+    top: 50% !important;
+    transform: translateY(-50%);  /* Perfectly center it vertically */
+    width: 24px !important;       /* Matches your SVG width */
+    height: 24px !important;      /* Matches your SVG height */
+    pointer-events: none !important; /* Lets you click "through" it */
+    
+    /* Your exact SVG, URL-encoded for CSS */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="%23454043"><path d="M465-363.5q-7-2.5-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5q-8 0-15-2.5Z"/></svg>');
+    
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: transform 0.2s ease !important; /* Smooth animation */
+    z-index: 10;
+}
+
+/* 12. Flip the arrow upside down when the dropdown is open */
+.ts-wrapper.dropdown-active .ts-control::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.ts-control:not(.rtl) {
+  padding: 0 !important;
+}
+
+.has-items .ts-control > input {
+  margin: 0 !important;
 }
