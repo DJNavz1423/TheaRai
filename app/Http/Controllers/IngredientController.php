@@ -34,15 +34,21 @@ class IngredientController extends Controller
     public function store(Request $request){
         $validated = $request->validate([
             // Format is 'connection.schema.table,column'
-        'item_code'         => 'required|unique:pgsql.laravel.ingredients,item_code',
-        'name'              => 'required',
+        'item_code'         => 'nullable|unique:pgsql.laravel.ingredients,item_code',
+        'name'              => 'required|string|max:255',
         'category_id'       => 'required|exists:pgsql.laravel.ingredient_categories,id',
         'primary_unit_id'      => 'required|exists:pgsql.laravel.units,id',
         'secondary_unit_id'    => 'required|exists:pgsql.laravel.units,id',
         'conversion_factor' => 'required|numeric|min:0.01',
         'purchase_price'    => 'required|numeric|min:0',
         'stock_quantity'    => 'required|numeric|min:0',
+        //optional data
+        'alert_threshold'   => 'nullable|numeric|min:0',
+        'description'       => 'nullable|string|max:1000',
         ]);
+
+        $validated['created_at'] = now();
+        $validated['updated_at'] = now();
         DB::table('laravel.ingredients')->insert($validated);
         return back()->with('success', 'Ingredient added successfully!');
     }
@@ -50,11 +56,13 @@ class IngredientController extends Controller
     public function update(Request $request, $id)
 {
     $validated = $request->validate([
-        'name' => 'required',
-        'category_id' => 'required',
-        'purchase_price' => 'required|numeric',
-        'stock_quantity' => 'required|numeric',
+        'name' => 'required|string|max:255',
+        'category_id' => 'required|exists:pgsql.laravel.ingredient_categories,id',
+        'purchase_price' => 'required|numeric|min:0',
+        'stock_quantity' => 'required|numeric|min:0',
     ]);
+
+    $validated['updated_at'] = now();
 
     DB::table('laravel.ingredients')->where('id', $id)->update($validated);
     return back()->with('success', 'Updated successfully!');
