@@ -167,6 +167,14 @@
 }
 
 /*
+  position
+*/
+
+.pos-relative{
+  position: relative;
+}
+
+/*
   border
 */
 .border{
