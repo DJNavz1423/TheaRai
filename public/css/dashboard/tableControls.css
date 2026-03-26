@@ -1,0 +1,33 @@
+/* 
+  Table Controls
+*/
+
+.table-controls{
+  position: relative;
+}
+
+.searchbox{
+  position: relative;
+  width: 300px;
+  align-items: center;
+}
+
+.searchbox .icon-wrapper{
+  position: absolute;
+  position-anchor: --searchbox_input;
+  top: anchor(top);
+  bottom: anchor(bottom);
+  left: calc(anchor(left) + 15px);
+
+  svg{
+    fill: var(--secondary-light);
+  }
+}
+
+.searchBar{
+  background: none;
+  anchor-name: --searchbox_input;
+  padding: 10px 16px 10px 40px;
+  border-radius: 8px;
+  border-color: var(--secondary-light);
+}

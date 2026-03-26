@@ -114,7 +114,7 @@
                 </span>
             </div>
             <div class="modal-body">
-                <div class="row">
+                <div class="row">   
                     <div class="input-group">
                         <label for="name">Item Name</label>
                         <input type="text" name="name" id="name" placeholder="e.g., Chicken" required>
@@ -179,7 +179,7 @@
                         <div class="row">
                             <div class="input-group">
                                 <label for="stock-qty">Opening Stock</label>
-                                <input type="number" step="0.01" min="0" name="stock_quantity" id="stock-qty" value="0">
+                                <input type="number" step="0.01" min="0" name="stock_quantity" id="stock-qty">
                             </div>
 
                             <div class="input-group">
@@ -257,67 +257,16 @@
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
         <link rel="stylesheet" href="{{ asset('css/dashboard/inventory.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+        
     @endpush
 @endonce
 
 @once
     @push('scripts')
-        <script type="text/javascript" src="{{ asset('js/dashboard/searchDataSet.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
-        <script>
-    document.querySelectorAll('.unit-selector').forEach((el) => {
-        new TomSelect(el, {
-            create: false,
-            maxItems: 1,
-            placeholder: el.getAttribute('placeholder'),
-            closeAfterSelect: true, 
-            
-            onItemAdd: function() {
-                this.blur(); 
-                this.wrapper.classList.remove('is-typing'); 
-            },
-
-            onChange: function(value) {
-                if (!value || value === "") {
-                    this.clear(); 
-                    const emptyItem = this.control.querySelector('.item');
-                    if (emptyItem) emptyItem.remove();
-                    this.wrapper.classList.remove('is-typing');
-                }
-            },
-
-            onBlur: function() {
-                this.wrapper.classList.remove('is-typing');
-                this.control_input.value = ''; // Instantly clears leftover text
-            },
-
-            onInitialize: function() {
-                // 1. NATIVE INSTANT TYPING LISTENER (Bypasses Tom Select's lag)
-                this.control_input.addEventListener('input', () => {
-                    if (this.control_input.value.length > 0) {
-                        this.wrapper.classList.add('is-typing');
-                    } else {
-                        this.wrapper.classList.remove('is-typing');
-                    }
-                });
-
-                // 2. FORCE CLOSE if they click the already-selected option
-                this.dropdown.addEventListener('click', (e) => {
-                    const option = e.target.closest('.option');
-                    if (option && option.classList.contains('selected')) {
-                        this.blur();
-                    }
-                });
-            },
-
-            render: {
-                no_results: function(data, escape) {
-                    return '<div class="no-results">No units found for "' + escape(data.input) + '"</div>';
-                },
-            }
-        });
-    });
-</script>
+        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
     @endpush
 @endonce
