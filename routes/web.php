@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\MenuController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -29,7 +30,7 @@ Route::middleware(['auth'])->group(function(){
     #dashboard route
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])
         ->middleware('role:admin')
-        ->name('admin.dashboard');
+        ->name('admin.index');
 
     #Inventory routes
       // 1. READ (The list)
@@ -50,10 +51,6 @@ Route::middleware(['auth'])->group(function(){
         return view('staff.pos');
     })->middleware('role:admin|staff');
 
-    Route::get('/cook/dashboard', function(){ //allowed if user is logged in and has a role of cook
-        return view('cook.dashboard');
-    })->middleware('role:cook');
-
      # User Management Routes
     Route::get('/admin/users', [UserController::class, 'index'])
         ->middleware('role:admin')
@@ -62,6 +59,19 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/admin/users', [UserController::class, 'store'])
         ->middleware('role:admin')
         ->name('admin.users.store');
+
+    /*
+        menu routes
+    */
+    // The GET route to view the page (hits the index method)
+    Route::get('/admin/menu', [MenuController::class, 'index'])
+        ->middleware('role:admin')
+        ->name('admin.menu.index');
+
+    // The POST route when the modal form is submitted (hits the store method)
+    Route::post('/admin/menu', [MenuController::class, 'store'])
+        ->middleware('role:admin')
+        ->name('admin.menu.store');
 });
 
 
