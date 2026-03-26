@@ -7,6 +7,7 @@
     border-color: var(--secondary-soft);
     border-width: 1px;
     border-radius: 8px;
+    overflow: hidden;
   }
   .table-container table{
     width: 100%;
@@ -69,7 +70,7 @@
   } 
   
   .item-data{
-    max-width: 10rem;
+    max-width: 8rem;
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
