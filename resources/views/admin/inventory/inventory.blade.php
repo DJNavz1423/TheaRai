@@ -38,7 +38,7 @@
     </div>
 
     <div class="container table-container border">
-        <table>
+        <table role="table">
             <thead>
                 <tr>
                     <th>Item Name</th>
@@ -49,10 +49,10 @@
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody role="rowgroup">
                 @foreach($ingredients as $item)
-                <tr>
-                    <td>
+                <tr role="row">
+                    <td data-cell="name" role="cell">
                         <div class="d-flex item-group">
                             <span class="item-img">
                                 @empty($item->img_url)
@@ -69,7 +69,7 @@
                         </div>
                     </td>
 
-                    <td>
+                    <td data-cell="code" role="cell">
                         @empty($item->item_code)
                         --
                         @else
@@ -77,12 +77,12 @@
                         @endempty
                     </td>
 
-                    <td><span class="item-data">{{ $item->category_name }}</span></td>
-                    <td>
+                    <td data-cell="category" role="cell"><span class="item-data">{{ $item->category_name }}</span></td>
+                    <td data-cell="price" role="cell">
                         <span class="item-data">&#8369;{{ $item->purchase_price }} / </span>
                         <span class="item-data">{{ $item->primary_unit_abbr }}</span>
                     </td>
-                    <td>
+                    <td data-cell="quantity" role="cell">
                         <div class="d-flex item-group">
                             <span class="item-data">{{ $item->stock_quantity }} {{ $item->primary_unit_abbr }} </span>
 
@@ -256,9 +256,10 @@
 @once
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/inventory.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/dashboard/inventory/inventory.css') }}">
         <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/dashboard/modal.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
         
     @endpush

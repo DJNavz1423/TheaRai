@@ -30,7 +30,7 @@
         </div>
 
         <div class="container table-container border mb-5">
-        <table>
+        <table role="table">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -40,22 +40,22 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
                 @foreach($users as $user)
-                <tr>
-                    <td>
+                <tr role="row">
+                    <td data-cell="name" role="cell">
                         <div class="d-flex item-group">
                             <span class="item-data">{{ $user->name }}</span>
                         </div>
                     </td>
-                    <td><span class="item-data">{{ $user->email }}</span></td>
-                    <td>
+                    <td data-cell="email" role="cell"><span class="item-data">{{ $user->email }}</span></td>
+                    <td data-cell="role" role="cell">
                         <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}">
                             {{ ucfirst($user->role) }}
                         </span>
                     </td>
-                    <td><span class="item-data">{{ $user->created_at ? $user->created_at->format('M d, Y') : '--' }}</span></td>
-                    <td>
+                    <td data-cell="date" role="cell"><span class="item-data">{{ $user->created_at ? $user->created_at->format('M d, Y') : '--' }}</span></td>
+                    <td data-cell="actions" role="cell">
                         <button class="more-actions">
                             <span class="icon-wrapper">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>
@@ -110,5 +110,6 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard/peopleMng/users.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard/modal.css') }}">
     @endpush
 @endonce

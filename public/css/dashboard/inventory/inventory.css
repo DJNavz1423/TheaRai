@@ -1,0 +1,57 @@
+.row > *{
+  width: unset;
+}
+
+.heading{
+  font-size: 2rem;
+  color: var(--secondary-deep);
+}
+
+.container:first-child .row:first-child{
+  justify-content: space-between;
+}
+
+.heading-btn-row{
+  align-items: center;
+  justify-content: center;
+  gap:12px;
+}
+
+.heading-btn-row .btn:first-child{
+  padding: 8px;
+  background: none;
+  border-radius: 8px;
+  border: 1.5px solid var(--secondary-soft);
+
+  svg{
+    fill: var(--secondary-light);
+  }
+  transition: 200ms ease;
+}
+.heading-btn-row .btn:first-child:hover{
+  svg{
+    fill: var(--secondary);
+  }
+}
+
+#addButton{
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  letter-spacing: normal;
+  font-weight: 600;
+}
+
+/*
+  tab
+*/
+
+.tab-container{
+  flex-direction: column;
+}
+
