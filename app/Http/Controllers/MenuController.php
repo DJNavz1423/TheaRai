@@ -23,9 +23,10 @@ class MenuController extends Controller
 
         // 3. Get ingredients for the Javascript Recipe Builder
         // We only need specific columns here to keep the JSON payload light
-        $ingredients = DB::table('laravel.ingredients')
-            ->select('id', 'name', 's_unit_price', 'secondary_unit_id')
-            ->orderBy('name')
+        $ingredients = DB::table('laravel.ingredients as ingredient')
+            ->join('laravel.units as p_unit', 'ingredient.primary_unit_id','=', 'p_unit.id')
+            ->join('laravel.units as s_unit', 'ingredient.secondary_unit_id','=', 's_unit.id')
+            ->select('ingredient.id', 'ingredient.name', 'ingredient.s_unit_price', 'ingredient.purchase_price', 'p_unit.abbreviation as primary_unit_abbr', 's_unit.abbreviation as secondary_unit_abbr')
             ->get();
 
         // Return the view and pass the data
@@ -33,7 +34,7 @@ class MenuController extends Controller
     }
 
     public function store(Request $request){
-        $validate = $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|integer',
             'final_price' => 'required|numeric|min:0',

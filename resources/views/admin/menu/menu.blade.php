@@ -37,7 +37,7 @@
         </div>
 
         <div class="container table-container border">
-            <table>
+            <table role="table">
                 <thead>
                     <tr>
                         <th>Dish Name</th>
@@ -47,10 +47,10 @@
                     </tr>
                 </thead>
 
-                <tbody>
+                <tbody role="rowgroup">
                     @foreach($menuItems as $dish)
-                    <tr>
-                        <td>
+                    <tr role="row">
+                        <td role="cell" data-cell="name">
                             <div class="d-flex item-group">
                                 <span class="item-img">
                                     @empty($dish->img_url)
@@ -63,13 +63,13 @@
                             </div>
                         </td>
 
-                        <td><span class="item-data">{{ $dish->category_name ?? 'Uncategorized' }}</span></td>
+                        <td role="cell" data-cell="category"><span class="item-data">{{ $dish->category_name ?? 'Uncategorized' }}</span></td>
                         
-                        <td>
+                        <td role="cell" data-cell="price">
                             <span class="item-data text-success fw-bold">&#8369;{{ number_format($dish->final_price, 2) }}</span>
                         </td>
                         
-                        <td class="text-end">
+                        <td role="cell" data-cell="actions" class="text-end">
                             <button class="more-actions">
                                 <span class="icon-wrapper">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>
@@ -101,7 +101,7 @@
                     <div class="row">
                         <div class="input-group">
                             <label for="name">Dish Name</label>
-                            <input type="text" name="name" id="name" placeholder="e.g., Chicken Adobo" required>
+                            <input type="text" name="name" id="name" placeholder="e.g., Bulalo" required>
                         </div>
                         <div class="input-group">
                             <label for="category">Category</label>
@@ -121,45 +121,89 @@
                                 <thead>
                                     <tr class="border-b">
                                         <th class="border-r">S.N</th>
-                                        <th class="border-r">Ingredient Name</th>
+                                        <th class="border-r">Ingredient</th>
                                         <th class="border-r">Quantity Per Serve</th>
                                         <th class="border-r">Unit Cost</th>
                                         <th>Cost Per Serve</th>
                                     </tr>
                                 </thead>
 
-                                <tbody>
+                                <tbody id="recipe-list">
+                                    <tr class="recipe-row">
+                                        <td><span class="serial-number">1</span></td>
+                                        <td>
+                                            <select name="ingredients[0][ingredient_id]" class="recipe-select" required>
+                                                <option value="" class="d-none"></option>
+                                                @foreach($ingredients as $ingredient)
+                                                    <option value="{{ $ingredient->id }}" 
+                                                        data-pcost="{{ $ingredient->purchase_price }}" 
+                                                        data-scost="{{ $ingredient->s_unit_price }}" 
+                                                        data-pabbr="{{ $ingredient->primary_unit_abbr }}" 
+                                                        data-sabbr="{{ $ingredient->secondary_unit_abbr }}">
+                                                        {{ $ingredient->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <input type="number" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="1" required>
+
+                                                <select name="ingredients[0][unit_type]"  class="unit-toggle">
+                                                    <option value="" class="d-none">Unit</option>
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="unit-cost-display"></span>
+                                            <input type="hidden" class="active-unit-cost" value="0">
+                                        </td>
+                                        <td>
+                                            <div>
+                                                <span class="line-cost-display">&#8369;0.00</span>
+                                                <button class="remove-row">
+                                                    <span class="icon-wrapper">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                                <tfoot>
                                     <tr>
                                         <td colspan="3" class="border-r">
-                                            <button class="btn">
+                                            <button class="btn" type="button" id="addIngredientBtn">
                                                 <span class="icon-wrapper">
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
                                                 </span>
-
                                                 <span>Add Ingredient</span>
                                             </button>
                                         </td>
                                         <td><span>Sub-Total</span></td>
-                                        <td></td>
+                                        <td>
+                                            <span id="sub-total-display">&#8369;0.00</span>
+                                        </td>
                                     </tr>
-                                </tbody>
+                                </tfoot>
                             </table>
                         </div>
                         
                         <div class="row">
                             <div class="input-group">
-                                <label for="q-factor">Q-Factor (10%)</label>
-                                <input type="number" name="q_factor" id="q-factor" required readonly>
+                                <span for="q-factor">Q-Factor (10%)</span>
+                                <span id="q-factor-display">&#8369;0.00</span>
                             </div>
 
                             <div class="input-group">
                                 <label for="margin">Target Margin (%)</label>
-                                <input type="number" name="margin" id="margin" required value="">
+                                <input type="number" name="margin" id="margin" required value="70">
                             </div>
 
                             <div class="input-group">
-                                <label for="calculated-price">Suggested Price</label>
-                                <input type="number" name="calculated_price" id="calculated-price" readonly>
+                                <span>Suggested Price</span>
+                                <span id="suggested-price-display">&#8369;0.00</span>
                             </div>
                         </div>
 
@@ -188,6 +232,7 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard/menu/menuItems.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dashboard/modal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
   @endpush
@@ -196,92 +241,169 @@
 @once
   @push('scripts')
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
   <script>
-            // 1. Initialize standard TomSelect for the Category dropdown
-            new TomSelect('#category', { create: false, maxItems: 1 });
-
-            // 2. Load the ingredients from your database into Javascript
             const ingredientsData = @json($ingredients);
-            let rowCount = 0;
+    let rowCount = 1; 
 
-            // 3. Logic to add a new Recipe Row
-            document.getElementById('addIngredientBtn').addEventListener('click', function() {
-                const container = document.getElementById('recipe-list');
-                
-                // Build the HTML for the new row
-                const row = document.createElement('div');
-                row.className = 'row mb-2 d-flex align-items-end recipe-row';
-                row.innerHTML = `
-                    <div class="input-group flex-grow-1 me-2">
-                        <label>Ingredient</label>
-                        <select name="ingredients[${rowCount}][ingredient_id]" class="recipe-select" required>
-                            <option value="">Select...</option>
-                            ${ingredientsData.map(i => `<option value="${i.id}" data-cost="${i.s_unit_price}">${i.name}</option>`).join('')}
-                        </select>
-                    </div>
-                    <div class="input-group" style="width: 120px;">
-                        <label>Qty Used</label>
-                        <input type="number" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" required>
-                    </div>
-                    <div class="input-group ms-2" style="width: 120px;">
-                        <label>Cost</label>
-                        <input type="text" class="line-cost" readonly style="background:#eee;">
-                    </div>
-                    <button type="button" class="btn btn-sm btn-danger ms-2 remove-row" style="height: 40px;">X</button>
-                `;
-                
-                container.appendChild(row);
-                
-                // Initialize TomSelect for this specific new dropdown
-                const selectEl = row.querySelector('.recipe-select');
-                new TomSelect(selectEl, { create: false, maxItems: 1 });
+    const ingredientOptions = ingredientsData.map(i => {
+        return `<option value="${i.id}" 
+            data-pcost="${i.purchase_price}" 
+            data-scost="${i.s_unit_price}" 
+            data-pabbr="${i.primary_unit_abbr}" 
+            data-sabbr="${i.secondary_unit_abbr}">
+            ${i.name}
+        </option>`;
+    }).join('');
 
-                // Add Event Listeners for Live Math
-                selectEl.tomselect.on('change', calculateAll);
-                row.querySelector('.recipe-qty').addEventListener('input', calculateAll);
-                row.querySelector('.remove-row').addEventListener('click', function() {
-                    row.remove();
-                    calculateAll();
-                });
+    function attachRowListeners(row) {
+        // Grab all our elements for this specific row
+        const selectEl = row.querySelector('.recipe-select');
+        const unitToggle = row.querySelector('.unit-toggle');
+        const qtyInput = row.querySelector('.recipe-qty');
+        const activeCostInput = row.querySelector('.active-unit-cost');
+        const unitCostDisplay = row.querySelector('.unit-cost-display');
+        
+        // Initialize TomSelect on the ingredient dropdown
+        new TomSelect(selectEl, { create: false, maxItems: 1 });
 
-                rowCount++;
-            });
-
-            // 4. The Live Math Engine
-            function calculateAll() {
-                let totalCost = 0;
-
-                // Loop through every recipe row
-                document.querySelectorAll('.recipe-row').forEach(row => {
-                    const select = row.querySelector('.recipe-select');
-                    const qty = parseFloat(row.querySelector('.recipe-qty').value) || 0;
-                    
-                    if (select.value) {
-                        // Find the cost per unit from the <option> data attribute
-                        const selectedOption = select.options[select.selectedIndex];
-                        const costPerUnit = parseFloat(selectedOption.getAttribute('data-cost')) || 0;
-                        
-                        const lineCost = costPerUnit * qty;
-                        totalCost += lineCost;
-                        row.querySelector('.line-cost').value = '₱' + lineCost.toFixed(2);
-                    }
-                });
-
-                // Update Total Cost
-                document.getElementById('calc-total-cost').value = '₱' + totalCost.toFixed(2);
-
-                // Update Suggested Price
-                const margin = parseFloat(document.getElementById('calc-margin').value) || 0;
-                let suggested = 0;
-                if (margin < 100 && totalCost > 0) {
-                    suggested = totalCost / (1 - (margin / 100));
-                }
-                document.getElementById('calc-suggested').value = '₱' + suggested.toFixed(2);
+        // When the Ingredient changes...
+        selectEl.tomselect.on('change', function(val) {
+            // Reset if they clear the dropdown
+            if(!val) {
+                unitToggle.innerHTML = '<option value="" class="d-none">Unit</option>';
+                activeCostInput.value = 0;
+                unitCostDisplay.textContent = '₱0.00';
+                calculateAll();
+                return;
             }
 
-            // Listen for margin changes
-            document.getElementById('calc-margin').addEventListener('input', calculateAll);
+            // THE FIX: We must query the original HTML element to get the data attributes
+            const originalOption = selectEl.querySelector(`option[value="${val}"]`);
+            
+            // Now we can safely read the dataset and build the unit dropdown
+            unitToggle.innerHTML = `
+                <option value="secondary" data-cost="${originalOption.dataset.scost}">${originalOption.dataset.sabbr}</option>
+                <option value="primary" data-cost="${originalOption.dataset.pcost}">${originalOption.dataset.pabbr}</option>
+            `;
+            
+            // Tell the unit dropdown to update the costs
+            unitToggle.dispatchEvent(new Event('change'));
+        });
+
+        // When Unit toggles, grab the cost directly from the dataset
+        unitToggle.addEventListener('change', function() {
+            // This is a standard HTML select, so this works normally
+            const selectedOpt = this.options[this.selectedIndex];
+            if(!selectedOpt || !selectedOpt.value) return; 
+            
+            const cost = parseFloat(selectedOpt.getAttribute('data-cost')) || 0;
+            activeCostInput.value = cost;
+            unitCostDisplay.textContent = `₱${cost.toFixed(2)} / ${selectedOpt.text}`;
+            calculateAll();
+        });
+
+        // Recalculate if quantity is typed
+        qtyInput.addEventListener('input', calculateAll);
+
+        // Handle deleting the row
+        row.querySelector('.remove-row').addEventListener('click', function() {
+            if (document.querySelectorAll('.recipe-row').length > 1) {
+                row.remove();
+                updateSerialNumbers();
+                calculateAll();
+            } else {
+                alert("You must have at least one ingredient row.");
+            }
+        });
+    }
+
+    // Initialize the hardcoded row
+    document.querySelectorAll('.recipe-row').forEach(row => attachRowListeners(row));
+
+    // Add Row logic
+    document.getElementById('addIngredientBtn').addEventListener('click', function() {
+        const container = document.getElementById('recipe-list');
+        const row = document.createElement('tr');
+        row.className = 'recipe-row';
+        
+        row.innerHTML = `
+            <td><span class="serial-number"></span></td>
+            <td>
+                <select name="ingredients[${rowCount}][ingredient_id]" class="recipe-select" required>
+                    <option value="" class="d-none"></option>
+                    ${ingredientOptions}
+                </select>
+            </td>
+            <td>
+                <div>
+                    <input type="number" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="1" required>
+                    <select name="ingredients[${rowCount}][unit_type]" class="unit-toggle">
+                        <option value="" class="d-none">Unit</option>
+                    </select>
+                </div>
+            </td>
+            <td>
+                <span class="unit-cost-display">₱0.00</span>
+                <input type="hidden" class="active-unit-cost" value="0">
+            </td>
+            <td>
+                <div>
+                    <span class="line-cost-display">₱0.00</span>
+                    <button type="button" class="remove-row">
+                        <span class="icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
+                        </span>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        container.appendChild(row);
+        attachRowListeners(row);
+        updateSerialNumbers();
+        rowCount++;
+    });
+
+    function updateSerialNumbers() {
+        document.querySelectorAll('.recipe-row').forEach((row, index) => {
+            row.querySelector('.serial-number').textContent = index + 1;
+        });
+    }
+
+    // The Core Math Engine
+    function calculateAll() {
+        let subTotal = 0;
+
+        document.querySelectorAll('.recipe-row').forEach(row => {
+            const qty = parseFloat(row.querySelector('.recipe-qty').value) || 0;
+            // Uses the DB cost saved in the hidden input
+            const unitCost = parseFloat(row.querySelector('.active-unit-cost').value) || 0;
+            
+            // Calculate Cost Per Serve
+            const lineCost = qty * unitCost;
+            subTotal += lineCost;
+            
+            row.querySelector('.line-cost-display').textContent = '₱' + lineCost.toFixed(2);
+        });
+
+        // 10% Q-Factor
+        const qFactor = subTotal * 0.10; 
+        const totalCost = subTotal + qFactor;
+        const marginPct = parseFloat(document.getElementById('margin').value) || 0;
+        
+        let suggested = 0;
+        if (marginPct < 100 && totalCost > 0) {
+            suggested = totalCost / (1 - (marginPct / 100));
+        }
+
+        // Update spans
+        document.getElementById('sub-total-display').textContent = '₱' + subTotal.toFixed(2);
+        document.getElementById('q-factor-display').textContent = '₱' + qFactor.toFixed(2);
+        document.getElementById('suggested-price-display').textContent = '₱' + suggested.toFixed(2);
+    }
+
+    document.getElementById('margin').addEventListener('input', calculateAll);
         </script>
   @endpush
 @endonce
