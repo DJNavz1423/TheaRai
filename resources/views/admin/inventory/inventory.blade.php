@@ -4,7 +4,6 @@
 @section('title', 'Inventory')
 
 @section('content')
-<section id="inventory">
  <div class="container">
     <div class="row mb-4">
         <h1 class="heading">Item List ({{ count($ingredients) }})</h1>
@@ -35,6 +34,7 @@
 
             <input type="text" id="ingredientSearch" class="border searchBar" placeholder="Search products...">
         </div>
+        <div class="filters"></div>
     </div>
 
     <div class="container table-container border">
@@ -250,7 +250,6 @@
     </div>
 @endif
 -->
-</section>
 @endsection
 
 @once

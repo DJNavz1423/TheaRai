@@ -3,7 +3,6 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<section id="dashboard">
   <div class="container">
     <div class="row mb-5">
       <h1 class="heading">Welcome back Admin</h1>
@@ -117,7 +116,6 @@
       <div class="col"></div>
     </div>
   </div>
-</section>
 @endsection
 
 @once
