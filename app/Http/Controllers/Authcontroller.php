@@ -34,8 +34,7 @@ class Authcontroller extends Controller
             $user = Auth::user(); 
             return match($user->role){
                 'admin' => redirect()->intended('/admin/dashboard'),
-                'staff' => redirect()->intended('/staff/POS'),
-                'cook' => redirect()->intended('/cook/kitchen'),
+                'staff' => redirect()->intended('/cashier/pos'),
                 default => redirect('/login'),
             };
         }
