@@ -3,6 +3,7 @@ document.querySelectorAll('.unit-selector').forEach((el) => {
             create: false,
             maxItems: 1,
             placeholder: el.getAttribute('placeholder'),
+            dropdownParent: 'body',
             closeAfterSelect: true, 
             
             onItemAdd: function() {

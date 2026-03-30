@@ -121,7 +121,7 @@
                             <thead>
                                 <tr class="border-b">
                                     <th class="border-r">S.N</th>
-                                    <th class="border-r">Ingredient</th>
+                                    <th class="border-r">Ingredient Item Name</th>
                                     <th class="border-r">Quantity Per Serve</th>
                                     <th class="border-r">Unit Cost</th>
                                     <th>Cost Per Serve</th>
@@ -198,7 +198,7 @@
 
                         <div class="input-group">
                             <label for="margin">Target Margin (%)</label>
-                            <input type="number" name="margin" id="margin" required value="70">
+                            <input type="number" name="margin" id="margin" required value="30">
                         </div>
                     </div>
 
@@ -264,7 +264,7 @@
         const unitCostDisplay = row.querySelector('.unit-cost-display');
         
         // Initialize TomSelect on the ingredient dropdown
-        new TomSelect(selectEl, { create: false, maxItems: 1 });
+        new TomSelect(selectEl, { create: false, maxItems: 1, dropdownParent: 'body' });
 
         // When the Ingredient changes...
         selectEl.tomselect.on('change', function(val) {
