@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\PosController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -47,8 +48,8 @@ Route::middleware(['auth'])->group(function(){
     // 4. DELETE (Removing an item)
     Route::delete('/admin/inventory/{id}', [IngredientController::class, 'destroy'])->middleware('role:admin');
 
-    Route::get('/staff/pos', function(){ //allowed if user is logged in and has a role of staff
-        return view('staff.pos');
+    Route::get('/cashier/pos', function(){ //allowed if user is logged in and has a role of staff
+        return view('pos.pos');
     })->middleware('role:admin|staff');
 
      # User Management Routes
@@ -72,6 +73,17 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/admin/menu', [MenuController::class, 'store'])
         ->middleware('role:admin')
         ->name('admin.menu.store');
+
+    /*
+        POS routes
+    */
+    Route::get('/cashier/pos', [PosController::class, 'index'])
+        ->middleware('role:admin|staff')
+        ->name('cashier.pos');
+
+    Route::post('/cashier/pos/order', [PosController::class, 'processOrder'])
+        ->middleware('role:admin|staff')
+        ->name('cashier.pos.order');
 });
 
 

@@ -52,7 +52,7 @@ class MenuController extends Controller
                 'created_at' => now()
             ]);
 
-            if(!empty($validate['ingredients'])){
+            if(!empty($validated['ingredients'])){
                 $pivotData = [];
                 foreach($validated['ingredients'] as $item){
                     $pivotData[] = [
