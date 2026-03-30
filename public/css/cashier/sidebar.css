@@ -1,0 +1,13 @@
+#sidebar.close{
+  width: 0px;
+  padding: 0px;
+}
+
+#header-toggle-btn {
+  transition: opacity 300ms ease, visibility 300ms ease;
+}
+
+.hidden-btn {
+  opacity: 0;
+  visibility: hidden; 
+}
