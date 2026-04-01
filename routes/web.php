@@ -28,52 +28,39 @@ Route::post('/logout', [AuthController::class, 'logout'])
 // auth middleware | check if user is logged in before letting them inside this group
 Route::middleware(['auth'])->group(function(){
 
-    #dashboard route
-    Route::get('/admin/dashboard', [DashboardController::class, 'index'])
-        ->middleware('role:admin')
-        ->name('admin.index');
+    Route::prefix('admin')->middleware('role:admin')->group(function(){
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.index');
 
-    #Inventory routes
-      // 1. READ (The list)
-    Route::get('/admin/inventory', [IngredientController::class, 'index'])
-        ->middleware('role:admin')
+
+        Route::get('/inventory', [IngredientController::class, 'index'])
         ->name('admin.inventory.index');
 
-    // 2. CREATE (Saving the new ingredient)
-    Route::post('/admin/inventory', [IngredientController::class, 'store'])->middleware('role:admin');
+        Route::post('/inventory', [IngredientController::class, 'store']);
 
-    // 3. UPDATE (Saving edits)
-    Route::put('/admin/inventory/{id}', [IngredientController::class, 'update'])->middleware('role:admin');
+        Route::put('/inventory/{id}', [IngredientController::class, 'update']);
 
-    // 4. DELETE (Removing an item)
-    Route::delete('/admin/inventory/{id}', [IngredientController::class, 'destroy'])->middleware('role:admin');
+        Route::delete('/inventory/{id}', [IngredientController::class, 'destroy']);
 
+
+         # User Management Routes
+        Route::get('/users', [UserController::class, 'index'])
+        ->name('admin.peopleManagement.users');
+
+        Route::post('/users', [UserController::class, 'store'])
+        ->name('admin.users.store');
+
+
+        Route::get('/menu', [MenuController::class, 'index'])
+        ->name('admin.menu.index');
+
+        Route::post('/menu', [MenuController::class, 'store'])
+        ->name('admin.menu.store');
+    });
+    
     Route::get('/cashier/pos', function(){ //allowed if user is logged in and has a role of staff
         return view('pos.pos');
     })->middleware('role:admin|staff');
-
-     # User Management Routes
-    Route::get('/admin/users', [UserController::class, 'index'])
-        ->middleware('role:admin')
-        ->name('admin.peopleManagement.users');
-
-    Route::post('/admin/users', [UserController::class, 'store'])
-        ->middleware('role:admin')
-        ->name('admin.users.store');
-
-    /*
-        menu routes
-    */
-    // The GET route to view the page (hits the index method)
-    Route::get('/admin/menu', [MenuController::class, 'index'])
-        ->middleware('role:admin')
-        ->name('admin.menu.index');
-
-    // The POST route when the modal form is submitted (hits the store method)
-    Route::post('/admin/menu', [MenuController::class, 'store'])
-        ->middleware('role:admin')
-        ->name('admin.menu.store');
-
+    
     /*
         POS routes
     */
