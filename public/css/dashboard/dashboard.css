@@ -25,27 +25,24 @@
   display: inline-flex;
   padding: 10px 12px;
   border-radius: 6px;
-  font-weight: normal;
   letter-spacing: normal;
   background-color: var(--light-pure);
   border: 1px solid var(--primary);
-}
-.quick-btn a{
   font-size: 14px;
   font-weight: 600;
-  color: var(--dark);
   position: relative;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
   text-align: center;
+
+  .icon-wrapper svg{
+    transition: 400ms ease;
+  }
 }
 
 .quick-btn:first-child{
-  a{
-    color: var(--tertiary-light);
-  }
+  color: var(--tertiary-light);
 
   .icon-wrapper svg{
     fill: var(--tertiary-light);
@@ -53,27 +50,24 @@
 }
 
 .quick-btn:nth-child(2){
-  a{
-    color: var(--tertiary);
-  }
+  color: var(--tertiary);
+  
   .icon-wrapper svg{
     fill: var(--tertiary);
   }
 }
 
 .quick-btn:nth-child(3){
-  a{
-    color: var(--quinary);
-  }
+  color: var(--quinary);
+  
   .icon-wrapper svg{
     fill: var(--quinary);
   }
 }
 
 .quick-btn:last-child{
-  a{
-    color: var(--quaternary);
-  }
+  color: var(--quaternary);
+
   .icon-wrapper svg{
     fill: var(--quaternary);
   }
@@ -82,9 +76,9 @@
 .quick-btn:hover{
   background-color: var(--primary);
   border-color: var(--primary);
-  a{
+  
     color: var(--light-pure);
-  }
+
 
   .icon-wrapper svg{
     fill: var(--light-pure);
