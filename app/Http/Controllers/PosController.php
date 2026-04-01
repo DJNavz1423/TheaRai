@@ -9,13 +9,15 @@ use Illuminate\View\View;
 class PosController extends Controller
 {
     public function index() : View{
+      $layout = auth()->user()->role === 'admin' ? 'layouts.admin' : 'layouts.cashier';
+      
       $categories = DB::table('laravel.menu_categories')->get();
       
       $menuItems = DB::table('laravel.menu_items')
         ->where('final_price', '>', 0)
         ->get();
 
-        return view('pos.pos', compact('categories', 'menuItems'));
+        return view('pos.pos', compact('categories', 'menuItems', 'layout'));
     }
 
     public function processOrder(Request $request){
@@ -47,7 +49,7 @@ class PosController extends Controller
             'order_id' => $orderId,
             'menu_item_id' => $cartItem['id'],
             'quantity' => $cartItem['quantity'],
-            'price' => $cartItem['price'],
+            'price_at_time' => $cartItem['price'],
             'subtotal' => $cartItem['price'] * $cartItem['quantity'],
             'created_at' => now(),
           ]);
