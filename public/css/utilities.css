@@ -164,7 +164,26 @@
 
 .d-grid{
   display: grid !important;
+
 }
+/*
+flex utilities
+*/
+.flex-row{
+  flex-direction: row !important;
+}
+
+.flex-column{
+  flex-direction: column !important;
+}
+
+/*
+  gap
+*/
+.gap-1{
+  gap: 0.5rem !important;
+}
+
 
 /*
   position
