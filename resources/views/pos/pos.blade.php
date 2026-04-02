@@ -62,17 +62,34 @@
     </div>
 
     <div class="cart-footer">
-        <div class="cart-actions">
             <div class="row">
-                <div class="input-group">
-                <label for="cash-tendered">Cash Tendered</label>
-                <input type="number" id="cash-tendered" class="cash-input" min="1" step="0.01">
-            </div>
+                <div class="payment-method-section">
+                    <label for="payment-method">Payment Method</label>
+                    <select name="payment-method" id="payment-method">
+                        <option value="cash">Cash</option>
+                        <option value="digital">E-Wallet (e.g., Gcash, Maya)</option>
+                    </select>
+                </div>
 
-            <div class="input-group">
-                <label for="change-amount">Change</label>
-                <input type="text" id="change-amount" class="change-input" readonly value="&#8369;0.00">
-            </div>
+                <div id="cash-fields" class="row">
+                    <div class="input-group">
+                        <label for="cash-tendered">Cash Tendered</label>
+                        <input type="number" id="cash-tendered" class="cash-input" min="1" step="0.01">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="change-amount">Change</label>
+                        <input type="text" id="change-amount" class="change-input" readonly value="&#8369;0.00">
+                    </div>
+                </div>
+
+                <div id="digital-fields" class="row" style="display: none;">
+                    <div class="input-group">
+                        <label for="reference-number">Ref No. (Optional)</label>
+                        <input type="text" id="reference-number" placeholder="e.g., Gcash Transaction ID">
+                        <small class="text-muted">Exact amount recorded automatically.</small>
+                    </div>
+                </div>
             </div>
 
             <button type="button" id="checkoutBtn" class="btn checkout-btn">
@@ -83,7 +100,6 @@
                 </span>
             </button>
         </div>
-    </div>
   </div>
 @endsection
 
@@ -103,6 +119,7 @@
                 style: 'currency',
                 currency: 'PHP',
                 minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             });
 
             const menuItems = @json($menuItems);
@@ -116,6 +133,10 @@
             const checkoutBtn = document.getElementById('checkoutBtn');
             const cashTenderedInput = document.getElementById('cash-tendered');
             const changeAmountInput = document.getElementById('change-amount');
+            const paymentMethodSelect = document.getElementById('payment-method');
+            const cashFields = document.getElementById('cash-fields');
+            const digitalFields = document.getElementById('digital-fields');
+            const referenceNumberInput = document.getElementById('reference-number');
             
             //render menu items
             function renderMenu(items){
@@ -261,26 +282,41 @@
                 calculateChange();
             }
 
+            //toggle payment fields
+            paymentMethodSelect.addEventListener('change', (e) => {
+                const method = e.target.value;
+
+                if(method === 'digital'){
+                    cashFields.style.display = 'none';
+                    digitalFields.style.display = 'block';
+
+                    cashTenderedInput.value = '';
+                    changeAmountInput.value = formatPeso.format(0);
+                } else{
+                    cashFields.style.display = 'block';
+                    digitalFields.style.display = 'none';
+                    referenceNumberInput.value = '';
+                }
+            });
+
             // checkout | AJAX request
             checkoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
 
                 if(cart.length === 0) return;
 
-                checkoutBtn.disabled = true;
-                clearCartBtn.disabled = true;
-                checkoutBtn.innerHTML = 'Processing...';
-
+                const selectedMethod = paymentMethodSelect.value;
                 const cashTendered = parseFloat(cashTenderedInput.value) || 0;
                 const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-                if(cashTendered < totalAmount){
+                if(selectedMethod === 'cash' && cashTendered < totalAmount){
                     alert('Insufficient cash tendered!');
-                    checkoutBtn.disabled = false;
-                    clearCartBtn.disabled = false;
-                    checkoutBtn.innerHTML = 'Checkout';
                     return;
                 }
+
+                checkoutBtn.disabled = true;
+                clearCartBtn.disabled = true;
+                checkoutBtn.innerHTML = 'Processing...';
 
                 fetch("{{ route('cashier.pos.order') }}",{
                     method: 'POST',
@@ -291,7 +327,9 @@
                     body: JSON.stringify({
                         cart: cart,
                         total_amount: totalAmount,
-                        cash_tendered: cashTendered
+                        cash_tendered: selectedMethod === 'digital' ? totalAmount : cashTendered,
+                        payment_method: selectedMethod,
+                        reference_number: referenceNumberInput.value
                     })
                 })
                 .then(response => response.json())

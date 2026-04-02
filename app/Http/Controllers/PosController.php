@@ -28,6 +28,8 @@ class PosController extends Controller
         'cart.*.price' => 'required|numeric|min:0',
         'total_amount' => 'required|numeric|min:0',
         'cash_tendered' => 'required|numeric|min:0',
+        'payment_method' => 'required|string|in:cash,digital',
+        'reference_number' => 'nullable|string|max:255',
       ]);
 
       try{
@@ -41,6 +43,8 @@ class PosController extends Controller
           'total_amount' => $request->total_amount,
           'cash_tendered' => $request->cash_tendered,
           'change_amount' => $changeAmount,
+          'payment_method' => $request->payment_method,
+          'reference_number' => $request->reference_number,
           'created_at' => now(),
         ]);
 
@@ -85,8 +89,7 @@ class PosController extends Controller
         return response()->json([
           'success' => false,
           'error' => $e->getMessage(),
-          500
-        ]);
+                  ], 500);
       }
     }
 }
