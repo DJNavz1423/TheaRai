@@ -13,13 +13,6 @@
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-640q-33 0-56.5-23.5T200-720v-80q0-33 23.5-56.5T280-880h400q33 0 56.5 23.5T760-800v80q0 33-23.5 56.5T680-640H280Zm40-80h320q16 0 22.5-14.5T680-760q0-17-11.5-28.5T640-800H320q-17 0-28.5 11.5T280-760q11 11 17.5 25.5T320-720ZM160-80q-33 0-56.5-23.5T80-160v-40h800v40q0 33-23.5 56.5T800-80H160ZM80-240l139-313q10-22 30-34.5t43-12.5h376q23 0 43 12.5t30 34.5l139 313H80Zm260-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm120 160h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm120 160h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Zm0-80h40q8 0 14-6t6-14q0-8-6-14t-14-6h-40q-8 0-14 6t-6 14q0 8 6 14t14 6Z"/></svg>
           </span> <span>Quick POS</span>
           </a>
-        
-
-        <a href="#" target="_blank" class="quick-btn btn">
-          <span class="icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
-          </span> <span>Add Sales</span>
-          </a>
 
         <a href="#" target="_blank" class="quick-btn btn">
           <span class="icon-wrapper">
@@ -27,7 +20,7 @@
           </span><span>Add Purchases</span>
         </a>
         
-        <a href="#" target="_blank" class="quick-btn btn">
+        <a href="{{ url('/admin/inventory') }}" target="_blank" class="quick-btn btn">
           <span class="icon-wrapper">
           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-480q0-150 105-255t255-105v-40q0-12 11-18t21 2l125 94q16 12 16 32t-16 32l-125 94q-10 8-21 2t-11-18v-40q-91 0-155.5 64.5T260-480q0 33 9.5 63.5T296-360q11 16 9 34.5T288-296l-34 25q-18 14-40 11t-35-22q-29-43-44-93t-15-105Zm360 360v40q0 12-11 18t-21-2l-125-94q-16-12-16-32t16-32l125-94q10-8 21-2t11 18v40q91 0 155.5-64.5T700-480q0-33-9.5-63.5T664-600q-11-16-9-34.5t17-29.5l34-25q18-14 40-10.5t35 21.5q28 43 43.5 93T840-480q0 150-105 255T480-120Z"/></svg>
         </span><span>Restock Items</span>
@@ -43,7 +36,7 @@
       <a class="kpi-card border">
         <div class="kpi-content">
           <h3 class="kpi-label">Inventory Value</h3>
-          <data value="{{ $totalInventoryValue ?? 0 }}" class="kpi-value">&#8369;{{ number_format($totalInventoryValue ?? 0, 2) }}</data>
+          <data value="{{ $totalInventoryValue ?? 0 }}" class="kpi-value format-peso"></data>
           <p class="text-muted kpi-description">Total stock value</p>
         </div>
 
@@ -55,7 +48,7 @@
       <a class="kpi-card border">
         <div class="kpi-content">
           <h3 class="kpi-label">Sales <span class="month">({{ now()->format('F') }})</span></h3>
-            <data value="0" class="kpi-value">&#8369;0.00</data>
+            <data value="{{ $salesData->monthly_total ?? 0 }}" class="kpi-value format-peso"></data>
             <p class="text-muted kpi-description">Sales this month</p>
         </div>
 
@@ -67,7 +60,7 @@
       <a class="kpi-card border">
         <div class="kpi-content">
           <h3 class="kpi-label">Purchases <span class="month">({{ now()->format('F') }})</span></h3>
-          <data value="0" class="kpi-value">&#8369;0.00</data>
+          <data value="0" class="kpi-value format-peso"></data>
           <p class="text-muted kpi-description">Purchases this month</p>
         </div>
 
@@ -79,8 +72,11 @@
       <a class="kpi-card border">
         <div class="kpi-content">
           <h3 class="kpi-label">Today's Order</h3>
-          <data value="0" class="kpi-value">0</data>
-          <p class="text-muted kpi-description">Total: &#8369;0.00</p>
+          <data value="{{ $salesData->daily_count ?? 0}}" class="kpi-value">{{ $salesData->daily_count ?? 0 }}</data>
+          <span class="d-flex flex-row gap-1">
+            <p class="text-muted kpi-description">Total:</p>
+            <data value="{{ $salesData->daily_total ?? 0 }}" class="text-muted kpi-description format-peso"></data>
+          </span>
         </div>
 
         <span class="icon-wrapper kpi-icon">
@@ -111,7 +107,44 @@
         
       </div>
 
-      <div class="col"></div>
+      
+      <div id="lowstock-alert" class="col">
+        <div class="header">
+          <h2>Low Stock Items</h2>
+          <a href="#" class="view-all-link">Manage</a>
+        </div>
+
+        <div class="alert-list">
+          @if($lowStockItems->isEmpty())
+            <p class="text-muted">No low stock items.</p>
+          @else
+            @foreach($lowStockItems as $item)
+              <div class="alert-item">
+                <h3>{{ $item->name }}</h3>
+                <div class="alert-item-details">
+                  <span class="stock-qty">{{ $item->stock_quantity }} {{$item->primary_unit_abbr}}</span>
+                  <data value="{{ $item->purchase_price }}" class="stock-price format-peso">{{ $item->purchase_price }}</data>
+                </div>
+              </div>
+
+              @if($item->stock_quantity === 0)
+              <span id="no-stock" class="icon-wrapper alert-status">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M508.5-291.5Q520-303 520-320t-11.5-28.5Q497-360 480-360t-28.5 11.5Q440-337 440-320t11.5 28.5Q463-280 480-280t28.5-11.5Zm0-160Q520-463 520-480v-160q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640v160q0 17 11.5 28.5T480-440q17 0 28.5-11.5ZM346-160H240q-33 0-56.5-23.5T160-240v-106l-77-78q-11-12-17-26.5T60-480q0-15 6-29.5T83-536l77-78v-106q0-33 23.5-56.5T240-800h106l78-77q12-11 26.5-17t29.5-6q15 0 29.5 6t26.5 17l78 77h106q33 0 56.5 23.5T800-720v106l77 78q11 12 17 26.5t6 29.5q0 15-6 29.5T877-424l-77 78v106q0 33-23.5 56.5T720-160H614l-78 77q-12 11-26.5 17T480-60q-15 0-29.5-6T424-83l-78-77Zm34-80 100 100 100-100h140v-140l100-100-100-100v-140H580L480-820 380-720H240v140L140-480l100 100v140h140Zm100-240Z"/></svg>
+              </span>
+
+              @else
+              <span id="yes-stock" class="icon-wrapper alert-status">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M109-120q-11 0-20-5.5T75-140q-5-9-5.5-19.5T75-180l370-640q6-10 15.5-15t19.5-5q10 0 19.5 5t15.5 15l370 640q6 10 5.5 20.5T885-140q-5 9-14 14.5t-20 5.5H109Zm69-80h604L480-720 178-200Zm330.5-51.5Q520-263 520-280t-11.5-28.5Q497-320 480-320t-28.5 11.5Q440-297 440-280t11.5 28.5Q463-240 480-240t28.5-11.5Zm0-120Q520-383 520-400v-120q0-17-11.5-28.5T480-560q-17 0-28.5 11.5T440-520v120q0 17 11.5 28.5T480-360q17 0 28.5-11.5ZM480-460Z"/></svg>
+              </span>
+              @endif
+            @endforeach
+           @endif
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+
     </div>
   </div>
 @endsection
@@ -119,5 +152,27 @@
 @once
   @push('styles')
     <link rel="stylesheet" href="{{ asset('css/dashboard/dashboard.css') }}">
+  @endpush
+@endonce
+
+@once 
+  @push('scripts')
+    <script>
+      const formatPeso = new Intl.NumberFormat('en-PH', { 
+          style: 'currency', 
+          currency: 'PHP',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        const pesoElements = document.querySelectorAll('.format-peso');
+
+        pesoElements.forEach(el => {
+          const rawValue = parseFloat(el.getAttribute('value')) || 0;
+          el.textContent = formatPeso.format(rawValue);
+        });
+      });
+    </script>
   @endpush
 @endonce

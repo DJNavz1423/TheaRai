@@ -50,14 +50,6 @@
 }
 
 .quick-btn:nth-child(2){
-  color: var(--tertiary);
-  
-  .icon-wrapper svg{
-    fill: var(--tertiary);
-  }
-}
-
-.quick-btn:nth-child(3){
   color: var(--quinary);
   
   .icon-wrapper svg{
