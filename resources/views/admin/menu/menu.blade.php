@@ -14,7 +14,7 @@
                 </span>
             </a>
 
-            <button id="addButton" class="btn" type="button" onclick="document.getElementById('addMenuModal').style.display='block'">
+            <button id="addButton" class="btn" type="button" onclick="document.getElementById('addModal').style.display='flex'">
                 <span class="icon-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
                 </span>
@@ -85,16 +85,18 @@
 
 <!-- modal -->
 
-<div id="addModal" class="modal">
+<div id="addModal" class="modal" style="display: none;">
     <div class="modal-dialog">
         <form action="" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
                 <h2>Add New Dish</h2>
 
-                <span class="icon-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>
-                </span>
+                <button type="button" class="btn close-btn" onclick="document.getElementById('addModal').style.display='none'">
+                    <span class="icon-wrapper close-modal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>
+                    </span>
+                </button>
             </div>
 
             <div class="modal-body">
@@ -270,8 +272,9 @@
   @push('scripts')
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
   <script>
-            const ingredientsData = @json($ingredients);
+    const ingredientsData = @json($ingredients);
     let rowCount = 1; 
 
     const ingredientOptions = ingredientsData.map(i => {

@@ -65,6 +65,8 @@ class MenuController extends Controller
                 DB::table('laravel.menu_item_ingredient')->insert($pivotData);
             }
 
+            $this->logActivity('created', 'menu_item', $menuItemId, "Created new dish: {$validated['name']}");
+
             DB::commit();
             return back()->with('success', 'Menu item added successfully!');
         }catch(Exception $e){
