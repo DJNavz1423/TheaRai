@@ -17,7 +17,7 @@
         <a href="#" target="_blank" class="quick-btn btn">
           <span class="icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
-          </span><span>Add Purchases</span>
+          </span><span>Add Expenses</span>
         </a>
         
         <a href="{{ url('/admin/inventory') }}" target="_blank" class="quick-btn btn">
@@ -49,7 +49,7 @@
         <div class="kpi-content">
           <h3 class="kpi-label">Sales <span class="month">({{ now()->format('F') }})</span></h3>
             <data value="{{ $salesData->monthly_total ?? 0 }}" class="kpi-value format-peso"></data>
-            <p class="text-muted kpi-description">Sales this month</p>
+            <p class="text-muted kpi-description">(Cash & E-Cash)</p>
         </div>
 
         <span class="icon-wrapper kpi-icon">
@@ -59,9 +59,9 @@
 
       <a class="kpi-card border">
         <div class="kpi-content">
-          <h3 class="kpi-label">Purchases <span class="month">({{ now()->format('F') }})</span></h3>
-          <data value="0" class="kpi-value format-peso"></data>
-          <p class="text-muted kpi-description">Purchases this month</p>
+          <h3 class="kpi-label">Expenses <span class="month">({{ now()->format('F') }})</span></h3>
+          <data value="{{ $expensesData->monthly_total ?? 0 }}" class="kpi-value format-peso"></data>
+          <p class="text-muted kpi-description">(System Cash)</p>
         </div>
 
         <span class="icon-wrapper kpi-icon">
@@ -99,22 +99,70 @@
   </div>
 
 
+
   <!-- charts and tables | Chart section -->
   <div class="container">
     <div class="row">
       <!-- charts column -->
-      <div class="col">
-        
+      <div class="col dashboard-section">
+        <div class="section-header">
+          <h2>Cashflow Overview</h2>
+        </div>
+
+        <div class="input-group">
+          <select name="chart-timeframe" id="chart-timeframe" class="unit-selector">
+            <option value="{{ $dailyToken }}">Daily</option>
+            <option value="{{ $monthlyToken }}">Monthly</option>
+          </select>
+        </div>
+
+        <div class="chart-card">
+          <metabase-question
+            id="mb-chart"
+            token="{{ $dailyToken }}"
+            with-title="false"
+            with-downloads="false">
+          </metabase-question>
+        </div>
+
+        <div class="row">
+          <div id="moneyIn" class="total-group">
+            <div>
+              <span class="icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
+            </span>
+            <span>Total Money In</span>
+            </div>
+            
+            <data value="{{ $totalMoneyIn ?? 0 }}" class="format-peso"></data>
+          </div>
+
+          <div id="moneyOut" class="total-group">
+            <div>
+              <span class="icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
+            </span>
+            <span>Total Money Out</span>
+            </div>
+            
+            <data value="{{ $totalMoneyOut ?? 0 }}" class="format-peso"></data>
+          </div>
+        </div>
+
+        <div class="card">
+          <p class="text-muted">Total Cash in Hand</p>
+          <data value="{{ $currentCashBalance ?? 0 }}" class="format-peso"></data>
+        </div>
       </div>
 
       
-      <div id="lowstock-alert" class="col">
-        <div class="header">
+      <div class="col dashboard-section">
+        <div class="section-header">
           <h2>Low Stock Items</h2>
           <a href="#" class="view-all-link">Manage</a>
         </div>
 
-        <div class="alert-list">
+        <div class="alert-list list">
           @if($lowStockItems->isEmpty())
             <p class="text-muted">No low stock items.</p>
           @else
@@ -144,7 +192,59 @@
     </div>
 
     <div class="row">
+      <div class="dashboard-section">
+        <h2>Recent Activities</h2>
 
+        <div class="activity-list list">
+          @if($recentActivities->isEmpty())
+          <p class="text-muted">No recent activities today.</p>
+          @else
+            @foreach($recentActivities as $activity)
+              <div class="activity-item">
+                <span class="icon-wrapper">
+
+                </span>
+              </div>
+
+              <div class="activity-info">
+                <span class="activity-name">
+                {{ ucfirst($activity->action) }} {{ ucwords(str_replace('_', ' ', $activity->model_type)) }}
+                </span>
+
+                <span class="activity-details text-muted">
+                  {{ \Illuminate\Support\Str::limit($activity->description, 50)}} - {{ \Carbon\Carbon::parse($activity->created_at)->diffForHumans() }}
+                </span>
+              </div>
+            @endforeach
+          @endif
+        </div>
+      </div>
+
+
+      <div class="dashboard-section">
+        <h2>Recent Transactions</h2>
+        <div class="transaction-list list">
+          @if($recentTransactions->isEmpty())
+          <p class="text-muted">No recent transactions today.</p>
+          @else
+            @foreach($recentTransactions as $transaction)
+              <div class="activity-item">
+                <span class="icon-wrapper">
+                  
+                </span>
+
+                <div class="activity-info">
+                  <span class="activity-name">Order #{{ $transaction->id }} ({{ ucfirst($transaction->payment_method) }})</span>
+                  <span class="activity-details text-muted">
+                    <data value="{{ $transaction->total_amount }}" class="format-peso"></data>
+                    - {{ \Carbon\Carbon::parse($transaction->created_at)->diffForHumans() }}
+                  </span>
+                </div>
+              </div>
+            @endforeach
+          @endif
+        </div>
+      </div>
     </div>
   </div>
 @endsection
@@ -157,20 +257,28 @@
 
 @once 
   @push('scripts')
-    <script>
-      const formatPeso = new Intl.NumberFormat('en-PH', { 
-          style: 'currency', 
-          currency: 'PHP',
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-      
-      document.addEventListener('DOMContentLoaded', () => {
-        const pesoElements = document.querySelectorAll('.format-peso');
+    <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
+    <script defer src="http://localhost:3000/app/embed.js"></script>
 
-        pesoElements.forEach(el => {
-          const rawValue = parseFloat(el.getAttribute('value')) || 0;
-          el.textContent = formatPeso.format(rawValue);
+    <script>
+      function defineMetabaseConfig(config){
+        window.metabaseConfig = config;
+      }
+
+      defineMetabaseConfig({
+        "theme": {"preset": "light"},
+        "isGuest": true,
+        "instanceUrl": "http://localhost:3000"
+      });
+    </script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function(){
+        const timeframeSelect = document.getElementById('chart-timeframe');
+        const metabaseChart = document.getElementById('mb-chart');
+
+        timeframeSelect.addEventListener('change', function(){
+          metabaseChart.setAttribute('token', this.value);
         });
       });
     </script>
