@@ -9,6 +9,7 @@ use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PosController;
+use App\Http\Controllers\ExpenseController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -31,7 +32,7 @@ Route::middleware(['auth'])->group(function(){
     Route::prefix('admin')->middleware('role:admin')->group(function(){
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.index');
 
-
+        #inventory
         Route::get('/inventory', [IngredientController::class, 'index'])
         ->name('admin.inventory.index');
 
@@ -40,6 +41,10 @@ Route::middleware(['auth'])->group(function(){
         Route::put('/inventory/{id}', [IngredientController::class, 'update']);
 
         Route::delete('/inventory/{id}', [IngredientController::class, 'destroy']);
+
+        Route::post('/inventory/{id}/add-stock', [IngredientController::class, 'addStock']);
+        
+        Route::post('/inventory/{id}/reduce-stock', [IngredientController::class, 'reduceStock']);
 
 
          # User Management Routes
@@ -55,6 +60,13 @@ Route::middleware(['auth'])->group(function(){
 
         Route::post('/menu', [MenuController::class, 'store'])
         ->name('admin.menu.store');
+
+        #expense
+        Route::get('/expenses', [ExpenseController::class, 'index'])
+            ->name('admin.expenses');
+        
+        Route::post('/expenses/regular', [ExpenseController::class, 'storeRegular']);
+        Route::post('/expenses/restock', [ExpenseController::class, 'storeRestock']);
     });
     
     Route::get('/cashier/pos', function(){ //allowed if user is logged in and has a role of staff

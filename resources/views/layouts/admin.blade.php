@@ -91,13 +91,13 @@
         </li>
           <!-- end of sales -->
 
-        <li>
-          <a href="">
+        <li class="{{ request()->routeIs('admin.expenses') ? 'active' : '' }}">
+          <a href="{{ url('/admin/expenses') }}">
             <span class="icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h440q17 0 28.5 11.5T760-320q0 17-11.5 28.5T720-280H280q-45 0-68-39.5t-2-78.5l54-98-144-304H80q-17 0-28.5-11.5T40-840q0-17 11.5-28.5T80-880h65q11 0 21 6t15 17l27 57Zm134 280h280-280Z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M560-440q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM280-320q-33 0-56.5-23.5T200-400v-320q0-33 23.5-56.5T280-800h560q33 0 56.5 23.5T920-720v320q0 33-23.5 56.5T840-320H280Zm80-80h400q0-33 23.5-56.5T840-480v-160q-33 0-56.5-23.5T760-720H360q0 33-23.5 56.5T280-640v160q33 0 56.5 23.5T360-400Zm400 240H120q-33 0-56.5-23.5T40-240v-400q0-17 11.5-28.5T80-680q17 0 28.5 11.5T120-640v400h640q17 0 28.5 11.5T800-200q0 17-11.5 28.5T760-160ZM280-400v-320 320Z"/></svg>
             </span>
 
-            <span class="nav-item">Purchase</span>
+            <span class="nav-item">Expenses</span>
           </a>
         </li>
 
@@ -152,13 +152,21 @@
 
           <ul class="sub-menu">
             <div>
-              <li><a href="#">Manage Staffs</a></li>
               <li class="{{ request()->is('admin/users') ? 'active' : '' }}"><a href="{{ url('/admin/users') }}">User Accounts</a></li>
               <li><a href="#">Contacts</a></li>
             </div>
           </ul>
         </li>
         <!-- dropdown people management end -->
+
+        <li class="{{ request()->routeIs('') ? 'active' : '' }}">
+          <a href="{{ url('') }}">
+          <span class="icon-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v499q0 33-23.5 56.5T760-120H200Zm16-600h528l-34-40H250l-34 40Zm235.5 171.5Q440-537 440-520v128l-36-36q-11-11-28-11t-28 11q-11 11-11 28t11 28l104 104q12 12 28 12t28-12l104-104q11-11 11-28t-11-28q-11-11-28-11t-28 11l-36 36v-128q0-17-11.5-28.5T480-560q-17 0-28.5 11.5Z"/></svg>
+          </span>
+          <span class="nav-item">Trash / Archive</span>
+          </a>
+        </li>
 
           <!-- dropdown settings -->
         <li>
