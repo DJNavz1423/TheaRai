@@ -23,12 +23,14 @@ class UserController extends Controller
         ]);
 
         // 2. ACTUALLY STORE THE DATA IN THE DATABASE
-        User::create([
+        $newUser = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']), // CRITICAL: Passwords must be hashed!
             'role' => $validated['role'],
         ]);
+
+        $this->logActivity('created', 'user', $newUser->id, "Registered new user: {$newUser->name}");
 
         // 3. Redirect back with success message
         return redirect()->back()->with('success', 'User added successfully!');

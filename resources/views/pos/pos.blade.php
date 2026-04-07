@@ -15,7 +15,7 @@
 
         <div class="filters">
             <select name="category_id" id="category" class="unit-selector">
-                <option value="all">All Categories</option>
+                <option value="all" selected>All Categories</option>
                 @foreach($categories as $category)
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
@@ -114,14 +114,8 @@
     @push('scripts')
      <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
      <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+     <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
         <script>
-            const formatPeso = new Intl.NumberFormat('en-PH', {
-                style: 'currency',
-                currency: 'PHP',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-
             const menuItems = @json($menuItems);
             let cart = [];
 
@@ -143,7 +137,7 @@
                 dishGrid.innerHTML = '';
 
                 items.forEach(item => {
-                    const price = formatPeso.format(item.final_price);
+                    const price = window.formatPeso.format(item.final_price);
                     const initialChar = item.name.charAt(0).toUpperCase();
                     const imgHTML = item.img_url 
                     ? `<img src="${item.img_url}" alt="${item.name}">` 
@@ -223,7 +217,7 @@
                     cartItemsContainer.appendChild(emptyCartMsg);
                     checkoutBtn.disabled = true;
                     clearCartBtn.disabled = true;
-                    cartTotalEl.textContent = formatPeso.format(0);
+                    cartTotalEl.textContent = window.formatPeso.format(0);
                 } else{
                     checkoutBtn.disabled = false;
                     clearCartBtn.disabled = false;
@@ -237,7 +231,7 @@
                         row.innerHTML = `
                             <div class="item-info">
                                 <div class="item-name">${item.name}</div>
-                                <div class="item-price">${formatPeso.format(item.price)}</div>
+                                <div class="item-price">${window.formatPeso.format(item.price)}</div>
                             </div>
 
                             <div class="quantity-controls">
@@ -247,7 +241,7 @@
                             </div>
 
                             <div class="line-total">
-                                ${formatPeso.format(lineTotal)}
+                                ${window.formatPeso.format(lineTotal)}
                             </div>
 
                             <button class="remove-btn" data-id="${item.id}">
@@ -278,7 +272,7 @@
                         });
                     });
                 }
-                cartTotalEl.textContent = formatPeso.format(total);
+                cartTotalEl.textContent = window.formatPeso.format(total);
                 calculateChange();
             }
 
@@ -291,7 +285,7 @@
                     digitalFields.style.display = 'block';
 
                     cashTenderedInput.value = '';
-                    changeAmountInput.value = formatPeso.format(0);
+                    changeAmountInput.value = window.formatPeso.format(0);
                 } else{
                     cashFields.style.display = 'block';
                     digitalFields.style.display = 'none';
@@ -382,7 +376,7 @@
                     change = 0;
                 }
 
-                changeAmountInput.value = formatPeso.format(change);
+                changeAmountInput.value = window.formatPeso.format(change);
             }
 
             cashTenderedInput.addEventListener('input', calculateChange);

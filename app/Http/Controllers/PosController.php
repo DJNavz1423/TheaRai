@@ -74,6 +74,8 @@ class PosController extends Controller
           }
         }
 
+        $this->logActivity('created', 'order', $orderId, "Processed order {$receiptNo} for ₱" . number_format($request->total_amount, 2));
+
         DB::commit();
 
         return response()->json([
