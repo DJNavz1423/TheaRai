@@ -132,6 +132,10 @@
             </div>
 
             <div class="modal-footer">
+                <button type="button" class="btn" onclick="document.getElementById('addModal').style.display='none'">
+                    <span>Cancel</span>
+                </button>
+
                 <button type="submit" class="btn">
                     <span>Add Item</span>
                 </button>

@@ -207,13 +207,12 @@
 
 @once
     @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/inventory/inventory.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/modal.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/inventory/inventory.css') }}">
-        
     @endpush
 @endonce
 
