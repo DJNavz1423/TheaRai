@@ -92,12 +92,13 @@ class DashboardController extends Controller
             ->take(7);
 
         $metabaseSecretKey = env('METABASE_SECRET_KEY');
+        $metabaseSiteUrl = env('METABASE_SITE_URL', 'http://localhost:3000');
 
         $dailyPayload = [
             'resource' => ['question' => 44],
             'params' => (object)[],
             'iat' => time(),
-            'exp' => time() + (60 * 15)
+            'exp' => time() + (60 * 60)
         ];
 
         $dailyToken = JWT::encode($dailyPayload, $metabaseSecretKey, 'HS256');
@@ -111,7 +112,7 @@ class DashboardController extends Controller
 
         $monthlyToken = JWT::encode($monthlyPayload, $metabaseSecretKey, 'HS256');
 
-        return view('admin.dashboard', compact(
+        return view('admin.dashboard.dashboard', compact(
             'totalInventoryValue',
             'lowStockCount',
             'lowStockItems',
@@ -123,7 +124,8 @@ class DashboardController extends Controller
             'recentTransactions',
             'recentActivities',
             'dailyToken',
-            'monthlyToken'
+            'monthlyToken',
+            'metabaseSiteUrl'
         ));
     }
 }
