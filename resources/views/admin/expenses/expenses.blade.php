@@ -190,6 +190,10 @@
         </div>
 
         <div class="modal-footer">
+          <button type="button" class="btn" onclick="document.getElementById('restockModal').style.display='none'">
+                    <span>Cancel</span>
+          </button>
+
           <button class="btn" type="submit">Process Restock</button>
         </div>
       </form>
@@ -199,10 +203,10 @@
 
 @once
     @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/dashboard/modal.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
     @endpush
 @endonce
