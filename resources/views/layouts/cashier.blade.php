@@ -7,7 +7,7 @@
   <!-- css links -->
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/dashboard/sidebar.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/cashier/sidebar.css') }}">
 
   @stack('styles')

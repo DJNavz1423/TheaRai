@@ -104,7 +104,15 @@
                         <option value="admin">Admin</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Save User</button>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="document.getElementById('addModal').style.display='none'">
+                    <span>Cancel</span>
+                </button>
+
+                <button type="submit" class="btn">Save User</button>
             </div>
         </form>
     </div>
@@ -113,9 +121,9 @@
 
 @once 
     @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/dashboard/peopleMng/users.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard/modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/peopleMng/users.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
     @endpush
 @endonce

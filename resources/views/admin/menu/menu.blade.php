@@ -248,6 +248,10 @@
             </div>
 
             <div class="modal-footer">
+                <button type="button" class="btn" onclick="document.getElementById('addModal').style.display='none'">
+                    <span>Cancel</span>
+                </button>
+
                 <button type="submit" class="btn">
                 <span>Add Menu Dish</span>
             </button>
@@ -259,10 +263,10 @@
 
 @once
   @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/dashboard/menu/menuItems.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard/tableControls.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard/table.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/dashboard/modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/menu/menuItems.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
   @endpush
