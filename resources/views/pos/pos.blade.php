@@ -143,8 +143,14 @@
                     ? `<img src="${item.img_url}" alt="${item.name}">` 
                     : `<div class="placeholder">${initialChar}</div>`;
 
+                    const isAvailable = item.is_available === false ? false : true;
+                    const soldOutClass = isAvailable ? '' : 'not-available';
+
+                    const btnClass = isAvailable ? 'is-avail' : 'is-not-avail';
+                    const btnText = isAvailable ? 'Mark Unavailable' : 'Mark Available';
+
                     const card = document.createElement('div');
-                    card.className = 'dish-card';
+                    card.className = 'dish-card ${soldOutClass}';
 
                     card.innerHTML = `
                         ${imgHTML}
@@ -152,14 +158,70 @@
                             <span class="dish-name">${item.name}</span>
                             <span class="dish-price">${price}</span>
                         </div>
+                        <button class="toggle-avail-btn ${btnClass}" data-id="${item.id}">${btnText}</button>
                     `;
 
-                    card.addEventListener('click', () => addToCart(item));
-                    card.addEventListener('mousedown', () => card.style.transform = 'scale(0.95)');
+                    card.addEventListener('click', (e) => {
+                        if(e.target.classList.contains('toggle-avail-btn')) return;
+
+                        if(!isAvailable) return;
+
+                        addToCart(item)
+                    });
+
+                    const toggleBtn = card.querySelector('.toggle-avail-btn');
+                    toggleBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        toggleAvailability(item.id, toggleBtn, card);
+                    })
+
+                    card.addEventListener('mousedown', () => { if(isAvailable) card.style.transform = 'scale(0.95)' });
                     card.addEventListener('mouseup', () => card.style.transform = 'scale(1)');
                     card.addEventListener('mouseleave', () => card.style.transform = 'scale(1)');
 
                     dishGrid.appendChild(card);
+                });
+            }
+
+            function toggleAvailability(item, buttonEl, cardEl){
+                buttonEl.disabled = true;
+                buttonEl.innerHTML = 'Updating...';
+
+                fetch(`/cashier/pos/{id}/toggle-availability`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.success){
+                        item.is_available = data.is_available;
+
+                        const catId = document.getElementById('category').value;
+                        const query = document.getElementById('menuSearch').value.toLowerCase();
+
+                        let filteredItems = menuItems;
+
+                        if(catId !== 'all')
+                            filteredItems = filteredItems.filter(item => item.category_id == catId);
+
+                        if(query !== '')
+                            filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(query));
+                        
+                        renderMenu(filteredItems);
+                    } else {
+                        alert('Failed to update availability');
+                        buttonEl.disabled = false;
+                        buttonEl.innerHTML = item.is_available ? 'Mark Unavailable' : 'Mark Available';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Something went wrong.');
+                    buttonEl.disabled = false;
+                    buttonEl.innerHTML = item.is_available ? 'Mark Unavailable' : 'Mark Available';
                 });
             }
 

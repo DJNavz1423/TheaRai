@@ -6,8 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
-class PosController extends Controller
-{
+class PosController extends Controller{
     public function index() : View{
       $layout = auth()->user()->role === 'admin' ? 'layouts.admin' : 'layouts.cashier';
       
@@ -15,9 +14,10 @@ class PosController extends Controller
       
       $menuItems = DB::table('laravel.menu_items')
         ->where('final_price', '>', 0)
+        ->where('is_available', true)
         ->get();
 
-        return view('pos.pos', compact('categories', 'menuItems', 'layout'));
+      return view('pos.pos', compact('categories', 'menuItems', 'layout'));
     }
 
     public function processOrder(Request $request){
@@ -93,5 +93,28 @@ class PosController extends Controller
           'error' => $e->getMessage(),
                   ], 500);
       }
+    }
+
+    public function toggleAvailability(Request $request, $id){
+      $item = DB::table('laravel.menu_items')->where('id', $id)->first();
+
+      if(!$item){
+        return response()->json(['success' => false, 'message' => 'Menu item not found'], 404);
+      }
+
+      $newStatus = !$item->is_available;
+
+      DB::table('laravel.menu_items')
+        ->where('id', $id)
+        ->update(['is_available' => $newStatus]);
+
+      $statusText = $newStatus ? 'Available' : 'Unavailable';
+      $this->logActivity('updated', 'menu_item', $id, "Cashier marked {$item->name} as {$statusText}");
+
+      return response()->json([
+        'success' => true, 
+        'is_available' => $newStatus,
+        'message' => "Menu item marked as {$statusText}"
+        ]);
     }
 }
