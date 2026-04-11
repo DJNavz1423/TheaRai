@@ -10,6 +10,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\AnalyticsController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -67,6 +69,17 @@ Route::middleware(['auth'])->group(function(){
         
         Route::post('/expenses/regular', [ExpenseController::class, 'storeRegular']);
         Route::post('/expenses/restock', [ExpenseController::class, 'storeRestock']);
+
+        #archive
+        Route::get('/archive', [ArchiveController::class, 'index'])
+            ->name('admin.archive');
+
+        Route::post('/archive/restore', [ArchiveController::class, 'restore']);
+        Route::post('/archive/force-delete', [ArchiveController::class, 'forceDelete']);
+
+        #analytics
+        Route::get('/analytics', [AnalyticsController::class, 'index'])
+            ->name('admin.analytics');
     });
     
     Route::get('/cashier/pos', function(){ //allowed if user is logged in and has a role of staff
@@ -83,6 +96,10 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/cashier/pos/order', [PosController::class, 'processOrder'])
         ->middleware('role:admin|staff')
         ->name('cashier.pos.order');
+
+    Route::post('/cashier/pos/{id}/toggle-availability', [PosController::class, 'toggleAvailability'])
+        ->middleware('role:admin|staff')
+        ->name('cashier.pos.toggleAvailability');
 });
 
 
