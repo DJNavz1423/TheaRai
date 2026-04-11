@@ -59,8 +59,9 @@
 
   --success:#0d884e;
   --warning: #ebbf3e;
+  --warning-alpha: #ebbf3e1a;
   --danger: #c90a1d;
-
+  --danger-alpha: #c90a1d1a;
   --dark:#000000;
 
   /*
@@ -70,4 +71,5 @@
   --border-neutral-alpha: rgba(47,5,88,.02);
 
   --hover-neutral-alpha: rgba(26,2,62,.08);
+  --neutral-alpha-light: #FAFAF8;
 }

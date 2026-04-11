@@ -64,7 +64,7 @@ class DashboardController extends Controller
         $recentTransactions = DB::table('laravel.orders')
             ->whereDate('created_at', now()->toDateString())
             ->orderBy('created_at', 'desc')
-            ->limit(7)
+            ->limit(6)
             ->get();
 
         $stockLogs = DB::table('laravel.stock_logs as log')
@@ -77,19 +77,17 @@ class DashboardController extends Controller
                 CAST(log.quantity_change AS FLOAT), ' ', p_unit.abbreviation, ' ', ingredient.name,' (', COALESCE(log.remarks, log.type), ')') as description"))
             ->whereDate('log.created_at', now()->toDateString())
             ->orderBy('log.created_at', 'desc')
-            ->limit(7)
+            ->limit(6)
             ->get();
 
         $activityLogs = DB::table('laravel.activity_logs')
             ->select('created_at', 'action', 'model_type', 'description')
             ->whereDate('created_at', now()->toDateString())
             ->orderBy('created_at', 'desc')
-            ->limit(7)
+            ->limit(6)
             ->get();
 
-        $recentActivities = $stockLogs->concat($activityLogs)
-            ->sortByDesc('created_at')
-            ->take(7);
+        $recentActivities = $activityLogs;
 
         $metabaseSecretKey = env('METABASE_SECRET_KEY');
         $metabaseSiteUrl = env('METABASE_SITE_URL', 'http://localhost:3000');

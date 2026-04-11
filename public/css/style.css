@@ -7,8 +7,8 @@
   padding: 0;
   box-sizing: border-box;
   text-wrap: nowrap;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
+  scroll-behavior: smooth !important;
+  scrollbar-width: thin !important;
 }
 
 
