@@ -87,7 +87,6 @@
           </div>
         </div>
         </div>
-        
       </div>
 
       
@@ -101,7 +100,7 @@
         </div>
         </div>
 
-        <div class="section-content border">
+        <div id="low-stock-section"  class="section-content border">
           <div class="section-header">
           <h2>Low Stock Items</h2>
           <a href="#" class="view-all-link">Manage <span class="icon-wrapper">
@@ -162,7 +161,22 @@
             @foreach($recentActivities as $activity)
               <div class="activity-item list-item">
                 <span class="icon-wrapper">
+                  @if($activity->action == 'updated' && $activity->model_type == 'ingredient_stock')
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#B39600"><path d="M200-120q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v111q0 12-8.5 20t-20.5 9q-25 2-46.5 11T725-520l-85 85v-205H320v255q0 23 19 34.5t39 1.5l102-51 83 42-59 58q-11 11-17.5 26t-6.5 31v83q0 17-11.5 28.5T440-120H200Zm360-40v-66q0-8 3-15.5t9-13.5l209-208q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q8 9 12.5 20t4.5 22q0 11-4 22.5T903-340L695-132q-6 6-13.5 9t-15.5 3h-66q-17 0-28.5-11.5T560-160Zm263-184 37-39-37-37-38 38 38 38ZM216-720h528l-34-40H250l-34 40Z"/></svg>
 
+                  @elseif($activity->action == 'created' && $activity->model_type == 'ingredient')
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#00b960"><path d="M200-640h338-18 14-334Zm440 0h120-120Zm-424-80h528l-34-40H250l-34 40Zm184 270 80-40 80 40v-190H400v190ZM200-120q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v156q0 17-11.5 28.5T800-503q-17 0-28.5-11.5T760-543v-97H640v153q-35 20-61 49.5T538-371l-58-29-102 51q-20 10-39-1.5T320-385v-255H200v440h311q17 0 28.5 11.5T551-160q0 16-11.5 28T511-120H200Zm531.5-11.5Q720-143 720-160v-80h-80q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320h80v-80q0-17 11.5-28.5T760-440q17 0 28.5 11.5T800-400v80h80q17 0 28.5 11.5T920-280q0 17-11.5 28.5T880-240h-80v80q0 17-11.5 28.5T760-120q-17 0-28.5-11.5ZM200-640h338-18 14-334Z"/></svg>
+
+                  @elseif($activity->action == 'created' && $activity->model_type == 'order')
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#00b960"><path d="M160-240v-436L98-810q-7-15-1-30.5t21-22.5q15-7 30.5-1.5T171-844l77 166h464l77-166q7-15 22.5-21t30.5 2q15 7 21 22.5t-1 30.5l-62 134v436q0 33-23.5 56.5T720-160H240q-33 0-56.5-23.5T160-240Zm240-200h160q17 0 28.5-11.5T600-480q0-17-11.5-28.5T560-520H400q-17 0-28.5 11.5T360-480q0 17 11.5 28.5T400-440ZM240-240h480v-358H240v358Zm0 0v-358 358Z"/></svg>
+
+                  @elseif($activity->action == 'updated' && $activity->model_type == 'menu_item')
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#B39600"><path d="m326-90-58-98-110-24q-15-3-24-15.5t-7-27.5l11-113-75-86q-10-11-10-26t10-26l75-86-11-113q-2-15 7-27.5t24-15.5l110-24 58-98q8-13 22-17.5t28 1.5l104 44 104-44q14-6 28-1.5t22 17.5l58 98 110 24q15 3 24 15.5t7 27.5l-11 113 75 86q10 11 10 26t-10 26l-75 86 11 113q2 15-7 27.5T802-212l-110 24-58 98q-8 13-22 17.5T584-74l-104-44-104 44q-14 6-28 1.5T326-90Zm52-72 102-44 104 44 56-96 110-26-10-112 74-84-74-86 10-112-110-24-58-96-102 44-104-44-56 96-110 24 10 112-74 86 74 84-10 114 110 24 58 96Zm102-318Zm28.5 188.5Q520-303 520-320t-11.5-28.5Q497-360 480-360t-28.5 11.5Q440-337 440-320t11.5 28.5Q463-280 480-280t28.5-11.5Zm0-160Q520-463 520-480v-160q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640v160q0 17 11.5 28.5T480-440q17 0 28.5-11.5Z"/></svg>
+
+                  @elseif($activity->action == 'created' && $activity->model_type == 'expense')
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0b68cb"><path d="M560-440q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM280-320q-33 0-56.5-23.5T200-400v-320q0-33 23.5-56.5T280-800h560q33 0 56.5 23.5T920-720v320q0 33-23.5 56.5T840-320H280Zm80-80h400q0-33 23.5-56.5T840-480v-160q-33 0-56.5-23.5T760-720H360q0 33-23.5 56.5T280-640v160q33 0 56.5 23.5T360-400Zm400 240H120q-33 0-56.5-23.5T40-240v-400q0-17 11.5-28.5T80-680q17 0 28.5 11.5T120-640v400h640q17 0 28.5 11.5T800-200q0 17-11.5 28.5T760-160ZM280-400v-320 320Z"/></svg>
+
+                  @endif
                 </span>
               
 
@@ -171,9 +185,9 @@
                 {{ ucfirst($activity->action) }} {{ ucwords(str_replace('_', ' ', $activity->model_type)) }}
                 </div>
 
-                <span class="activity-details text-muted">
+                <div class="activity-details text-muted">
                   {{ \Illuminate\Support\Str::limit($activity->description, 50)}} - {{ \Carbon\Carbon::parse($activity->created_at)->diffForHumans() }}
-                </span>
+                </div>
               </div>
               </div>
             @endforeach
@@ -199,11 +213,13 @@
             @foreach($recentTransactions as $transaction)
               <div class="activity-item list-item">
                 <span class="icon-wrapper">
-                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-240v-436L98-810q-7-15-1-30.5t21-22.5q15-7 30.5-1.5T171-844l77 166h464l77-166q7-15 22.5-21t30.5 2q15 7 21 22.5t-1 30.5l-62 134v436q0 33-23.5 56.5T720-160H240q-33 0-56.5-23.5T160-240Zm240-200h160q17 0 28.5-11.5T600-480q0-17-11.5-28.5T560-520H400q-17 0-28.5 11.5T360-480q0 17 11.5 28.5T400-440ZM240-240h480v-358H240v358Zm0 0v-358 358Z"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#00b960"><path d="M160-240v-436L98-810q-7-15-1-30.5t21-22.5q15-7 30.5-1.5T171-844l77 166h464l77-166q7-15 22.5-21t30.5 2q15 7 21 22.5t-1 30.5l-62 134v436q0 33-23.5 56.5T720-160H240q-33 0-56.5-23.5T160-240Zm240-200h160q17 0 28.5-11.5T600-480q0-17-11.5-28.5T560-520H400q-17 0-28.5 11.5T360-480q0 17 11.5 28.5T400-440ZM240-240h480v-358H240v358Zm0 0v-358 358Z"/></svg>
                 </span>
 
-                <div class="activity-info">
-                  <span class="activity-name">Order #{{ $transaction->id }} ({{ ucfirst($transaction->payment_method) }})</span>
+                <div class="activity-info item-info">
+                  <span class="activity-name">Order #{{ $transaction->id }} ({{ ucfirst($transaction->payment_method) }})
+                  </span>
+
                   <span class="activity-details text-muted">
                     <data value="{{ $transaction->total_amount }}" class="format-peso"></data>
                     - {{ \Carbon\Carbon::parse($transaction->created_at)->diffForHumans() }}
