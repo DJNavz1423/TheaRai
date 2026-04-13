@@ -4,20 +4,21 @@
 
 @section('content')
   <div class="container">
-    <div class="row mb-4">
+    <div class="row mb-3">
       <h1 class="heading">Expenses & Restocks</h1>
 
       <div class="row heading-btn-row">
         <div class="dropdown-wrapper pos-relative">
-          <button id="addExpenseBtn" class="btn" type="button" onclick="toggleDropdown(this)">
+          <button id="addBtn" class="btn" type="button" onclick="toggleDropdown(this)">
             <span class="icon-wrapper">
-
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
             </span>
             <span>Add New Expense</span>
           </button>
 
           <div id="expenseDropdown" class="dropdown-menu border" style="display: none;">
-            <button type="button" class="dropdown-item btn" onclick="openModal('regularExpenseModal')">
+            <div class="dropdown-section">
+              <button type="button" class="dropdown-item btn" onclick="openModal('regularExpenseModal')">
               <span class="icon-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M560-440q-50 0-85-35t-35-85q0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35ZM280-320q-33 0-56.5-23.5T200-400v-320q0-33 23.5-56.5T280-800h560q33 0 56.5 23.5T920-720v320q0 33-23.5 56.5T840-320H280Zm80-80h400q0-33 23.5-56.5T840-480v-160q-33 0-56.5-23.5T760-720H360q0 33-23.5 56.5T280-640v160q33 0 56.5 23.5T360-400Zm400 240H120q-33 0-56.5-23.5T40-240v-400q0-17 11.5-28.5T80-680q17 0 28.5 11.5T120-640v400h640q17 0 28.5 11.5T800-200q0 17-11.5 28.5T760-160ZM280-400v-320 320Z"/></svg>
               </span>
@@ -30,6 +31,7 @@
               </span>
               Restock Ingredients
             </button>
+            </div>
           </div>
         </div>
       </div>
@@ -43,7 +45,7 @@
            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
         </span>
 
-        <input type="text" id="expenseSearch" class="searchBar" placeholder="Search expenses...">
+        <input type="text" id="expenseSearch" class="border searchBar" placeholder="Search expenses...">
       </div>
     </div>
 
@@ -149,7 +151,7 @@
 
             <div class="input-group">
               <label for="restock-desc">Batch Note (Optional)</label>
-              <textarea name="description" id="restock-desc" placeholder="e.g., Weekly Market Run"></textarea>
+              <input name="description" id="restock-desc" placeholder="e.g., Weekly Market Run">
             </div>
           </div>
 
@@ -203,6 +205,7 @@
 
 @once
     @push('styles')
+        <link rel="stylesheet" href="{{ asset('css/admin/expenses/expenses.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
