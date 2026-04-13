@@ -71,5 +71,6 @@
   --border-neutral-alpha: rgba(47,5,88,.02);
 
   --hover-neutral-alpha: rgba(26,2,62,.08);
+  --hover-neutral-alpha-2: #f3f1f5;
   --neutral-alpha-light: #FAFAF8;
 }
