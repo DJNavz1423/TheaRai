@@ -4,6 +4,9 @@
 
 .table-controls{
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .searchbox{
@@ -29,5 +32,4 @@
   anchor-name: --searchbox_input;
   padding: 10px 16px 10px 40px;
   border-radius: 8px;
-  border-color: var(--secondary-light);
 }

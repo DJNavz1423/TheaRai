@@ -10,28 +10,33 @@
 /* 2. The Wrapper Shell (No padding, just the border/shape) */
 .ts-control {
     padding: 0 !important; 
-    border: 1px solid var(--secondary-light) !important;
+    border: 1px solid var(--secondary-soft) !important;
     border-radius: 8px !important;
     display: flex !important;
     position: relative !important;
     min-height: 44px !important;
+    max-height: 44px !important;
     background: transparent !important;
     box-shadow: none !important;
     overflow: hidden !important; 
+    box-sizing: border-box !important;
+    outline: none !important;
 }
 
 /* 3. The Input (Handles the padding, width, and caret size) */
 .ts-control > input {
     width: 100% !important;
     min-width: 100% !important; 
-    padding: 12px 24px !important; 
+    padding: 10px 24px !important; 
     font-size: 1rem !important;
     color: var(--secondary) !important;
-    line-height: normal!important;
+    line-height: 22px !important;
     box-sizing: border-box !important;
     margin: 0 !important;
     cursor: text !important;
-    border: 0 !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 /* 4. The Selected Item (Overlays exactly over the input) */
@@ -71,7 +76,7 @@
 
 /* 9. Focus border color */
 .ts-wrapper.focus .ts-control {
-    border-color: #3b82f6 !important; 
+    border-color: var(--sky) !important; 
 }
 
 /* 10. Placeholder text styling */

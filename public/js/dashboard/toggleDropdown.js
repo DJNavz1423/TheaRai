@@ -1,32 +1,58 @@
 // public/js/dropdown.js
 
 function toggleDropdown(button) {
-    // 1. Find the wrapper and the specific menu inside it
     const wrapper = button.closest('.dropdown-wrapper');
-    // We look for either class so it works for both the header and the table rows
     const menu = wrapper.querySelector('.dropdown-menu, .table-dropdown-menu');
 
-    // 2. Close all *other* dropdowns on the page before opening this one
     document.querySelectorAll('.dropdown-menu, .table-dropdown-menu').forEach(m => {
         if (m !== menu) {
             m.style.display = 'none';
+            m.classList.remove('drop-up');
         }
     });
 
-    // 3. Toggle the display of the target menu
     if (menu) {
-        // Toggle between 'flex' (or 'block') and 'none'
-        menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'flex' : 'none';
+        const isHidden = menu.style.display === 'none' || menu.style.display === '';
+
+        if(isHidden){
+            menu.style.visibility = 'hidden';
+            menu.style.display = 'flex';
+            menu.classList.remove('drop-up');
+
+            const buttonRect = button.getBoundingClientRect();
+            const menuHeight = menu.offsetHeight;
+            const container = button.closest('.table-container');
+
+            let spaceBelow = 0;
+
+            if(container){
+                const containerRect = container.getBoundingClientRect();
+
+                spaceBelow = containerRect.bottom - buttonRect.bottom;
+            } else{
+                spaceBelow = window.innerHeight - buttonRect.bottom;
+            }
+
+            if(spaceBelow < (menuHeight + 6)){
+                menu.classList.add('drop-up');
+            }
+
+            menu.style.visibility = 'visible';
+        } else{
+            menu.style.display = 'none';
+            menu.classList.remove('drop-up');
+        }
+    
     }
 }
 
-// 4. Safety feature: Close dropdowns if the user clicks anywhere outside of them
 window.addEventListener('click', function(e) {
-    // If the click did NOT happen inside a dropdown wrapper...
+
     if (!e.target.closest('.dropdown-wrapper')) {
-        // Close all of them
+
         document.querySelectorAll('.dropdown-menu, .table-dropdown-menu').forEach(menu => {
             menu.style.display = 'none';
+            menu.classList.remove('drop-up');
         });
     }
 });

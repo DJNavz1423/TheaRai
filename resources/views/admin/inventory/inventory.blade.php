@@ -5,7 +5,7 @@
 
 @section('content')
  <div class="container">
-    <div class="row mb-4">
+    <div class="row mb-3">
         <h1 class="heading">Item List ({{ count($ingredients) }})</h1>
 
         <div class="row heading-btn-row">
@@ -25,7 +25,7 @@
     </div>
  </div>
 
- <div class="container mb-3">
+ <div class="container">
     <div class="row table-controls mb-3">
         <div class="searchbox">
             <span class="icon-wrapper">
@@ -35,31 +35,31 @@
             <input type="text" id="ingredientSearch" class="border searchBar" placeholder="Search ingredients...">
         </div>
         <div class="filters">
-                <select name="category_id" id="category" class="unit-selector">
+                <select id="filter-category" class="ts-filter">
                     <option value="all" selected>All Categories</option>
                     @foreach($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
 
-                <select name="" id="">
-                    <option value="all_stock" selected>All Stock</option>
+                <select id="filter-stock" class="ts-filter">
+                    <option value="all" selected>All Stock</option>
                     <option value="in_stock">In Stock</option>
                     <option value="low_stock">Low Stock</option>
                     <option value="out_of_stock">Out of Stock</option>
                 </select>
 
-                <select name="" id="">
-                    <option value="">Primary Unit</option>
-                    <option value="">Secondary Unit</option>
+                <select id="filter-unit" class="ts-filter">
+                    <option value="primary">Primary Unit</option>
+                    <option value="secondary">Secondary Unit</option>
                 </select>
 
-                <select name="" id="">
-                    <option value="" selected>Latest</option>
-                    <option value="">Quantity: High to Low</option>
-                    <option value="">Quantity: Low to High</option>
-                    <option value="">Name: A-Z</option>
-                    <option value="">Name: Z-A</option>
+                <select id="sort-items" class="ts-filter">
+                    <option value="latest" selected>Latest</option>
+                    <option value="qty_desc">High Quantity</option>
+                    <option value="qty_asc">Low Quantity</option>
+                    <option value="name_asc">Name: A-Z</option>
+                    <option value="name_desc">Name: Z-A</option>
                 </select>
         </div>
     </div>
@@ -78,18 +78,27 @@
 
             <tbody role="rowgroup">
                 @foreach($ingredients as $item)
-                <tr role="row">
+                <tr role="row" class="inventory-row"
+                    data-name="{{ strtolower($item->name) }}"
+                    data-category="{{ $item->category_id }}"
+                    data-qty="{{ $item->stock_quantity }}"
+                    data-threshold="{{ $item->alert_threshold ?? 0 }}"
+                    data-created="{{ strtotime($item->created_at) }}"
+                    data-base-price="{{ $item->purchase_price }}"
+                    data-conv="{{ $item->conversion_factor }}"
+                    data-p-abbr="{{ $item->primary_unit_abbr }}"
+                    data-s-abbr="{{ $item->secondary_unit_abbr }}">
+
                     <td data-cell="name" role="cell">
                         <div class="d-flex item-group">
                             <span class="item-img">
                                 @empty($item->img_url)
-                                <span>
-                                    {{ $item->name[0] }}
-                                </span>
+                                <span>{{ $item->name[0] }}</span>
                                 @else
                                 <img src="{{ $item->img_url }}" alt="Item Image">
                                 @endempty
                             </span>
+
                             <span class="item-data">
                                 {{ $item->name }}
                             </span>
@@ -106,14 +115,14 @@
 
                     <td data-cell="category" role="cell"><span class="item-data">{{ $item->category_name }}</span></td>
                     <td data-cell="price" role="cell">
-                        <span class="item-data format-peso" value="{{ $item->purchase_price }}">&#8369;{{ $item->purchase_price }} / </span>
-                        <span class="item-data">{{ $item->primary_unit_abbr }}</span>
+                        <span class="item-data format-peso display-price" value="{{ $item->purchase_price }}">{{ $item->purchase_price }} / </span>
+                        <span class="item-data display-unit">{{ $item->primary_unit_abbr }}</span>
                     </td>
                     <td data-cell="quantity" role="cell">
                         <div class="d-flex item-group">
-                            <span class="item-data">{{ number_format($item->stock_quantity, 2) }} {{ $item->primary_unit_abbr }} </span>
+                            <span class="item-data display-qty">{{ number_format($item->stock_quantity, 2) }} {{ $item->primary_unit_abbr }} </span>
 
-                            <div class="dropdown-wrapper pos-relative">
+                            <div class="dropdown-wrapper">
                                 <button type="button" class="more-actions" onclick="toggleDropdown(this)">
                                     <span class="icon-wrapper">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>
@@ -122,7 +131,8 @@
 
                                 <div class="dropdown-menu border" style="display: none;">
                                     <div class="dropdown-section">
-                                        <div class="dropdown-header"><small class="text-muted">Adjust Stock</small></div>
+                                        <div class="dropdown-header"><p class="text-muted">Adjust Stock</p></div>
+
                                         <button type="button" class="dropdown-item btn" onclick="openAddStockModal(
                                         {{ $item->id }}, 
                                         '{{ $item->primary_unit_abbr }}', 
@@ -136,7 +146,7 @@
                                             Add Stock
                                         </button>
 
-                                        <button type="button" class="dropdown-item btn" onclick="openReduceStockModal(
+                                        <button type="button" class="dropdown-item dropdown-red btn" onclick="openReduceStockModal(
                                         {{ $item->id }}, 
                                         '{{ $item->primary_unit_abbr }}', 
                                         '{{ $item->secondary_unit_abbr }}', 
@@ -149,8 +159,8 @@
                                         </button>
                                     </div>
 
-                                    <div class="dropdown-section">
-                                        <div class="dropdown-header"><small class="text-muted">Actions</small></div>
+                                    <div class="dropdown-section border-t pt-2">
+                                        <div class="dropdown-header"><p class="text-muted">Actions</p></div>
                                         
                                         <button type="button" class="dropdown-item btn" onclick="openEditModal(
                                             {{ $item->id }}, 
@@ -163,14 +173,15 @@
                                             '{{ $item->stock_quantity }}', 
                                             '{{ $item->purchase_price }}', 
                                             '{{ $item->alert_threshold ?? '' }}', 
-                                            '{{ addslashes($item->description ?? '') }}')">
+                                            '{{ addslashes($item->description ?? '') }}',
+                                            '{{ $item->img_url ?? ''}}')">
                                             <span class="icon-wrapper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v111q0 12-8.5 20t-20.5 9q-25 2-46.5 11T725-520l-85 85v-205H320v255q0 23 19 34.5t39 1.5l102-51 83 42-59 58q-11 11-17.5 26t-6.5 31v83q0 17-11.5 28.5T440-120H200Zm360-40v-66q0-8 3-15.5t9-13.5l209-208q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q8 9 12.5 20t4.5 22q0 11-4 22.5T903-340L695-132q-6 6-13.5 9t-15.5 3h-66q-17 0-28.5-11.5T560-160Zm263-184 37-39-37-37-38 38 38 38ZM216-720h528l-34-40H250l-34 40Z"/></svg>
                                             </span>
                                             Edit Item
                                         </button>
 
-                                        <button type="button" class="dropdown-item btn" onclick="openDeleteModal({{ $item->id }})">
+                                        <button type="button" class="dropdown-item dropdown-red btn" onclick="openDeleteModal({{ $item->id }})">
                                             <span class="icon-wrapper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v126q0 17-13.5 28t-31.5 8q-8-1-17-1.5t-18-.5q-20 0-40 2.5t-40 8.5v-51q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v90q-24 17-44.5 38.5T440-424v-176q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q0 29 6.5 57.5T424-168q8 17-1.5 32.5T396-120H280Zm258.5-18.5Q480-197 480-280t58.5-141.5Q597-480 680-480t141.5 58.5Q880-363 880-280t-58.5 141.5Q763-80 680-80t-141.5-58.5ZM700-288v-92q0-8-6-14t-14-6q-8 0-14 6t-6 14v91q0 8 3 15.5t9 13.5l60 60q6 6 14 6t14-6q6-6 6-14t-6-14l-60-60Z"/></svg>
                                             </span>
@@ -207,12 +218,13 @@
 
 @once
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+         <link rel="stylesheet" href="{{ asset('css/admin/inventory/inventory.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/admin/inventory/inventory.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
     @endpush
 @endonce
 
@@ -222,10 +234,14 @@
         <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
 
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/tomSelect/tsFilters.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/toggleTab.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/imageUpload.js') }}"></script>
 
         <script>
             // Injects row data into the Full Edit Modal
-            function openEditModal(id, name, itemCode, categoryId, primaryUnitId, secondaryUnitId, conversionFactor, stockQty, purchasePrice, alertThreshold, description) {
+            function openEditModal(id, name, itemCode, categoryId, primaryUnitId, secondaryUnitId, conversionFactor, stockQty, purchasePrice, alertThreshold, description, imgUrl) {
                 document.getElementById('editForm').action = "{{ url('/admin/inventory') }}/" + id;
                 
                 // 1. Standard text and number fields
@@ -248,11 +264,56 @@
 
                 let targetOption = primarySelect.querySelector(`option[value="${primaryUnitId}"]`);
                 let primaryAbbr = targetOption ? targetOption.getAttribute('data-abbr') : '';
+
+                document.getElementById('edit_opening_stock_unit').innerText = primaryAbbr ? `${primaryAbbr}` : '';
+
                 document.getElementById('edit_purchase_price_unit').innerText = primaryAbbr ? `/ ${primaryAbbr}` : '';
 
                 let secondarySelect = document.getElementById('edit_secondary_unit');
                 if (secondarySelect.tomselect) { secondarySelect.tomselect.setValue(secondaryUnitId); } 
                 else { secondarySelect.value = secondaryUnitId; }
+
+                //image
+
+                const editUploadBox = document.getElementById('edit-upload-box');
+                const editUploadIcon = document.getElementById('edit-upload-icon');
+
+                const oldPreview = document.getElementById('edit-preview-figure');
+                if (oldPreview) oldPreview.remove();
+
+                const oldRemoveInput = document.getElementById('remove-image-flag');
+                if (oldRemoveInput) oldRemoveInput.remove();
+    
+                document.getElementById('edit-image').value = '';
+
+                if (imgUrl && imgUrl !== '') {
+                    editUploadIcon.style.display = 'none'; // Hide the SVG
+                    
+                    const figure = document.createElement('figure');
+                    figure.className = 'image-preview';
+                    figure.id = 'edit-preview-figure';
+                    figure.innerHTML = `
+                        <img src="${imgUrl}" alt="Preview">
+                        <button type="button" class="remove-img-btn" title="Remove image">✕</button>
+                    `;
+                    editUploadBox.appendChild(figure);
+                    
+                    figure.querySelector('.remove-img-btn').addEventListener('click', function(e) {
+                        e.stopPropagation(); // Stop file browser from opening
+                        figure.remove(); // Remove the image
+                        editUploadIcon.style.display = 'block'; // Show SVG
+                        
+                        // Secretly tell Laravel to delete the image from the DB!
+                        const removeInput = document.createElement('input');
+                        removeInput.type = 'hidden';
+                        removeInput.name = 'remove_image';
+                        removeInput.value = 'true';
+                        removeInput.id = 'remove-image-flag';
+                        document.getElementById('editForm').appendChild(removeInput);
+                    });
+                } else {
+                    editUploadIcon.style.display = 'flex';
+                }
 
                 // Show the modal
                 document.getElementById('editModal').style.display = 'flex';
@@ -424,6 +485,7 @@
             document.getElementById('primary_unit').addEventListener('change', function() {
                 let selectedOption = this.options[this.selectedIndex];
                 let abbr = selectedOption ? selectedOption.getAttribute('data-abbr') : '';
+                document.getElementById('add_opening_stock_unit').innerText = abbr ? `${abbr}` : '';
                 document.getElementById('add_purchase_price_unit').innerText = abbr ? `/ ${abbr}` : '';
             });
 

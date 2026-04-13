@@ -7,7 +7,7 @@
     border-color: var(--secondary-soft);
     border-width: 1px;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: auto;
   }
   .table-container table{
     width: 100%;
@@ -16,6 +16,9 @@
   
     thead{
     background: var(--light-warm);
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
   
     tr{
@@ -77,6 +80,11 @@
     text-overflow: ellipsis;
   }
   
+
+   /*
+    dropdown
+   */
+
   .more-actions{
     padding: 10px;
     background: none;
@@ -92,3 +100,88 @@
   .more-actions:hover{
     background: var(--hover-neutral-alpha);
   }
+
+ .dropdown-wrapper{
+  position: relative;
+
+  .dropdown-menu{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    bottom: auto;
+    min-width: max-content;
+    margin-top: 6px;
+    margin-bottom: 0;
+    width: 175px;
+    z-index: 100;
+    padding: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--light-pure);
+     box-shadow: 0 7px 7px rgba(62, 39, 35, 0.2);
+
+    .dropdown-section{
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .dropdown-header{
+        align-items: center;
+        margin-bottom: 6px;
+
+        p{
+          font-size: 13px;
+          font-weight: 600;
+        }
+        
+      }
+
+      .dropdown-item{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        color: var(--secondary-deep);
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: normal;
+        line-height: 1.4;
+        padding: 8px;
+        border-radius: 8px;
+        background: none;
+
+        .icon-wrapper svg{
+          width: 18px;
+          height: 18px;
+          fill: var(--secondary-dark);
+        }
+      }
+
+      .dropdown-item:hover{
+        background: var(--hover-neutral-alpha-2);
+      }
+      
+
+      .dropdown-red{
+        color: var(--danger);
+        .icon-wrapper svg{
+          fill: var(--danger);
+        }
+      }
+
+      .dropdown-red:hover{
+        background: var(--danger-alpha);
+      }
+    }
+  }
+
+  .dropdown-menu.drop-up{
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+ }

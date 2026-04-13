@@ -1,0 +1,36 @@
+.filters {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 1rem;
+
+  .ts-wrapper:last-child {
+    margin-left: auto !important;
+  }
+
+  .ts-wrapper {
+    min-height: 40px !important;
+    max-height: 40px !important;
+    width: max-content !important;
+    min-width: 140px !important; 
+    flex-shrink: 0 !important;
+    border-color: var(--secondary-soft) !important;
+  }
+
+  .ts-wrapper .ts-control{
+    max-height: 40px !important;
+    min-height: 40px !important;
+    align-items: center;
+  }
+
+  .ts-wrapper .ts-control .item {
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
+    align-self: center !important;
+    white-space: nowrap !important;
+    margin-right: 1.5rem !important; 
+    color: var(--secondary-soft);
+    padding: 0px 24px !important;
+  }
+}

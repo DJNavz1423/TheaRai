@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class IngredientController extends Controller
 {
@@ -48,7 +49,18 @@ class IngredientController extends Controller
         //optional data
         'alert_threshold'   => 'nullable|numeric|min:0',
         'description'       => 'nullable|string|max:1000',
+        'img_url'           => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
         ]);
+
+        if($request->hasFile('img_url')){
+            $file = $request->file('img_url');
+
+            $path = $file->store('images', 'supabase');
+
+            $validated['img_url'] = Storage::disk('supabase')->url($path);
+        } else{
+            unset($validated['img_url']);
+        }
 
         $totalExpense = $validated['stock_quantity'] * $validated['purchase_price'];
 
@@ -107,6 +119,7 @@ class IngredientController extends Controller
     public function update(Request $request, $id)
 {
     $validated = $request->validate([
+        'item_code'         => 'nullable|unique:pgsql.laravel.ingredients,item_code,' . $id,
         'name' => 'required|string|max:255',
         'category_id' => 'required|exists:pgsql.laravel.ingredient_categories,id',
         'primary_unit_id' => 'required|exists:pgsql.laravel.units,id',
@@ -116,7 +129,16 @@ class IngredientController extends Controller
         'stock_quantity' => 'required|numeric|min:0',
         'alert_threshold' => 'nullable|numeric|min:0',
         'description' => 'nullable|string|max:1000',
+        'img_url' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
     ]);
+
+    if ($request->hasFile('img_url')) {
+        $file = $request->file('img_url');
+        $path = $file->store('images', 'supabase');
+        $validated['img_url'] = Storage::disk('supabase')->url($path);
+    } else {
+        unset($validated['img_url']);
+    }
 
     $validated['updated_at'] = now();
 

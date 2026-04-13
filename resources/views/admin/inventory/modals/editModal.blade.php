@@ -1,6 +1,6 @@
 <div id="editModal" class="modal" style="display: none;">
     <div class="modal-dialog">
-        <form id="editForm" method="POST" class="modal-content">
+        <form id="editForm" method="POST" class="modal-content" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             <div class="modal-header">
@@ -37,10 +37,10 @@
                     </div>
                 </div>
 
-                <div class="row tab-container">
-                    <div class="row tab-titles mt-4 mb-1">
-                        <h3 class="tab-title">Stock Details</h3>
-                        <h3 class="tab-title">Others</h3>
+                <div class="tab-container">
+                    <div class="tab-titles mt-4 mb-3">
+                        <h3 class="tab-links active-link underline-fullwidth" onclick="openTab(event, 'edit_stocks')">Stock Details</h3>
+                        <h3 class="tab-links" onclick="openTab(event, 'edit_others')">Others</h3>
                     </div>
 
                     <div class="tab-contents active-tab" id="edit_stocks">
@@ -73,13 +73,14 @@
                             <div class="input-group">
                                 <label for="edit_stock_qty">Stock Quantity</label>
                                 <input type="number" step="0.01" min="0" name="stock_quantity" id="edit_stock_qty">
+                                <span class="text-muted icon-wrapper unit-abbr" id="edit_opening_stock_unit"></span>
                             </div>
 
                             <div class="input-group">
                                 <label for="edit_purchase_price">Purchase Price</label>
-                                <span class="icon-wrapper">&#8369;</span>
+                                <span class="icon-wrapper currency-symbol">&#8369;</span>
                                 <input type="number" step="0.01" min="0" name="purchase_price" id="edit_purchase_price" required>
-                                <span class="text-muted" id="edit_purchase_price_unit"></span>
+                                <span class="text-muted icon-wrapper unit-abbr" id="edit_purchase_price_unit"></span>
                             </div>
                         </div>
 
@@ -102,9 +103,9 @@
                             <div class="row">
                                 <div class="input-group">
                                     <label for="edit_image">Update Image</label>
-                                    <div class="image-upload">
+                                    <div id="edit-upload-box" class="image-upload">
                                         <input type="file" accept="image/png,.png,image/jpeg,.jpeg,image/jpg,.jpg" name="img_url" id="edit-image" style="display: none;">
-                                        <span class="icon-wrapper">
+                                        <span id="edit-upload-icon" class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l50-54q11-12 26.5-19t32.5-7h165q17 0 28.5 11.5T560-800q0 17-11.5 28.5T520-760H355l-73 80H120v480h640v-320q0-17 11.5-28.5T800-560q17 0 28.5 11.5T840-520v320q0 33-23.5 56.5T760-120H120Zm640-640h-40q-17 0-28.5-11.5T680-800q0-17 11.5-28.5T720-840h40v-40q0-17 11.5-28.5T800-920q17 0 28.5 11.5T840-880v40h40q17 0 28.5 11.5T920-800q0 17-11.5 28.5T880-760h-40v40q0 17-11.5 28.5T800-680q-17 0-28.5-11.5T760-720v-40ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29Z"/></svg>
                                     </span>
                                     </div>
