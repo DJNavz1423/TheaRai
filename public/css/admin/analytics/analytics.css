@@ -1,0 +1,146 @@
+.kpi-card:first-child, .kpi-card:nth-child(3){
+  .icon-wrapper{
+    background-color: var(--tertiary-light-transparent);
+  }
+  .icon-wrapper svg{
+    fill: var(--tertiary);
+  }
+}
+.kpi-card:first-child:hover, .kpi-card:nth-child(3):hover{
+  background-color: var(--tertiary-light-transparent);
+}
+
+/*
+  grid
+*/
+
+.grid-content{
+  grid-template-areas:
+  "box1 box1"
+  "box1 box1"
+  "box2 box3";
+}
+
+.dashboard-section:first-child{
+  iframe{
+    width: 100% !important;
+    min-height: 800px !important;
+  } 
+  .section-content{
+    padding: 1.5rem 0;
+  }
+}
+
+#low-stock-section{
+  .section-header{
+    padding-bottom: 12px !important;
+    border-bottom: 2px solid var(--quaternary) !important;
+  }
+
+  .stock-price{
+  display: inline !important;
+  color: var(--secondary) !important;
+  font-size: 1rem !important;
+  font-weight: normal !important;
+}
+} 
+
+/*
+  sales breakdown
+*/
+#sales-breakdown{
+  flex: unset;
+}
+.recon-stats{
+  display: flex; 
+  justify-content: space-between; 
+  margin-bottom: 1rem;
+
+  .stat-box{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    data{
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--tertiary-light) !important;
+    }
+  }
+
+  .stat-box:last-child{
+    data{
+      align-self: flex-end;
+      color: var(--quinary) !important;
+    }
+  }
+}
+
+.split-bar-container{
+  width: 100%; 
+  height: 18px; 
+  background-color: var(--light-pure); 
+  border-radius: 6px; 
+  display: flex; 
+  overflow: hidden;
+
+  .cash-bar{
+    background-color: var(--tertiary-light);
+  }
+
+  .digital-bar{
+    background-color: var(--quinary);
+  }
+}
+
+
+
+.item-img{
+  height: 2.5rem; 
+  aspect-ratio: 1 / 1;
+  border-radius: 6px; 
+  overflow: hidden;  
+  align-items: center; 
+  font-size: 1rem;
+  font-weight: 600; 
+
+  span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--light-pure);
+    background: var(--primary); 
+  }
+
+  img{
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover;
+  }
+  
+}
+
+.mover-item{
+
+  .item-info{
+    flex: 1;
+
+  .item-name{
+    font-weight: 600;
+  }
+
+  .item-details{
+    span{
+      font-weight: 600; 
+      color: var(--primary);
+    }
+  }
+  }
+
+  .mover-revenue{
+    font-weight: 600;
+  }
+  
+}
