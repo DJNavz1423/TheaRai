@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class MenuController extends Controller
 {
@@ -41,7 +42,17 @@ class MenuController extends Controller
             'ingredients' => 'nullable|array',
             'ingredients.*.ingredient_id' => 'required|integer',
             'ingredients.*.quantity_used' => 'required|numeric|min:0.01',
+            'description'       => 'nullable|string|max:1000',
+            'img_url'           => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
         ]);
+
+        if($request->hasFile('img_url')){
+            $file = $request->file('img_url');
+            $path = $file->store('images', 'supabase');
+            $validated['img_url'] = Storage::disk('supabase')->url($path);
+        } else {
+            unset($validated['img_url']);
+        }
 
         DB::beginTransaction();
         try{
@@ -49,6 +60,8 @@ class MenuController extends Controller
                 'name' => $validated['name'],
                 'category_id' => $validated['category_id'],
                 'final_price' => $validated['final_price'],
+                'description' => $validated['description'] ?? null,
+                'img_url' => $validated['img_url'] ?? null,
                 'created_at' => now()
             ]);
 
@@ -69,7 +82,7 @@ class MenuController extends Controller
 
             DB::commit();
             return back()->with('success', 'Menu item added successfully!');
-        }catch(Exception $e){
+        }catch(\Exception $e){
             DB::rollback();
             return back()->withErrors('Error saving menu item: '. $e->getMessage());
         }

@@ -46,3 +46,158 @@
   letter-spacing: normal;
   font-weight: 600;
 }
+
+/*
+  modal
+*/
+
+.ts-dropdown {
+  z-index: 900 !important;
+}
+
+.modal-dialog{
+  width: 80% !important;
+}
+
+#recipe .row:first-child {
+  margin-bottom: 2rem;
+  gap: 2rem;
+  justify-content: flex-end;
+
+  .input-group{
+    flex: unset;
+    flex-direction: row;
+    align-items: center;
+
+    span, data{
+      font-size: 15px;
+    }
+
+    #suggested-price-display{
+      font-size: 1.2rem;
+      color: var(--quaternary-dark);
+      font-weight: 900;
+    }
+  }
+
+}
+
+/*
+  modal-table 
+*/
+
+.modal tbody tr td:first-child, .modal thead tr th:first-child{
+  width: 1%; 
+  white-space: nowrap;
+  text-align: center;
+  
+}
+
+.modal {
+  td{
+    white-space: nowrap;
+  }
+
+  tbody tr td:last-child{
+    div{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      
+      button{
+        margin-left: auto;
+      }
+    }
+  }
+
+  td:has(.btn){
+    padding: 0;
+
+  .btn{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    padding: 1rem;
+    width: fit-content;
+    background: none;
+    color: var(--tertiary);
+    letter-spacing: normal;
+    font-weight: 700;
+
+    .icon-wrapper svg{
+      fill: var(--tertiary);
+    }
+  
+  }
+  } 
+  
+  td:has(.recipe-select){
+    padding: 0;
+
+    .ts-control{
+      border: 0 !important;
+      border-radius: 0 !important;
+    }
+  }
+
+  td:has(.input-group){
+    padding: 0;
+    vertical-align: middle;
+
+    .input-group{
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+
+    input{
+      padding: 1rem;
+      border-radius: 0;
+      background: none;
+      border: 0;
+    }
+
+    .unit-toggle{
+      position: absolute;
+      position-anchor: --modal-input;
+      top: anchor(top);
+      bottom: anchor(bottom);
+      right: calc(anchor(right) + 15px);
+    }
+  }
+
+  tbody tr td:not(:last-child){
+    border-right: 1.5px solid var(--secondary-soft);
+  }
+
+  tbody tr td:not(:first-child){
+    border-top: 1.5px solid var(--secondary-soft);
+  }
+}
+
+.remove-row{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  transition: 200ms ease;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+
+
+  .icon-wrapper svg{
+    width: 20px;
+    height: 20px;
+    fill: var(--danger);
+    transition: 200ms ease;
+  }
+}
+
+.remove-row:hover{
+  background: var(--danger-alpha);
+}

@@ -70,6 +70,12 @@
       color: var(--light-pure);
       background: var(--primary);
     }
+    
+    img{
+      height: 100%;
+      width: 100%;
+      object-fit: cover;;
+    }
   } 
   
   .item-data{

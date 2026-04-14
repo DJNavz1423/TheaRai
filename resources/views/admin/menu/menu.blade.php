@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <div class="row mb-4">
+    <div class="row mb-3">
         <h1 class="heading">Menu Items ({{ count($menuItems) }})</h1>
 
         <div class="row heading-btn-row">
@@ -87,7 +87,7 @@
 
 <div id="addModal" class="modal" style="display: none;">
     <div class="modal-dialog">
-        <form action="" method="POST" class="modal-content">
+        <form action="" method="POST" class="modal-content" enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
                 <h2>Add New Dish</h2>
@@ -116,13 +116,13 @@
                     </div>
                 </div>
                 
-                <div class="container tab-container">
-                    <div class="row tab-titles mt-4 mb-1">
-                        <h3>Recipe & Costing</h3>
-                        <h3>Others</h3>
+                <div class="tab-container">
+                    <div class="row tab-titles mt-4 mb-3">
+                        <h3 class="tab-links active-link underline-fullwidth" onclick="openTab(event, 'recipe')">Recipe & Costing</h3>
+                        <h3 class="tab-links underline-fullwidth" onclick="openTab(event, 'others')">Others</h3>
                     </div>
                         
-                    <div class="container table-container modal-table border">
+                    <div class="container table-container modal-table border mb-1">
                         <table>
                             <thead>
                                 <tr class="border-b">
@@ -152,7 +152,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <div>
+                                        <div class="input-group">
                                             <input type="number" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="1" required>
 
                                             <select name="ingredients[0][unit_type]"  class="unit-toggle">
@@ -177,7 +177,7 @@
                                 </tr>
                             </tbody>
 
-                            <tfoot>
+                            <tfoot class="border-t">
                                 <tr>
                                     <td colspan="3" class="border-r">
                                         <button class="btn" type="button" id="addIngredientBtn">
@@ -199,20 +199,20 @@
                     <div class="tab-contents active-tab" id="recipe">
                         <div class="row">
                             <div class="input-group">
-                                <span for="q-factor">Q-Factor (10%)</span>
-                                <span id="q-factor-display">&#8369;0.00</span>
+                                <span for="q-factor">Q-Factor (10%):</span>
+                                <data id="q-factor-display" class="format-peso">0.00</data>
                             </div>
 
-                            <div class="input-group">
-                                <label for="margin">Target Margin (%)</label>
-                                <input type="number" name="margin" id="margin" required value="30">
+                             <div class="input-group">
+                                <span>Suggested Price:</span>
+                                <data id="suggested-price-display" class="format-peso">0.00</data>
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="input-group">
-                                <span>Suggested Price</span>
-                                <span id="suggested-price-display">&#8369;0.00</span>
+                           <div class="input-group">
+                                <label for="margin">Target Margin (%)</label>
+                                <input type="number" name="margin" id="margin" required value="30">
                             </div>
 
                             <div class="input-group">
@@ -233,10 +233,10 @@
                         <div class="row">
                             <div class="input-group">
                             <label for="image">Add Image</label>
-                                <div class="image-upload">
-                                    <input type="file" accept="image/png,.png,image/jpeg,.jpeg,image/jpg,.jpg" multiple name="img_url" id="image" class="d-none">
+                                <div id="upload-box" class="image-upload">
+                                    <input type="file" accept="image/png,.png,image/jpeg,.jpeg,image/jpg,.jpg" name="img_url" id="image" style="display: none;">
 
-                                    <span class="icon-wrapper">
+                                    <span id="upload-icon" class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l50-54q11-12 26.5-19t32.5-7h165q17 0 28.5 11.5T560-800q0 17-11.5 28.5T520-760H355l-73 80H120v480h640v-320q0-17 11.5-28.5T800-560q17 0 28.5 11.5T840-520v320q0 33-23.5 56.5T760-120H120Zm640-640h-40q-17 0-28.5-11.5T680-800q0-17 11.5-28.5T720-840h40v-40q0-17 11.5-28.5T800-920q17 0 28.5 11.5T840-880v40h40q17 0 28.5 11.5T920-800q0 17-11.5 28.5T880-760h-40v40q0 17-11.5 28.5T800-680q-17 0-28.5-11.5T760-720v-40ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29Z"/></svg>
                                     </span>
                                 </div>
@@ -263,12 +263,12 @@
 
 @once
   @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin/menu/menuItems.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/menu/menuItems.css') }}">
   @endpush
 @endonce
 
@@ -277,6 +277,9 @@
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/toggleTab.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/imageUpload.js') }}"></script>
+
   <script>
     const ingredientsData = @json($ingredients);
     let rowCount = 1; 
@@ -353,6 +356,23 @@
         });
     }
 
+    // Grab the scrolling modal dialog
+const modalDialog = document.querySelector('#addModal .modal-dialog');
+
+if (modalDialog) {
+    modalDialog.addEventListener('scroll', function() {
+        document.querySelectorAll('.recipe-select').forEach(selectEl => {
+            if (selectEl.tomselect && selectEl.tomselect.isOpen) {
+                // Instantly closes the dropdown instead of trying to drag it
+                selectEl.tomselect.close(); 
+                
+                // Optional but recommended: removes the blue focus outline
+                selectEl.tomselect.blur(); 
+            }
+        });
+    }, { passive: true });
+}
+
     // Initialize the hardcoded row
     document.querySelectorAll('.recipe-row').forEach(row => attachRowListeners(row));
 
@@ -371,7 +391,7 @@
                 </select>
             </td>
             <td>
-                <div>
+                <div class="input-group">
                     <input type="number" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="1" required>
                     <select name="ingredients[${rowCount}][unit_type]" class="unit-toggle">
                         <option value="" class="d-none">Unit</option>

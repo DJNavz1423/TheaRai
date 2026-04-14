@@ -4,7 +4,7 @@
 
 @section('content')
   <div class="container products-container">
-    <div class="products-toolbar">
+    <div class="row table-controls border-b">
         <div class="searchbox">
             <span class="icon-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
@@ -14,7 +14,7 @@
         </div>
 
         <div class="filters">
-            <select name="category_id" id="category" class="unit-selector">
+            <select name="category_id" id="category" class="ts-filter unit-selector">
                 <option value="all" selected>All Categories</option>
                 @foreach($categories as $category)
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -26,20 +26,20 @@
     <div id="dish-grid" class="product-grid"></div>
   </div>
 
-  <div class="container cart-container">
-    <div class="cart-header">
-        <span class="icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h440q17 0 28.5 11.5T760-320q0 17-11.5 28.5T720-280H280q-45 0-68-39.5t-2-78.5l54-98-144-304H80q-17 0-28.5-11.5T40-840q0-17 11.5-28.5T80-880h65q11 0 21 6t15 17l27 57Zm134 280h280-280Z"/></svg>
-        </span>
-        <h2>Current Order</h2>
-
-        <span id="itemCount" class="badge">0 items</span>
-
-        <button id="clearCartBtn" class="btn clear-btn">
+  <div class="container cart-container border-l">
+    <div class="cart-header border-b">
+        
+        <h2>
             <span class="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
-            </span>
-        </button>
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h440q17 0 28.5 11.5T760-320q0 17-11.5 28.5T720-280H280q-45 0-68-39.5t-2-78.5l54-98-144-304H80q-17 0-28.5-11.5T40-840q0-17 11.5-28.5T80-880h65q11 0 21 6t15 17l27 57Zm134 280h280-280Z"/></svg>
+        </span>Current Order
+    </h2>
+
+            
+
+            <button id="clearCartBtn" class="btn clear-btn">
+                Clear All
+            </button>
     </div>
 
     <div class="cart-body">
@@ -55,15 +55,18 @@
             </div>
         </div>
 
-        <div class="cart-summary">
-            <h2>Total</h2>
-            <h3 id="cart-total">&#8369;0.00</h3>
+        <div class="cart-summary border-t">
+
+            <div class="summary-row summary-total">
+                <h2>Total</h2>
+                <h3 id="cart-total">&#8369;0.00</h3>
+            </div>
         </div>
     </div>
 
-    <div class="cart-footer">
-            <div class="row">
-                <div class="payment-method-section">
+    <div class="cart-footer border-t">
+            <div class="cart-actions">
+                <div class="input-group">
                     <label for="payment-method">Payment Method</label>
                     <select name="payment-method" id="payment-method">
                         <option value="cash">Cash</option>
@@ -71,7 +74,7 @@
                     </select>
                 </div>
 
-                <div id="cash-fields" class="row">
+                <div id="cash-fields" class="cash-fields row">
                     <div class="input-group">
                         <label for="cash-tendered">Cash Tendered</label>
                         <input type="number" id="cash-tendered" class="cash-input" min="1" step="0.01">
@@ -83,7 +86,7 @@
                     </div>
                 </div>
 
-                <div id="digital-fields" class="row" style="display: none;">
+                <div id="digital-fields" class="row digital-fields" style="display: none;">
                     <div class="input-group">
                         <label for="reference-number">Ref No. (Optional)</label>
                         <input type="text" id="reference-number" placeholder="e.g., Gcash Transaction ID">
@@ -107,6 +110,9 @@
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
     @endpush
 @endonce
 
@@ -147,16 +153,22 @@
                     const soldOutClass = isAvailable ? '' : 'not-available';
 
                     const btnClass = isAvailable ? 'is-avail' : 'is-not-avail';
-                    const btnText = isAvailable ? 'Mark Unavailable' : 'Mark Available';
+                    const btnText = isAvailable ? 'Disable' : 'Enable';
 
                     const card = document.createElement('div');
-                    card.className = 'dish-card ${soldOutClass}';
+                    card.className = `dish-card ${soldOutClass}`;
 
                     card.innerHTML = `
                         ${imgHTML}
                         <div class="dish-info">
                             <span class="dish-name">${item.name}</span>
                             <span class="dish-price">${price}</span>
+                            <button type="button" class="btn card-btn">
+                                <span class="icon-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>    
+                                </span>  
+                                Add To Cart  
+                            </button>
                         </div>
                         <button class="toggle-avail-btn ${btnClass}" data-id="${item.id}">${btnText}</button>
                     `;
@@ -172,7 +184,7 @@
                     const toggleBtn = card.querySelector('.toggle-avail-btn');
                     toggleBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        toggleAvailability(item.id, toggleBtn, card);
+                        toggleAvailability(item, toggleBtn, card);
                     })
 
                     card.addEventListener('mousedown', () => { if(isAvailable) card.style.transform = 'scale(0.95)' });
@@ -187,7 +199,7 @@
                 buttonEl.disabled = true;
                 buttonEl.innerHTML = 'Updating...';
 
-                fetch(`/cashier/pos/{id}/toggle-availability`, {
+                fetch(`/cashier/pos/${item.id}/toggle-availability`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -293,17 +305,30 @@
                         row.innerHTML = `
                             <div class="item-info">
                                 <div class="item-name">${item.name}</div>
-                                <div class="item-price">${window.formatPeso.format(item.price)}</div>
+
+                                <div class="price-field">
+                                    <div class="item-price">${window.formatPeso.format(item.price)}</div>
+
+                                    <div class="line-total">
+                                    ${window.formatPeso.format(lineTotal)}
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="quantity-controls">
-                                <button class="qty-minus" data-id="${item.id}">-</button>
-                                <span class="qty">${item.quantity}</span>
-                                <button class="qty-plus" data-id="${item.id}">+</button>
-                            </div>
+                                <button class="qty-minus" data-id="${item.id}">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-440q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h480q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H240Z"/></svg>
+                                    </span>    
+                                </button>
 
-                            <div class="line-total">
-                                ${window.formatPeso.format(lineTotal)}
+                                <span class="qty">${item.quantity}</span>
+
+                                <button class="qty-plus" data-id="${item.id}">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+                                    </span> 
+                                </button>
                             </div>
 
                             <button class="remove-btn" data-id="${item.id}">
@@ -316,12 +341,16 @@
                     });
 
                     document.querySelectorAll('.qty-minus').forEach(btn => {
-                    btn.addEventListener('click', (e) => updateCartQty(parseInt(e.target.dataset.id), -1));
+                    btn.addEventListener('click', (e) => {
+                    updateCartQty(parseInt(e.currentTarget.dataset.id), -1);
                     });
+                });
 
                     document.querySelectorAll('.qty-plus').forEach(btn => {
-                    btn.addEventListener('click', (e) => updateCartQty(parseInt(e.target.dataset.id), 1));
+                        btn.addEventListener('click', (e) => {
+                        updateCartQty(parseInt(e.currentTarget.dataset.id), 1);
                     });
+                });
 
                     document.querySelectorAll('.remove-btn').forEach(btn => {
                         btn.addEventListener('click', (e) => {
@@ -344,12 +373,12 @@
 
                 if(method === 'digital'){
                     cashFields.style.display = 'none';
-                    digitalFields.style.display = 'block';
+                    digitalFields.style.display = 'flex';
 
                     cashTenderedInput.value = '';
                     changeAmountInput.value = window.formatPeso.format(0);
                 } else{
-                    cashFields.style.display = 'block';
+                    cashFields.style.display = 'flex';
                     digitalFields.style.display = 'none';
                     referenceNumberInput.value = '';
                 }

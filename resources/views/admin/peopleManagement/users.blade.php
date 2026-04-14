@@ -71,7 +71,7 @@
 </div>
 
 <!-- Add User Modal -->
-<div id="addModal" class="modal">
+<div id="addModal" class="modal" style="display: none;">
     <div class="modal-dialog">
         <form action="{{ route('admin.users.store') }}" method="POST" class="modal-content">
             @csrf

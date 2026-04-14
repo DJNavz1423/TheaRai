@@ -14,7 +14,6 @@ class PosController extends Controller{
       
       $menuItems = DB::table('laravel.menu_items')
         ->where('final_price', '>', 0)
-        ->where('is_available', true)
         ->get();
 
       return view('pos.pos', compact('categories', 'menuItems', 'layout'));
@@ -74,7 +73,7 @@ class PosController extends Controller{
           }
         }
 
-        $this->logActivity('created', 'order', $orderId, "Processed order {$receiptNo} for ₱" . number_format($request->total_amount, 2));
+        $this->logActivity('created', 'order', $orderId, "{$receiptNo} for ₱" . number_format($request->total_amount, 2));
 
         DB::commit();
 

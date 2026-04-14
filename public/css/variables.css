@@ -40,6 +40,7 @@
   --quaternary-darker: #B39600;     
   --quaternary-deep: #8C7500; 
 
+  --quaternary-light-alpha: #ffeb7a7e; 
   --quaternary-alpha: #f0d12412;
   --quaternary-alpha-deep: #8c750012;
 
@@ -56,6 +57,10 @@
   --light-pure:#FFFFFF;
   --light-warm:#fff5ec;
   --light-fresh:#faffe8;
+  --light-dim: #f1f2f3;
+  --light-fade: #f8f9fa;
+  --light-cool: #fafafa;
+  
 
   --success:#0d884e;
   --warning: #ebbf3e;
