@@ -237,6 +237,7 @@
 @once
   @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/dashboard/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
   @endpush
 @endonce
 

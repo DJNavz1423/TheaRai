@@ -27,7 +27,19 @@
             <input type="text" id="userSearch" class="border searchBar" placeholder="Search products...">
         </div>
 
-        <div class="filters"></div>
+        <div class="filters">
+            <select id="filter-role" class="ts-filter">
+                <option value="all" selected>All Roles</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <select id="sort-users" class="ts-filter">
+                <option value="latest" selected>Latest</option>
+                <option value="name_asc">Name: A-Z</option>
+                <option value="name_desc">Name: Z-A</option>
+            </select>
+        </div>
     </div>
 
     <div class="container table-container border mb-5">
@@ -43,7 +55,10 @@
         </thead>
         <tbody role="rowgroup">
             @foreach($users as $user)
-            <tr role="row">
+            <tr role="row" class="user-row"
+                data-name="{{ strtolower($user->name) }}"
+                data-role="{{ strtolower($user->role) }}"
+                date-created="{{ strtotime($user->created_at ?? now()) }}">
                 <td data-cell="name" role="cell">
                     <div class="d-flex item-group">
                         <span class="item-data">{{ $user->name }}</span>
@@ -124,6 +139,17 @@
     <link rel="stylesheet" href="{{ asset('css/admin/peopleMng/users.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
+    @endpush
+@endonce
+
+@once
+    @push('scripts')
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsUsersFilter.js') }}"></script>
     @endpush
 @endonce

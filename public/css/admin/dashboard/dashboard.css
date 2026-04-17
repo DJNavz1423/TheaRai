@@ -1,19 +1,6 @@
-.container:first-child .row:first-child{
-  justify-content: space-between;
-}
-
-.heading{
-  font-size: 2rem;
-  color: var(--secondary-deep);
-}
-
 .row{
   align-items: center;
   justify-content: center;
-}
-
-.row > *{
-  width: unset;
 }
 
 .quick-btn-row{

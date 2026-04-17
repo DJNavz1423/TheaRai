@@ -20,7 +20,7 @@
         </div>
 
         <div class="filters">
-
+          
         </div>
       </div>
     </div>
@@ -144,6 +144,8 @@
 
 @once
   @push('styles')
+  <link rel="stylesheet" href="{{ asset('css/admin/archives/archives.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">

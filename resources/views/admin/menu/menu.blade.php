@@ -33,7 +33,28 @@
 
             <input type="text" id="menuSearch" class="border searchBar" placeholder="Search products...">
         </div>
-        <div class="filters"></div>
+        <div class="filters">
+            <select id="filter-category" class="ts-filter">
+                <option value="all" selected>All Categories</option>
+                @foreach($categories as $category)
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </select>
+
+            <select id="filter-status" class="ts-filter">
+                <option value="all">All Status</option>
+                <option value="1">Available</option>
+                <option value="0">Not Available</option>
+            </select>
+
+            <select id="sort-items" class="ts-filter">
+                <option value="latest" selected>Latest</option>
+                <option value="price_desc">High Price</option>
+                <option value="price_asc">Low Price</option>
+                <option value="name_asc">Name: A-Z</option>
+                <option value="name_desc">Name: Z-A</option>
+            </select>
+        </div>
     </div>
 
     <div class="container table-container border">
@@ -49,7 +70,12 @@
 
             <tbody role="rowgroup">
                 @foreach($menuItems as $dish)
-                <tr role="row">
+                <tr role="row" class="menu-row" 
+                    data-name="{{ strtolower($dish->name) }}"
+                    data-category="{{ $dish->category_id ?? 'all' }}"
+                    data-price="{{ $dish->final_price }}"
+                    data-created="{{ strtotime($dish->created_at ?? now()) }}"
+                    data-status="{{ $dish->is_available ? '1' : '0' }}">
                     <td role="cell" data-cell="name">
                         <div class="d-flex item-group">
                             <span class="item-img">
@@ -117,7 +143,7 @@
                 </div>
                 
                 <div class="tab-container">
-                    <div class="row tab-titles mt-4 mb-3">
+                    <div class="row tab-titles mt-3 mb-3">
                         <h3 class="tab-links active-link underline-fullwidth" onclick="openTab(event, 'recipe')">Recipe & Costing</h3>
                         <h3 class="tab-links underline-fullwidth" onclick="openTab(event, 'others')">Others</h3>
                     </div>
@@ -269,6 +295,8 @@
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/menu/menuItems.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   @endpush
 @endonce
 
@@ -279,6 +307,7 @@
   <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleTab.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/imageUpload.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsMenuFilter.js') }}"></script>
 
   <script>
     const ingredientsData = @json($ingredients);

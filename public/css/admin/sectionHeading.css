@@ -1,0 +1,18 @@
+.row > *{
+  width: unset;
+}
+
+.heading{
+  font-size: 2rem;
+  color: var(--secondary-deep);
+}
+
+.container:first-child .row:first-child{
+  justify-content: space-between;
+}
+
+.heading-btn-row{
+  align-items: center;
+  justify-content: center;
+  gap:12px;
+}

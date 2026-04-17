@@ -219,6 +219,7 @@
 @once
     @push('styles')
          <link rel="stylesheet" href="{{ asset('css/admin/inventory/inventory.css') }}">
+         <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
@@ -234,7 +235,7 @@
         <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
 
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('js/tomSelect/tsFilters.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsInventoryFilter.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleTab.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/imageUpload.js') }}"></script>

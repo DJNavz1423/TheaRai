@@ -47,6 +47,29 @@
 
         <input type="text" id="expenseSearch" class="border searchBar" placeholder="Search expenses...">
       </div>
+
+      <div class="filters">
+        <select id="filter-type" class="ts-filter">
+          <option value="all" selected>All Types</option>
+          <option value="regular">Regular</option>
+          <option value="restock">Restock</option>
+          <option value="ingredient_purchase">Ingredient Purchase</option>
+        </select>
+
+        <select id="filter-source" class="ts-filter">
+          <option value="all" selected>All Sources</option>
+          <option value="cash_in_hand" selected>System Cash</option>
+          <option value="external_cash" selected>External Cash</option>
+        </select>
+
+        <select id="sort-items" class="ts-filter">
+          <option value="latest" selected>Latest</option>
+          <option value="amount_desc">High Amount</option>
+          <option value="amount_asc">Low Amount</option>
+          <option value="desc_asc">Description: A-Z</option>
+          <option value="desc_desc">Description: Z-A</option>
+        </select>
+      </div>
     </div>
 
     <div class="container table-container border">
@@ -63,12 +86,17 @@
 
         <tbody role="rowgroup">
           @foreach($expenses ?? [] as $expense)  
-          <tr role="row">
+          <tr role="row" class="expense-row"
+            data-type="{{ $expense->expense_type }}"
+            data-source="{{ $expense->fund_source }}"
+            data-amount="{{ $expense->total_amount }}"
+            data-desc="{{ strtolower($expense->description) }}"
+            data-created="{{ strtotime($expense->created_at) }}">
             <td role="cell" data-cell="date">{{ \Carbon\Carbon::parse($expense->created_at)->format('M d, Y') }}</td>
-            <td role="cell" data-cell="type"><span>{{ ucfirst($expense->expense_type) }}</span></td>
-            <td role="cell" data-cell="source"><span>{{ str_replace('_', ' ', ucfirst($expense->fund_source)) }}</span></td>
+            <td role="cell" data-cell="type"><span>{{ ucfirst(str_replace('_', ' ', $expense->expense_type)) }}</span></td>
+            <td role="cell" data-cell="source"><span>{{ ucfirst(str_replace('_', ' ', $expense->fund_source)) }}</span></td>
             <td role="cell" data-cell="description"><span>{{ $expense->description }}</span></td>
-            <td role="cell" data-cell="amount" class="format-peso" value="{{ $expense->total_amount }}"></td>
+            <td role="cell" data-cell="amount" class="format-peso" value="{{ $expense->total_amount }}">{{ number_format($expense->total_amount, 2) }}</td>
           </tr>
           @endforeach
         </tbody>
@@ -206,11 +234,13 @@
 @once
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/admin/expenses/expenses.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
     @endpush
 @endonce
 
@@ -219,8 +249,10 @@
     @push('scripts')
         <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsExpensesFilter.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
+        
         <script>
           // modal
          function openModal(id){

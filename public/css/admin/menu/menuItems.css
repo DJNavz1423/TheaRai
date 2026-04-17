@@ -1,22 +1,3 @@
-.row > *{
-  width: unset;
-}
-
-.heading{
-  font-size: 2rem;
-  color: var(--secondary-deep);
-}
-
-.container:first-child .row:first-child{
-  justify-content: space-between;
-}
-
-.heading-btn-row{
-  align-items: center;
-  justify-content: center;
-  gap:12px;
-}
-
 .heading-btn-row .btn:first-child{
   padding: 8px;
   background: none;
