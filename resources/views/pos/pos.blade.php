@@ -159,7 +159,9 @@
                     card.className = `dish-card ${soldOutClass}`;
 
                     card.innerHTML = `
-                        ${imgHTML}
+                        <div class="dish-img">
+                            ${imgHTML}
+                        </div>
                         <div class="dish-info">
                             <span class="dish-name">${item.name}</span>
                             <span class="dish-price">${price}</span>
