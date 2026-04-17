@@ -29,7 +29,7 @@
 
 .modal-dialog{
   width: 60%;
-  height: 95%;
+  max-height: 95%;
   background: var(--light-pure);
   border-radius: 12px;
   align-items: center;
