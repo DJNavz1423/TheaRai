@@ -25,7 +25,7 @@
     </div>
  </div>
 
- <div class="container">
+ <div class="container main-content">
     <div class="row table-controls mb-3">
         <div class="searchbox">
             <span class="icon-wrapper">
@@ -73,6 +73,7 @@
                     <th>Category</th>
                     <th>Purchase Price</th>
                     <th>Quantity</th>
+                    <th>Last Updated</th>
                 </tr>
             </thead>
 
@@ -83,7 +84,7 @@
                     data-category="{{ $item->category_id }}"
                     data-qty="{{ $item->stock_quantity }}"
                     data-threshold="{{ $item->alert_threshold ?? 0 }}"
-                    data-created="{{ strtotime($item->created_at) }}"
+                    data-created="{{ strtotime($item->updated_at) }}"
                     data-base-price="{{ $item->purchase_price }}"
                     data-conv="{{ $item->conversion_factor }}"
                     data-p-abbr="{{ $item->primary_unit_abbr }}"
@@ -120,7 +121,17 @@
                     </td>
                     <td data-cell="quantity" role="cell">
                         <div class="d-flex item-group">
-                            <span class="item-data display-qty">{{ number_format($item->stock_quantity, 2) }} {{ $item->primary_unit_abbr }} </span>
+                            <span class="item-data display-qty {{$item->stock_quantity < $item->alert_threshold && $item->stock_quantity > 0 ? 'low-stock' : ''}} {{$item->stock_quantity == 0 ? 'out-of-stock' : ''}}">{{ number_format($item->stock_quantity, 2) }} {{ $item->primary_unit_abbr }} </span>
+                        </div>                        
+                        
+                    </td>
+
+
+                    <td data-cell="last update" role="cell">
+                        <div class="d-flex item-group">
+                            <span class="item-data">
+                                {{ $item->updated_at ? \Carbon\Carbon::parse($item->updated_at)->format('M d, Y') : '--' }}
+                            </span>
 
                             <div class="dropdown-wrapper">
                                 <button type="button" class="more-actions" onclick="toggleDropdown(this)">
@@ -191,9 +202,7 @@
 
                                 </div>
                             </div>
-                            
-                        </div>                        
-                        
+                        </div>
                     </td>
                     
                 </tr>
@@ -235,7 +244,7 @@
         <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
 
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsInventoryFilter.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsInventoryFilters.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleTab.js') }}"></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/imageUpload.js') }}"></script>

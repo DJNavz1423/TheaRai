@@ -36,3 +36,16 @@
   flex-direction: column;
 }
 
+/*
+  table 
+*/
+
+.low-stock{
+  color: var(--warning);
+  font-weight: 700;
+}
+
+.out-of-stock{
+  color: var(--danger);
+  font-weight: 700;
+}

@@ -25,7 +25,7 @@ class IngredientController extends Controller
                 's_unit.name as secondary_unit_name',
                 's_unit.abbreviation as secondary_unit_abbr'
             )
-            ->orderBy('laravel.ingredients.created_at', 'desc')
+            ->orderBy('laravel.ingredients.updated_at', 'desc')
             ->get();
 
             $categories = DB::table('laravel.ingredient_categories')->get();
