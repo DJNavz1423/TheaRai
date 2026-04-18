@@ -1,9 +1,16 @@
 /*
   table
 */
+.main-content{
+  display: flex;
+  flex-direction: column;
+   max-height: 82dvh;
+}
+
+
 .table-container{
     overflow-anchor: none;
-    max-height: 600px;
+    flex: 1;
     border-color: var(--secondary-soft);
     border-width: 1px;
     border-radius: 8px;
