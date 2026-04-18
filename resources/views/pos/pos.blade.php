@@ -28,15 +28,11 @@
 
   <div class="container cart-container border-l">
     <div class="cart-header border-b">
-        
         <h2>
             <span class="icon-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h440q17 0 28.5 11.5T760-320q0 17-11.5 28.5T720-280H280q-45 0-68-39.5t-2-78.5l54-98-144-304H80q-17 0-28.5-11.5T40-840q0-17 11.5-28.5T80-880h65q11 0 21 6t15 17l27 57Zm134 280h280-280Z"/></svg>
-        </span>Current Order
-    </h2>
-
-            
-
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M223.5-103.5Q200-127 200-160t23.5-56.5Q247-240 280-240t56.5 23.5Q360-193 360-160t-23.5 56.5Q313-80 280-80t-56.5-23.5Zm400 0Q600-127 600-160t23.5-56.5Q647-240 680-240t56.5 23.5Q760-193 760-160t-23.5 56.5Q713-80 680-80t-56.5-23.5ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h440q17 0 28.5 11.5T760-320q0 17-11.5 28.5T720-280H280q-45 0-68-39.5t-2-78.5l54-98-144-304H80q-17 0-28.5-11.5T40-840q0-17 11.5-28.5T80-880h65q11 0 21 6t15 17l27 57Zm134 280h280-280Z"/></svg>
+            </span>Current Order
+        </h2>
             <button id="clearCartBtn" class="btn clear-btn">
                 Clear All
             </button>
@@ -103,6 +99,70 @@
                 </span>
             </button>
         </div>
+
+
+
+        <!--/////////  WIP \\\\\\\\\\\\\\  -->
+        <div id="in-cart-preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--light-pure); z-index: 10; flex-direction: column;">
+        <div class="cart-header border-b">
+            <h2>
+                <span class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-240h320v-80H320v80Zm0-160h320v-80H320v80ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v480q0 33-23.5 56.5T760-80H240Zm280-520v-200H240v640h520v-440H520ZM240-800v200-200 640-640Z"/></svg>
+                </span>
+                Review Receipt
+            </h2>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto; padding: 1.5rem; font-family: monospace; font-size: 14px; background: #fff;">
+            <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px;">
+                <strong style="font-size: 16px;">TheaRai Eatery</strong><br>
+                <small>123 Main Street, Davao City<br>Tel: 0912 345 6789</small>
+            </div>
+            
+            <div style="margin-bottom: 10px; font-size: 12px;">
+                Date: <span id="preview-date"></span><br>
+                Payment: <span id="preview-payment-method"></span>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 13px;">
+                <thead>
+                    <tr style="border-bottom: 1px dashed #ccc;">
+                        <th style="text-align: left; padding: 4px 0;">Qty</th>
+                        <th style="text-align: left; padding: 4px 0;">Item</th>
+                        <th style="text-align: right; padding: 4px 0;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="preview-items">
+                    </tbody>
+            </table>
+
+            <table style="width: 100%; font-size: 13px;">
+                <tr>
+                    <td><strong>Total Due:</strong></td>
+                    <td style="text-align: right;" id="preview-total"></td>
+                </tr>
+                <tr>
+                    <td>Cash Tendered:</td>
+                    <td style="text-align: right;" id="preview-tendered"></td>
+                </tr>
+                <tr>
+                    <td>Change:</td>
+                    <td style="text-align: right;" id="preview-change"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="cart-footer border-t" style="display: flex; gap: 1rem; padding: 1rem;">
+            <button type="button" id="cancelPreviewBtn" class="btn" style="flex: 1; background: none; border: 1px solid var(--secondary-soft); color: var(--secondary);">
+                Back to Cart
+            </button>
+            <button type="button" id="confirmProcessBtn" class="btn checkout-btn" style="flex: 1;">
+                Confirm & Print
+            </button>
+        </div>
+    </div>
+
+
   </div>
 @endsection
 
@@ -401,9 +461,55 @@
                     return;
                 }
 
-                checkoutBtn.disabled = true;
-                clearCartBtn.disabled = true;
-                checkoutBtn.innerHTML = 'Processing...';
+                // Populate Preview Panel
+                const now = new Date();
+                document.getElementById('preview-date').innerText = now.toLocaleString('en-US', 
+                { month: '2-digit', 
+                day: '2-digit', 
+                year: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: true });
+
+                document.getElementById('preview-payment-method').innerText = selectedMethod.toUpperCase();
+
+                const itemsContainer = document.getElementById('preview-items');
+                itemsContainer.innerHTML = '';
+                cart.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="vertical-align: top; padding: 2px 0;">${item.quantity}x</td>
+                        <td style="vertical-align: top; padding: 2px 0; padding-right: 10px;">${item.name}</td>
+                        <td style="text-align: right; vertical-align: top; padding: 2px 0;">${window.formatPeso.format(item.price * item.quantity)}</td>
+                    `;
+                    itemsContainer.appendChild(row);
+                });
+
+                document.getElementById('preview-total').innerText = window.formatPeso.format(totalAmount);
+
+                const tenderedDisplay = selectedMethod === 'digital' ? totalAmount : cashTendered;
+                
+                // --- THIS IS THE LINE THAT WAS FIXED ---
+                document.getElementById('preview-tendered').innerText = window.formatPeso.format(tenderedDisplay);
+
+                const changeDisplay = selectedMethod === 'digital' ? 0 : (cashTendered - totalAmount);
+                document.getElementById('preview-change').innerText = window.formatPeso.format(changeDisplay);
+
+                document.getElementById('in-cart-preview').style.display = 'flex';
+            });
+
+            document.getElementById('cancelPreviewBtn').addEventListener('click', () => {
+                document.getElementById('in-cart-preview').style.display = 'none';
+            });
+
+            document.getElementById('confirmProcessBtn').addEventListener('click', (e) => {
+                const confirmBtn = e.target;
+                confirmBtn.disabled = true;
+                confirmBtn.innerText = 'Processing...';
+
+                const selectedMethod = paymentMethodSelect.value;
+                const cashTendered = parseFloat(cashTenderedInput.value) || 0;
+                const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
                 fetch("{{ route('cashier.pos.order') }}",{
                     method: 'POST',
@@ -422,29 +528,32 @@
                 .then(response => response.json())
                 .then(data => {
                     if(data.success){
-                        alert('Order Paid & Stock Deducted Successfully!');
+                        // Reset button and hide preview
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerText = 'Confirm & Print';
+                        document.getElementById('in-cart-preview').style.display = 'none';
+
+                        // OPEN PDF RECEIPT IN NEW TAB
+                        window.open(`/cashier/pos/receipt/${data.order_id}`, '_blank');
+                        
+                        // Reset UI
                         cart = [];
                         cashTenderedInput.value = '';
+                        if(digitalFields.style.display !== 'none') {
+                            referenceNumberInput.value = '';
+                        }
                         updateCartUI();
                     } else{
                         alert('Error: ' + data.error);
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerText = 'Confirm & Print';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Something went wrong. Check the console.');
-                })
-                .finally(() => {
-                    checkoutBtn.innerHTML = 
-                    `
-                    Checkout
-
-                    <span class="icon-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M727-440H120q-17 0-28.5-11.5T80-480q0-17 11.5-28.5T120-520h607L572-676q-11-11-11.5-27.5T572-732q11-11 28-11t28 11l224 224q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13L628-228q-11 11-27.5 11T572-228q-12-12-12-28.5t12-28.5l155-155Z"/></svg>
-                    </span>
-                    `;
-                    checkoutBtn.disabled = false;
-                    clearCartBtn.disabled = false;
+                    confirmBtn.disabled = false;
+                    confirmBtn.innerText = 'Confirm & Print';
                 });
             });
 

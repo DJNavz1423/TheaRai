@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PosController extends Controller{
     public function index() : View{
@@ -80,6 +81,7 @@ class PosController extends Controller{
         return response()->json([
           'success' => true,
           'message' => 'Order processed successfully',
+          'order_id' => $orderId,
           'receipt' => $receiptNo,
           'change' => $changeAmount,
         ]);
@@ -115,5 +117,25 @@ class PosController extends Controller{
         'is_available' => $newStatus,
         'message' => "Menu item marked as {$statusText}"
         ]);
+    }
+
+    public function printReceipt($id){
+      $order = DB::table('laravel.orders')
+        ->where('id', $id)
+        ->first();
+
+      $items = DB::table('laravel.order_items')
+        ->join('laravel.menu_items', 'order_items.menu_item_id', '=', 'menu_items.id')
+        ->where('order_id', $id)
+        ->select('menu_items.name', 'order_items.quantity', 'order_items.subtotal')
+        ->get();
+
+      if(!$order) abort(404, 'Order not found');
+
+      $pdf = Pdf::loadView('pos.receipt', compact('order', 'items'));
+
+      $pdf->setPaper([0, 0, 226.77, 600], 'portrait');
+
+      return $pdf->stream("receipt-{$order->receipt_no}.pdf");
     }
 }

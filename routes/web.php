@@ -100,9 +100,8 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/cashier/pos/{id}/toggle-availability', [PosController::class, 'toggleAvailability'])
         ->middleware('role:admin|staff')
         ->name('cashier.pos.toggleAvailability');
+
+    Route::get('/cashier/pos/receipt/{id}', [PosController::class, 'printReceipt'])
+        ->name('cashier.pos.receipt');
 });
 
-
-/*Route::get('/', function () {
-    return view('welcome');
-});*/

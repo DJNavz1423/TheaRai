@@ -40,7 +40,7 @@ product grid
 .product-grid{
   flex: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   align-content: start;
   gap: 1rem;
   padding: 20px 20px 20px 30px;
@@ -163,6 +163,7 @@ product grid
 */
 
 .cart-container{
+  position: relative;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
