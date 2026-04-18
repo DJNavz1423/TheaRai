@@ -38,7 +38,7 @@
     </div>
   </div>
 
-  <div class="container mb-3">
+  <div class="container main-content">
     <div class="row table-controls mb-3">
       <div class="searchbox">
         <span class="icon-wrapper">

@@ -24,7 +24,7 @@
     </div>
 </div>
 
-<div class="container mb-3">
+<div class="container main-content">
     <div class="row table-controls mb-3">
         <div class="searchbox">
             <span class="icon-wrapper">
@@ -64,7 +64,7 @@
                     <th>Dish Name</th>
                     <th>Category</th>
                     <th>Selling Price</th>
-                    <th class="text-end">Actions</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
 
@@ -95,12 +95,32 @@
                         <span class="item-data">&#8369;{{ number_format($dish->final_price, 2) }}</span>
                     </td>
                     
-                    <td role="cell" data-cell="actions" class="text-end">
-                        <button class="more-actions">
+                    <td role="cell" data-cell="actions">
+                        <div class="dropdown-wrapper">
+                            <button type="button" class="more-actions" onclick="toggleDropdown(this)">
                             <span class="icon-wrapper">
                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>
                             </span>
                         </button>
+
+                        <div class="dropdown-menu border" style="display: none;">
+                            <div class="dropdown-section">
+                                <button class="dropdown-item btn">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
+                                        Edit Item
+                                    </span>
+                                </button>
+
+                                <button class="dropdown-item btn">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v126q0 17-13.5 28t-31.5 8q-8-1-17-1.5t-18-.5q-20 0-40 2.5t-40 8.5v-51q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v90q-24 17-44.5 38.5T440-424v-176q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q0 29 6.5 57.5T424-168q8 17-1.5 32.5T396-120H280Zm258.5-18.5Q480-197 480-280t58.5-141.5Q597-480 680-480t141.5 58.5Q880-363 880-280t-58.5 141.5Q763-80 680-80t-141.5-58.5ZM700-288v-92q0-8-6-14t-14-6q-8 0-14 6t-6 14v91q0 8 3 15.5t9 13.5l60 60q6 6 14 6t14-6q6-6 6-14t-6-14l-60-60Z"/></svg>
+                                        Delete Item
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        </div>
                     </td>
                 </tr>
                 @endforeach
@@ -289,13 +309,13 @@
 
 @once
   @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/menu/menuItems.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   @endpush
 @endonce
@@ -308,6 +328,7 @@
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleTab.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/imageUpload.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsMenuFilter.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
 
   <script>
     const ingredientsData = @json($ingredients);

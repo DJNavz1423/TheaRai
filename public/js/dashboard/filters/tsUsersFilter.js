@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', function(){
     //filtering
     rows.forEach(row => {
       const name = row.getAttribute('data-name');
-      const rowRole = row.getAttribute('data-role');
+      const rowVal = row.getAttribute('data-role');
 
       const matchesSearch = name.includes(searchQuery);
-      const matchesRole = (roleVal === 'all' || role === roleVal);
+      const matchesRole = (roleVal === 'all' || rowVal === roleVal);
 
       if(matchesSearch && matchesRole){
         row.style.display = '';

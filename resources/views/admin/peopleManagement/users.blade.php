@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<div class="container mb-3">
+<div class="container main-content">
     <div class="row table-controls mb-3">
         <div class="searchbox">
             <span class="icon-wrapper">
@@ -57,8 +57,8 @@
             @foreach($users as $user)
             <tr role="row" class="user-row"
                 data-name="{{ strtolower($user->name) }}"
-                data-role="{{ strtolower($user->role) }}"
-                date-created="{{ strtotime($user->created_at ?? now()) }}">
+                data-role="{{  strtolower($user->role) }}"
+                data-created="{{ strtotime($user->created_at) }}">
                 <td data-cell="name" role="cell">
                     <div class="d-flex item-group">
                         <span class="item-data">{{ $user->name }}</span>
@@ -72,11 +72,38 @@
                 </td>
                 <td data-cell="date" role="cell"><span class="item-data">{{ $user->created_at ? $user->created_at->format('M d, Y') : '--' }}</span></td>
                 <td data-cell="actions" role="cell">
-                    <button class="more-actions">
-                        <span class="icon-wrapper">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>
-                        </span>
-                    </button>
+                    <div class="dropdown-wrapper">
+                            <button type="button" class="more-actions" onclick="toggleDropdown(this)">
+                            <span class="icon-wrapper">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>
+                            </span>
+                        </button>
+
+                        <div class="dropdown-menu border" style="display: none;">
+                            <div class="dropdown-section">
+                                <button class="dropdown-item btn">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
+                                        Edit User Info
+                                    </span>
+                                </button>
+
+                                <button class="dropdown-item btn">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-480ZM455-87q-134-44-214.5-166.5T160-516v-189q0-25 14.5-45t37.5-29l240-90q14-5 28-5t28 5l240 90q23 9 37.5 29t14.5 45v186q0 17-11.5 28.5T760-479q-17 0-28.5-11.5T720-519v-186l-240-90-240 90v189q0 121 68 220t172 132q16 5 23.5 20t2.5 31q-5 16-20 23.5T455-87Zm225-113h-80q-17 0-28.5-11.5T560-240q0-17 11.5-28.5T600-280h80v-80q0-17 11.5-28.5T720-400q17 0 28.5 11.5T760-360v80h80q17 0 28.5 11.5T880-240q0 17-11.5 28.5T840-200h-80v80q0 17-11.5 28.5T720-80q-17 0-28.5-11.5T680-120v-80ZM444-360h72q9 0 15.5-7.5T536-384l-19-105q20-10 31.5-29t11.5-42q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 23 11.5 42t31.5 29l-19 105q-2 9 4.5 16.5T444-360Z"/></svg>
+                                        Change Password
+                                    </span>
+                                </button>
+
+                                <button class="dropdown-item btn">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v126q0 17-13.5 28t-31.5 8q-8-1-17-1.5t-18-.5q-20 0-40 2.5t-40 8.5v-51q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v90q-24 17-44.5 38.5T440-424v-176q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q0 29 6.5 57.5T424-168q8 17-1.5 32.5T396-120H280Zm258.5-18.5Q480-197 480-280t58.5-141.5Q597-480 680-480t141.5 58.5Q880-363 880-280t-58.5 141.5Q763-80 680-80t-141.5-58.5ZM700-288v-92q0-8-6-14t-14-6q-8 0-14 6t-6 14v91q0 8 3 15.5t9 13.5l60 60q6 6 14 6t14-6q6-6 6-14t-6-14l-60-60Z"/></svg>
+                                        Remove User
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                        </div>
                 </td>
             </tr>
             @endforeach
@@ -137,6 +164,7 @@
 @once 
     @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/peopleMng/users.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
@@ -151,5 +179,6 @@
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsUsersFilter.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
     @endpush
 @endonce
