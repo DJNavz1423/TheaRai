@@ -134,12 +134,20 @@
   }
 
   .currency-symbol{
-    left: calc(anchor(left) + 15px);
+    left: calc(anchor(left) + 12px);
   }
 
   .unit-abbr{
     right: calc(anchor(right) + 15px);
   }
+
+  .unit-toggle{
+      position: absolute;
+      position-anchor: --modal-input;
+      top: anchor(top);
+      bottom: anchor(bottom);
+      right: calc(anchor(right) + 15px);
+    }
 }
 
 /*
