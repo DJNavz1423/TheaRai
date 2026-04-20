@@ -63,6 +63,13 @@ Route::middleware(['auth'])->group(function(){
         Route::post('/menu', [MenuController::class, 'store'])
         ->name('admin.menu.store');
 
+        Route::get('/menu/{id}/branch-pricing', [MenuController::class, 'getBranchPricing']);
+        
+        Route::post('/menu/{id}/branch-pricing', [MenuController::class, 'updateBranchPricing']);
+
+
+
+
         #expense
         Route::get('/expenses', [ExpenseController::class, 'index'])
             ->name('admin.expenses');
@@ -80,12 +87,21 @@ Route::middleware(['auth'])->group(function(){
         #analytics
         Route::get('/analytics', [AnalyticsController::class, 'index'])
             ->name('admin.analytics');
+
+
+        #POS
+        Route::get('/pos/select-branch', [PosController::class, 'selectBranch'])
+            ->name('admin.pos.select');
+
+        Route::get('/pos/set-branch/{id}', [PosController::class, 'setBranch'])
+            ->name('admin.pos.set');
     });
     
     Route::get('/cashier/pos', function(){ //allowed if user is logged in and has a role of staff
         return view('pos.pos');
     })->middleware('role:admin|staff');
     
+
     /*
         POS routes
     */
