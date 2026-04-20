@@ -41,12 +41,6 @@
                 @endforeach
             </select>
 
-            <select id="filter-status" class="ts-filter">
-                <option value="all">All Status</option>
-                <option value="1">Available</option>
-                <option value="0">Not Available</option>
-            </select>
-
             <select id="sort-items" class="ts-filter">
                 <option value="latest" selected>Latest</option>
                 <option value="price_desc">High Price</option>
@@ -74,8 +68,7 @@
                     data-name="{{ strtolower($dish->name) }}"
                     data-category="{{ $dish->category_id ?? 'all' }}"
                     data-price="{{ $dish->final_price }}"
-                    data-created="{{ strtotime($dish->created_at ?? now()) }}"
-                    data-status="{{ $dish->is_available ? '1' : '0' }}">
+                    data-created="{{ strtotime($dish->created_at ?? now()) }}">
                     <td role="cell" data-cell="name">
                         <div class="d-flex item-group">
                             <span class="item-img">
@@ -105,14 +98,21 @@
 
                         <div class="dropdown-menu border" style="display: none;">
                             <div class="dropdown-section">
-                                <button class="dropdown-item btn">
+                                <button type="button" class="dropdown-item btn" onclick="openBranchPricingModal({{ $dish->id }}, '{{ addslashes($dish->name) }}', {{ $dish->final_price }})">
+                                    <span class="icon-wrapper">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-120v-80h720v80H120Zm74-200L80-514l62-12 70 114 212-320 54 36-284 376Zm352 0-56-56 184-184H360v-80h314L490-824l56-56 274 274-274 286Z"/></svg>
+                                    </span>
+                                    Manage Branch Pricing
+                                </button>
+
+                                <button type="button" class="dropdown-item btn">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
                                         Edit Item
                                     </span>
                                 </button>
 
-                                <button class="dropdown-item btn">
+                                <button type="button" class="dropdown-item btn">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v126q0 17-13.5 28t-31.5 8q-8-1-17-1.5t-18-.5q-20 0-40 2.5t-40 8.5v-51q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v90q-24 17-44.5 38.5T440-424v-176q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q0 29 6.5 57.5T424-168q8 17-1.5 32.5T396-120H280Zm258.5-18.5Q480-197 480-280t58.5-141.5Q597-480 680-480t141.5 58.5Q880-363 880-280t-58.5 141.5Q763-80 680-80t-141.5-58.5ZM700-288v-92q0-8-6-14t-14-6q-8 0-14 6t-6 14v91q0 8 3 15.5t9 13.5l60 60q6 6 14 6t14-6q6-6 6-14t-6-14l-60-60Z"/></svg>
                                         Delete Item
@@ -122,6 +122,10 @@
                         </div>
                         </div>
                     </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="text-muted" style="text-align: center; padding: 20px;">Menu is empty.</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -133,7 +137,7 @@
 
 <div id="addModal" class="modal" style="display: none;">
     <div class="modal-dialog">
-        <form action="" method="POST" class="modal-content" enctype="multipart/form-data">
+        <form action="{{ url('/admin/menu') }}" method="POST" class="modal-content" enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
                 <h2>Add New Dish</h2>
@@ -151,19 +155,32 @@
                         <label for="name">Dish Name</label>
                         <input type="text" name="name" id="name" placeholder="e.g., Bulalo" required>
                     </div>
+
                     <div class="input-group">
                         <label for="category">Category</label>
-                        <select name="category_id" id="category" class="unit-selector" placeholder="Select category...">
+                        <select name="category_id" id="category" class="unit-selector" placeholder="Select category..." required>
                             <option value="" class="d-none"></option>
                             @foreach($categories as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
                         </select>
                     </div>
+
+                    <div class="branch-select-wrapper">
+                        <div class="input-group">
+                            <label for="dish_branches">Available In Branches</label>
+                            <select name="branch_ids[]" id="dish_branches" placeholder="Select branches..." multiple required>
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}" selected>{{ $branch->name }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">Select the branches where this dish will be sold.</small>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="tab-container">
-                    <div class="row tab-titles mt-3 mb-3">
+                    <div class="row tab-titles mb-3">
                         <h3 class="tab-links active-link underline-fullwidth" onclick="openTab(event, 'recipe')">Recipe & Costing</h3>
                         <h3 class="tab-links underline-fullwidth" onclick="openTab(event, 'others')">Others</h3>
                     </div>
@@ -213,7 +230,7 @@
                                     <td>
                                         <div>
                                             <span class="line-cost-display">&#8369;0.00</span>
-                                            <button class="remove-row">
+                                            <button type="button" class="remove-row">
                                                 <span class="icon-wrapper">
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
                                                 </span>
@@ -263,6 +280,7 @@
 
                             <div class="input-group">
                                 <label for="final-price">Your Price</label>
+                                <span class="icon-wrapper currency-symbol">&#8369;</span>
                                 <input type="number" name="final_price" id="final-price" required>
                             </div>
                         </div>
@@ -283,7 +301,7 @@
                                     <input type="file" accept="image/png,.png,image/jpeg,.jpeg,image/jpg,.jpg" name="img_url" id="image" style="display: none;">
 
                                     <span id="upload-icon" class="icon-wrapper">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l50-54q11-12 26.5-19t32.5-7h165q17 0 28.5 11.5T560-800q0 17-11.5 28.5T520-760H355l-73 80H120v480h640v-320q0-17 11.5-28.5T800-560q17 0 28.5 11.5T840-520v320q0 33-23.5 56.5T760-120H120Zm640-640h-40q-17 0-28.5-11.5T680-800q0-17 11.5-28.5T720-840h40v-40q0-17 11.5-28.5T800-920q17 0 28.5 11.5T840-880v40h40q17 0 28.5 11.5T920-800q0 17-11.5 28.5T880-760h-40v40q0 17-11.5 28.5T800-680q-17 0-28.5-11.5T760-720v-40ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29Z"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M771.5-691.5Q760-703 760-720v-40h-40q-17 0-28.5-11.5T680-800q0-17 11.5-28.5T720-840h40v-40q0-17 11.5-28.5T800-920q17 0 28.5 11.5T840-880v40h40q17 0 28.5 11.5T920-800q0 17-11.5 28.5T880-760h-40v40q0 17-11.5 28.5T800-680q-17 0-28.5-11.5ZM440-260q75 0 127.5-52.5T620-440q0-75-52.5-127.5T440-620q-75 0-127.5 52.5T260-440q0 75 52.5 127.5T440-260Zm0-80q-42 0-71-29t-29-71q0-42 29-71t71-29q42 0 71 29t29 71q0 42-29 71t-71 29ZM120-120q-33 0-56.5-23.5T40-200v-480q0-33 23.5-56.5T120-760h126l50-54q11-12 26.5-19t32.5-7h205q17 0 28.5 11.5T600-800v60q0 25 17.5 42.5T660-680h20v20q0 25 17.5 42.5T740-600h60q17 0 28.5 11.5T840-560v360q0 33-23.5 56.5T760-120H120Z"/></svg>
                                     </span>
                                 </div>
                             </div>
@@ -301,6 +319,43 @@
                 <button type="submit" class="btn">
                 <span>Add Menu Dish</span>
             </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="manageBranchModal" class="modal" style="display: none;">
+    <div class="modal-dialog">
+        <form id="manageBranchForm" method="POST" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h2>Manage <span id="manage-dish-name" style="color: var(--primary);"></span></h2>
+                <button type="button" class="btn close-btn" onclick="document.getElementById('manageBranchModal').style.display='none'">
+                    <span class="icon-wrapper close-modal"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Global Default Price: <strong class="format-peso" id="manage-global-price"></strong></p>
+                <p class="text-muted mb-3" style="font-size: 0.85rem;">Leave a branch price blank to automatically use the Global Default Price. Uncheck the box if the dish is currently unavailable at that location.</p>
+                
+                <div class="container table-container modal-table border mb-1">
+                    <table>
+                        <thead>
+                            <tr class="border-b">
+                                <th class="border-r">Branch Name</th>
+                                <th class="border-r" style="width: 150px;">Custom Price Override</th>
+                                <th style="width: 100px; text-align: center;">Available?</th>
+                            </tr>
+                        </thead>
+                        <tbody id="branch-pricing-list">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="document.getElementById('manageBranchModal').style.display='none'"><span>Cancel</span></button>
+                <button type="submit" class="btn"><span>Save Branch Settings</span></button>
             </div>
         </form>
     </div>
@@ -332,6 +387,62 @@
 
   <script>
     const ingredientsData = @json($ingredients);
+
+    const branchTs = new TomSelect('#dish_branches', {
+        hideSelected: false, 
+        closeAfterSelect: false, 
+        maxItems: null,
+        dropdownParent: 'body',
+        dropdownClass: 'ts-dropdown branch-dropdown',
+        render: {
+            item: function(data, escape) {
+                return '<div style="display: none;"></div>'; 
+            }
+        },
+        onInitialize: function() {
+            updateBranchText(this);
+
+            this.control_input.readOnly = true; 
+            this.control_input.style.cursor = 'pointer';
+            this.control.style.cursor = 'pointer';
+            
+            this.dropdown.addEventListener('mousedown', (e) => {
+                const option = e.target.closest('.option');
+                if (option && option.classList.contains('selected')) {
+                    const value = option.dataset.value;
+                    this.removeItem(value);
+                    this.refreshOptions(false);
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+        },
+        onChange: function() {
+            updateBranchText(this);
+        },
+        // NEW: Force the text to stay when clicking away
+        onBlur: function() {
+            updateBranchText(this);
+        }
+    });
+
+    // Dynamically updates the text inside the input box
+    function updateBranchText(ts) {
+        const count = ts.items.length;
+        let text = 'Select branches...';
+        
+        if (count === 1) text = '1 branch selected';
+        else if (count > 1) text = `${count} branches selected`;
+        
+        // NEW: Update TomSelect's internal memory so it stops reverting
+        ts.settings.placeholder = text; 
+        
+        // Update the physical input
+        ts.control_input.placeholder = text;
+        ts.control_input.style.opacity = '1';
+        ts.control_input.style.color = 'var(--secondary)';
+    }
+
     let rowCount = 1; 
 
     const ingredientOptions = ingredientsData.map(i => {
@@ -345,19 +456,15 @@
     }).join('');
 
     function attachRowListeners(row) {
-        // Grab all our elements for this specific row
         const selectEl = row.querySelector('.recipe-select');
         const unitToggle = row.querySelector('.unit-toggle');
         const qtyInput = row.querySelector('.recipe-qty');
         const activeCostInput = row.querySelector('.active-unit-cost');
         const unitCostDisplay = row.querySelector('.unit-cost-display');
         
-        // Initialize TomSelect on the ingredient dropdown
         new TomSelect(selectEl, { create: false, maxItems: 1, dropdownParent: 'body' });
 
-        // When the Ingredient changes...
         selectEl.tomselect.on('change', function(val) {
-            // Reset if they clear the dropdown
             if(!val) {
                 unitToggle.innerHTML = '<option value="" class="d-none">Unit</option>';
                 activeCostInput.value = 0;
@@ -366,22 +473,17 @@
                 return;
             }
 
-            // THE FIX: We must query the original HTML element to get the data attributes
             const originalOption = selectEl.querySelector(`option[value="${val}"]`);
             
-            // Now we can safely read the dataset and build the unit dropdown
             unitToggle.innerHTML = `
                 <option value="secondary" data-cost="${originalOption.dataset.scost}">${originalOption.dataset.sabbr}</option>
                 <option value="primary" data-cost="${originalOption.dataset.pcost}">${originalOption.dataset.pabbr}</option>
             `;
             
-            // Tell the unit dropdown to update the costs
             unitToggle.dispatchEvent(new Event('change'));
         });
 
-        // When Unit toggles, grab the cost directly from the dataset
         unitToggle.addEventListener('change', function() {
-            // This is a standard HTML select, so this works normally
             const selectedOpt = this.options[this.selectedIndex];
             if(!selectedOpt || !selectedOpt.value) return; 
             
@@ -391,10 +493,8 @@
             calculateAll();
         });
 
-        // Recalculate if quantity is typed
         qtyInput.addEventListener('input', calculateAll);
 
-        // Handle deleting the row
         row.querySelector('.remove-row').addEventListener('click', function() {
             if (document.querySelectorAll('.recipe-row').length > 1) {
                 row.remove();
@@ -406,27 +506,20 @@
         });
     }
 
-    // Grab the scrolling modal dialog
-const modalDialog = document.querySelector('#addModal .modal-dialog');
+    const modalDialog = document.querySelector('#addModal .modal-dialog');
+    if (modalDialog) {
+        modalDialog.addEventListener('scroll', function() {
+            document.querySelectorAll('.recipe-select').forEach(selectEl => {
+                if (selectEl.tomselect && selectEl.tomselect.isOpen) {
+                    selectEl.tomselect.close(); 
+                    selectEl.tomselect.blur(); 
+                }
+            });
+        }, { passive: true });
+    }
 
-if (modalDialog) {
-    modalDialog.addEventListener('scroll', function() {
-        document.querySelectorAll('.recipe-select').forEach(selectEl => {
-            if (selectEl.tomselect && selectEl.tomselect.isOpen) {
-                // Instantly closes the dropdown instead of trying to drag it
-                selectEl.tomselect.close(); 
-                
-                // Optional but recommended: removes the blue focus outline
-                selectEl.tomselect.blur(); 
-            }
-        });
-    }, { passive: true });
-}
-
-    // Initialize the hardcoded row
     document.querySelectorAll('.recipe-row').forEach(row => attachRowListeners(row));
 
-    // Add Row logic
     document.getElementById('addIngredientBtn').addEventListener('click', function() {
         const container = document.getElementById('recipe-list');
         const row = document.createElement('tr');
@@ -476,23 +569,19 @@ if (modalDialog) {
         });
     }
 
-    // The Core Math Engine
     function calculateAll() {
         let subTotal = 0;
 
         document.querySelectorAll('.recipe-row').forEach(row => {
             const qty = parseFloat(row.querySelector('.recipe-qty').value) || 0;
-            // Uses the DB cost saved in the hidden input
             const unitCost = parseFloat(row.querySelector('.active-unit-cost').value) || 0;
             
-            // Calculate Cost Per Serve
             const lineCost = qty * unitCost;
             subTotal += lineCost;
             
             row.querySelector('.line-cost-display').textContent = '₱' + lineCost.toFixed(2);
         });
 
-        // 10% Q-Factor
         const qFactor = subTotal * 0.10; 
         const totalCost = subTotal + qFactor;
         const marginPct = parseFloat(document.getElementById('margin').value) || 0;
@@ -502,13 +591,73 @@ if (modalDialog) {
             suggested = totalCost / (1 - (marginPct / 100));
         }
 
-        // Update spans
         document.getElementById('sub-total-display').textContent = '₱' + subTotal.toFixed(2);
         document.getElementById('q-factor-display').textContent = '₱' + qFactor.toFixed(2);
         document.getElementById('suggested-price-display').textContent = '₱' + suggested.toFixed(2);
     }
 
     document.getElementById('margin').addEventListener('input', calculateAll);
-        </script>
-  @endpush
+  </script>
+
+  <script>
+    function openBranchPricingModal(dishId, dishName, globalPrice) {
+        document.getElementById('manage-dish-name').innerText = dishName;
+        document.getElementById('manage-global-price').innerText = '₱' + parseFloat(globalPrice).toFixed(2);
+        document.getElementById('manageBranchForm').action = `/admin/menu/${dishId}/branch-pricing`;
+        
+        const tbody = document.getElementById('branch-pricing-list');
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center;">Loading branches...</td></tr>';
+        
+        document.getElementById('manageBranchModal').style.display = 'flex';
+
+        // Fetch current branch pivot data from the database
+        fetch("{{ url('/admin/menu') }}/" + dishId + "/branch-pricing")
+            .then(response => response.json())
+            .then(data => {
+                tbody.innerHTML = '';
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-muted" style="text-align: center;">This dish is not assigned to any branches yet.</td></tr>';
+                    return;
+                }
+
+                data.forEach((branch, index) => {
+                    const priceValue = branch.branch_price !== null ? branch.branch_price : '';
+                    const isChecked = branch.is_available ? 'checked' : '';
+                    
+                    tbody.innerHTML += `
+                        <tr class="border-b">
+                            <td class="border-r">
+                                <strong>${branch.name}</strong>
+                                <input type="hidden" name="branch_data[${index}][branch_id]" value="${branch.branch_id}">
+                            </td>
+                            <td class="border-r">
+                                <div class="input-group" style="margin: 0;">
+                                    <input type="number" name="branch_data[${index}][branch_price]" step="0.01" min="0" value="${priceValue}" placeholder="Uses Global" style="padding: 5px; width: 100%;">
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <input type="checkbox" name="branch_data[${index}][is_available]" ${isChecked} style="width: 20px; height: 20px; cursor: pointer;">
+                            </td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(error => {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-danger" style="text-align: center;">Error loading branch data.</td></tr>';
+            });
+    }
+  </script>
+
+@if(session('error'))
+    <script>
+        alert("🚨 ERROR: {{ session('error') }}");
+    </script>
+@endif
+
+@if(session('success'))
+    <script>
+        alert("✅ SUCCESS: {{ session('success') }}");
+    </script>
+@endif
+@endpush
 @endonce

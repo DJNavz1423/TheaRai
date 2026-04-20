@@ -42,8 +42,12 @@
 
 #recipe .row:first-child {
   margin-bottom: 2rem;
-  gap: 2rem;
-  justify-content: flex-end;
+  justify-content: space-between;
+
+  row{
+    flex: 1;
+    gap: 2rem;
+  }
 
   .input-group{
     flex: unset;
@@ -138,14 +142,6 @@
       border-radius: 0;
       background: none;
       border: 0;
-    }
-
-    .unit-toggle{
-      position: absolute;
-      position-anchor: --modal-input;
-      top: anchor(top);
-      bottom: anchor(bottom);
-      right: calc(anchor(right) + 15px);
     }
   }
 
