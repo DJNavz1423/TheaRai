@@ -14,7 +14,20 @@ class ArchiveController extends Controller
             ->select('id', 'name', DB::raw("'Ingredient' as type"), 'deleted_at', DB::raw("'ingredients' as table_name"))
             ->get();
 
-        $archives = $trashedIngredients->sortByDesc('deleted_at');
+        $trashedMenuItems = DB::table('laravel.menu_items')
+            ->whereNotNull('deleted_at')
+            ->select('id', 'name', DB::raw("'Menu Item' as type"), 'deleted_at', DB::raw("'menu_items' as table_name"))
+            ->get();
+
+        $trashedUsers = DB::table('laravel.users')
+            ->whereNotNull('deleted_at')
+            ->select('id', 'name', DB::raw("'User' as type"), 'deleted_at', DB::raw("'users' as table_name"))
+            ->get();
+            
+        $archives = $trashedIngredients
+            ->merge($trashedMenuItems)
+            ->merge($trashedUsers)
+            ->sortByDesc('deleted_at');
 
         return view('admin.archive.archives', compact('archives'));
     }
