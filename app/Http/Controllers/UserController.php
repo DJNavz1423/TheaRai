@@ -2,37 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
     public function index(){
-        $users = User::all();
-        return view('admin.peopleManagement.users', compact('users'));
+        $currentUserId = auth()->id();
+
+        $users = DB::table('laravel.users')
+            ->leftJoin('laravel.branches', 'users.branch_id', '=', 'branches.id')
+            ->select('users.*', 'branches.name as branch_name')
+            ->where('users.id', '!=', $currentUserId)
+            ->orderBy('users.created_at', 'desc')
+            ->get();
+            
+        $branches = DB::table('laravel.branches')->orderBy('name')->get();
+
+        return view('admin.peopleManagement.users', compact('users', 'branches'));
     }
 
     public function store(Request $request){
-        // 1. Validate the data (using your working schema format for the unique check)
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:pgsql.laravel.users,email', 
+            'email' => [
+                'required', 
+                'email', 
+                'unique:pgsql.laravel.users,email', 
+                'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com\.ph$/i'
+            ], 
             'password' => 'required|min:10',
-            'role' => 'required'
+            'role' => 'required|in:admin,staff',
+            'branch_id' => 'exclude_if:role,admin|required|exists:pgsql.laravel.branches,id'
+        ], [
+            'email.regex' => 'The email must end with a valid @thearai.com.ph domain.'
         ]);
 
-        // 2. ACTUALLY STORE THE DATA IN THE DATABASE
-        $newUser = User::create([
+        $userId = DB::table('laravel.users')->insertGetId([
             'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']), // CRITICAL: Passwords must be hashed!
+            'email' => strtolower($validated['email']),
+            'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
+            'branch_id' => $validated['role'] === 'admin' ? null : $validated['branch_id'],
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
-        $this->logActivity('created', 'user', $newUser->id, "Registered new user: {$newUser->name}");
+        $this->logActivity('created', 'user', $userId, "Registered new user: {$validated['name']}");
 
-        // 3. Redirect back with success message
         return redirect()->back()->with('success', 'User added successfully!');
     }
 }

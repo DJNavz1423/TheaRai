@@ -23,8 +23,7 @@
             <span class="icon-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
             </span>
-
-            <input type="text" id="userSearch" class="border searchBar" placeholder="Search products...">
+            <input type="text" id="userSearch" class="border searchBar" placeholder="Search users...">
         </div>
 
         <div class="filters">
@@ -49,6 +48,7 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Assigned Branch</th>
                 <th>Joined Date</th>
                 <th>Actions</th>
             </tr>
@@ -57,7 +57,7 @@
             @foreach($users as $user)
             <tr role="row" class="user-row"
                 data-name="{{ strtolower($user->name) }}"
-                data-role="{{  strtolower($user->role) }}"
+                data-role="{{ strtolower($user->role) }}"
                 data-created="{{ strtotime($user->created_at) }}">
                 <td data-cell="name" role="cell">
                     <div class="d-flex item-group">
@@ -66,11 +66,20 @@
                 </td>
                 <td data-cell="email" role="cell"><span class="item-data">{{ $user->email }}</span></td>
                 <td data-cell="role" role="cell">
-                    <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}">
+                    <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}" style="padding: 4px 8px; border-radius: 4px; color: white;">
                         {{ ucfirst($user->role) }}
                     </span>
                 </td>
-                <td data-cell="date" role="cell"><span class="item-data">{{ $user->created_at ? $user->created_at->format('M d, Y') : '--' }}</span></td>
+                <td data-cell="branch" role="cell">
+                    <span class="item-data" style="color: {{ $user->role === 'admin' ? 'var(--primary)' : 'inherit' }}; font-weight: {{ $user->role === 'admin' ? '600' : 'normal' }};">
+                        {{ $user->role === 'admin' ? 'All Branches (Admin)' : ($user->branch_name ?? 'Unassigned') }}
+                    </span>
+                </td>
+                <td data-cell="date" role="cell">
+                    <span class="item-data">
+                        {{ $user->created_at ? \Carbon\Carbon::parse($user->created_at)->format('M d, Y') : '--' }}
+                    </span>
+                </td>
                 <td data-cell="actions" role="cell">
                     <div class="dropdown-wrapper">
                             <button type="button" class="more-actions" onclick="toggleDropdown(this)">
@@ -103,7 +112,7 @@
                                 </button>
                             </div>
                         </div>
-                        </div>
+                    </div>
                 </td>
             </tr>
             @endforeach
@@ -112,10 +121,9 @@
 </div>
 </div>
 
-<!-- Add User Modal -->
 <div id="addModal" class="modal" style="display: none;">
     <div class="modal-dialog">
-        <form action="{{ route('admin.users.store') }}" method="POST" class="modal-content">
+        <form action="{{ url('/admin/users') }}" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
                 <h2>Add New User</h2>
@@ -129,31 +137,43 @@
             <div class="modal-body">
                 <div class="input-group mb-3">
                     <label>Full Name</label>
-                    <input type="text" name="name" required placeholder="Juan Dela Cruz">
+                    <input type="text" name="name" id="user-name-input" required placeholder="Juan Dela Cruz">
                 </div>
+                
                 <div class="input-group mb-3">
                     <label>Email Address</label>
-                    <input type="email" name="email" required placeholder="juan@example.com">
+                    <input type="email" name="email" id="user-email-input" required pattern="[a-zA-Z0-9._%+-]+@thearai\.com\.ph$" title="Must be a @thearai.com.ph email address" placeholder="juan123@thearai.com.ph">
                 </div>
+
                 <div class="input-group mb-3">
                     <label>Password</label>
-                    <input type="password" name="password" required placeholder="Min. 6 characters">
+                    <input type="password" name="password" required placeholder="Min. 10 characters">
                 </div>
+
                 <div class="input-group mb-3">
                     <label>Role</label>
-                    <select name="role" class="unit-selector">
-                        <option value="staff">Staff</option>
+                    <select name="role" id="role-select" class="unit-selector" required>
+                        <option value="staff" selected>Staff</option>
                         <option value="admin">Admin</option>
                     </select>
                 </div>
                 
+                <div class="input-group mb-3" id="branch-wrapper">
+                    <label>Assigned Branch</label>
+                    <select name="branch_id" id="branch-select" class="unit-selector" required>
+                        <option value="" selected disabled>Select a branch...</option>
+                        @foreach($branches as $branch)
+                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Staff must be assigned to a specific branch for POS access.</small>
+                </div>
             </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn" onclick="document.getElementById('addModal').style.display='none'">
                     <span>Cancel</span>
                 </button>
-
                 <button type="submit" class="btn">Save User</button>
             </div>
         </form>
@@ -180,5 +200,84 @@
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsUsersFilter.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
+
+    <script>
+        // 1. Role-to-Branch Visibility Logic
+        document.getElementById('role-select').addEventListener('change', function() {
+            const branchWrapper = document.getElementById('branch-wrapper');
+            const branchSelect = document.getElementById('branch-select');
+            
+            if (this.value === 'admin') {
+                // Admins don't need a branch
+                branchWrapper.style.display = 'none';
+                branchSelect.removeAttribute('required');
+                if (branchSelect.tomselect) {
+                    branchSelect.tomselect.clear();
+                }
+            } else {
+                // Staff absolutely need a branch
+                branchWrapper.style.display = 'block';
+                branchSelect.setAttribute('required', 'required');
+            }
+        });
+
+        // 2. Auto-Generate Email Logic
+        const nameInput = document.getElementById('user-name-input');
+        const emailInput = document.getElementById('user-email-input');
+        
+        let emailManuallyEdited = false;
+        let persistentRandomNum = null;
+
+        // Listen if the user edits the email field themselves
+        emailInput.addEventListener('input', function() {
+            emailManuallyEdited = true;
+        });
+
+        // Generate email when typing a name
+        nameInput.addEventListener('input', function() {
+            if (!emailManuallyEdited) {
+                // Grab just the first name and lowercase it
+                let nameStr = this.value.trim().split(' ')[0].toLowerCase();
+                
+                // Strip out special characters, keeping only a-z and numbers
+                nameStr = nameStr.replace(/[^a-z0-9]/g, ''); 
+                
+                if (nameStr.length > 0) {
+                    // Generate the random number ONLY if we haven't generated one yet
+                    if (persistentRandomNum === null) {
+                        persistentRandomNum = Math.floor(Math.random() * 9999) + 1;
+                    }
+                    
+                    emailInput.value = `${nameStr}${persistentRandomNum}@thearai.com.ph`;
+                } else {
+                    // If they delete the name completely, clear the email and reset the number
+                    emailInput.value = '';
+                    persistentRandomNum = null; 
+                }
+            }
+        });
+    </script>
+
+    @if(session('error'))
+        <script>
+            alert("🚨 ERROR: {{ session('error') }}");
+        </script>
+    @endif
+
+    @if(session('success'))
+        <script>
+            alert("✅ SUCCESS: {{ session('success') }}");
+        </script>
+    @endif
+
+    @if($errors->any())
+        <script>
+            let errorMessages = "⚠️ Please fix the following errors:\n\n";
+            @foreach ($errors->all() as $error)
+                errorMessages += "• {{ $error }}\n";
+            @endforeach
+            alert(errorMessages);
+        </script>
+    @endif
     @endpush
 @endonce
