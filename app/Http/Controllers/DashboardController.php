@@ -10,18 +10,15 @@ use Firebase\JWT\JWT;
 class DashboardController extends Controller
 {
     public function index(): View{
-        #get inventory value
-        $totalInventoryValue = DB::table('laravel.ingredients')->sum('total_item_value');
+        $totalInventoryValue = DB::table('laravel.branch_inventory')
+            ->selectRaw('COALESCE(SUM(stock_quantity * purchase_price), 0) as total')
+            ->value('total');
 
-        #get low stock count
-        $lowStockCount = DB::table('laravel.ingredients')
+        $lowStockCount = DB::table('laravel.admin_global_inventory')
             ->whereRaw('stock_quantity <= alert_threshold')
             ->count();
 
-        #get low stock list
-        $lowStockItems = DB::table('laravel.ingredients as ingredient')
-            ->join('laravel.units as p_unit', 'ingredient.primary_unit_id', '=', 'p_unit.id')
-            ->select('ingredient.*', 'p_unit.abbreviation as primary_unit_abbr')
+        $lowStockItems = DB::table('laravel.admin_global_inventory')
             ->whereRaw('stock_quantity <= alert_threshold')
             ->limit(7)
             ->get();
@@ -36,7 +33,7 @@ class DashboardController extends Controller
                 ->whereDate('created_at', now()->toDateString())
                 ->sum('total_amount'),
 
-            'daily_count' => DB::table('laravel.orders')                 
+            'daily_count' => DB::table('laravel.orders')                
                 ->whereDate('created_at', now()->toDateString())
                 ->count(),
         ];
@@ -53,30 +50,15 @@ class DashboardController extends Controller
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
-        // 2. All-time Total Money Out (System Cash Expenses)
         $totalMoneyOut = DB::table('laravel.expenses')
             ->where('fund_source', 'cash_in_hand')
             ->sum('total_amount');
 
-        // 3. Current Cash in Hand Balance
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
         $recentTransactions = DB::table('laravel.orders')
             ->whereDate('created_at', now()->toDateString())
             ->orderBy('created_at', 'desc')
-            ->limit(6)
-            ->get();
-
-        $stockLogs = DB::table('laravel.stock_logs as log')
-            ->join('laravel.ingredients as ingredient', 'log.ingredient_id', '=', 'ingredient.id')
-            ->join('laravel.units as p_unit', 'ingredient.primary_unit_id', '=', 'p_unit.id')
-            ->select('log.created_at', 
-                DB::raw("'updated' as action"),
-                DB::raw("'inventory_stock' as model_type"),
-                DB::raw("CONCAT(CASE WHEN log.quantity_change > 0 THEN '+' ELSE '' END, 
-                CAST(log.quantity_change AS FLOAT), ' ', p_unit.abbreviation, ' ', ingredient.name,' (', COALESCE(log.remarks, log.type), ')') as description"))
-            ->whereDate('log.created_at', now()->toDateString())
-            ->orderBy('log.created_at', 'desc')
             ->limit(6)
             ->get();
 
