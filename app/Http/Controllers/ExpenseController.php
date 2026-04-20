@@ -10,19 +10,24 @@ class ExpenseController extends Controller
 {
     public function index(): View{
         $expenses = DB::table('laravel.expenses')
-            ->orderBy('created_at', 'desc')
+            ->leftJoin('laravel.branches', 'expenses.branch_id', '=', 'branches.id')
+            ->select('expenses.*', 'branches.name as branch_name')
+            ->orderBy('expenses.created_at', 'desc')
             ->get();
 
-        $ingredients = DB::table('laravel.ingredients as ingredient')
-            ->join('laravel.units as p_unit', 'ingredient.primary_unit_id', '=', 'p_unit.id')
-            ->select('ingredient.id', 'ingredient.name', 'ingredient.purchase_price', 'p_unit.abbreviation as primary_unit_abbr')
+        $ingredients = DB::table('laravel.admin_global_inventory')
+            ->select('id', 'name', 'purchase_price', 'primary_unit_abbr')
+            ->orderBy('name')
             ->get();
+            
+        $branches = DB::table('laravel.branches')->get();
 
-        return view('admin.expenses.expenses', compact('expenses', 'ingredients'));
+        return view('admin.expenses.expenses', compact('expenses', 'ingredients', 'branches'));
     }
 
     public function storeRegular(Request $request){
         $validated = $request->validate([
+            'branch_id' => 'required|integer|exists:pgsql.laravel.branches,id',
             'total_amount' => 'required|numeric|min:0.01',
             'description' => 'required|string|max:1000',
             'expense_type' => 'required|string',
@@ -30,8 +35,8 @@ class ExpenseController extends Controller
         ]);
 
         if($validated['fund_source'] === 'cash_in_hand'){
-            if(!$this->hasEnoughSystemCash($validated['total_amount'])){
-                return back()->with('error', 'Insufficient System Cash!');
+            if(!$this->hasEnoughSystemCash($validated['total_amount'], $validated['branch_id'])){
+                return back()->with('error', 'Insufficient System Cash at this specific branch!');
             }
         }
 
@@ -39,13 +44,14 @@ class ExpenseController extends Controller
 
         $expenseId = DB::table('laravel.expenses')->insertGetId($validated);
 
-        $this->logActivity('created', 'expense', $expenseId, "Added regular expense: {$validated['description']}");
+        $this->logActivity('created', 'expense', $expenseId, "Added regular expense for Branch {$validated['branch_id']}: {$validated['description']}");
 
         return back()->with('success', 'Expense added successfully!');
     }
 
     public function storeRestock(Request $request){
         $request->validate([
+            'branch_id'    => 'required|integer|exists:pgsql.laravel.branches,id',
             'fund_source'  => 'required|string',
             'description'  => 'nullable|string|max:1000',
             'total_amount' => 'required|numeric|min:0.01',
@@ -56,10 +62,11 @@ class ExpenseController extends Controller
 
         $totalExpense = $request->total_amount;
         $fundSource = $request->fund_source;
+        $branchId = $request->branch_id;
 
         if($fundSource === 'cash_in_hand'){
-            if(!$this->hasEnoughSystemCash($totalExpense)){
-                return back()->with('error', 'Insufficient System Cash!');
+            if(!$this->hasEnoughSystemCash($totalExpense, $branchId)){
+                return back()->with('error', 'Insufficient System Cash at this specific branch!');
             }
         }
 
@@ -68,6 +75,7 @@ class ExpenseController extends Controller
             $description = $request->description ?: 'Restocked ' . count($request->items). ' items';
 
             $expenseId = DB::table('laravel.expenses')->insertGetId([
+                'branch_id' => $branchId,
                 'expense_type' => 'restock',
                 'fund_source' => $fundSource,
                 'total_amount' => $totalExpense,
@@ -76,12 +84,30 @@ class ExpenseController extends Controller
             ]);
 
             foreach($request->items as $item){
-                DB::table('laravel.ingredients')
-                    ->where('id', $item['ingredient_id'])
-                    ->increment('stock_quantity', $item['quantity']);
+                $exists = DB::table('laravel.branch_inventory')
+                    ->where('branch_id', $branchId)
+                    ->where('ingredient_id', $item['ingredient_id'])
+                    ->exists();
+
+                if ($exists) {
+                    DB::table('laravel.branch_inventory')
+                        ->where('branch_id', $branchId)
+                        ->where('ingredient_id', $item['ingredient_id'])
+                        ->increment('stock_quantity', $item['quantity']);
+                } else {
+                    DB::table('laravel.branch_inventory')->insert([
+                        'branch_id' => $branchId,
+                        'ingredient_id' => $item['ingredient_id'],
+                        'stock_quantity' => $item['quantity'],
+                        'purchase_price' => DB::table('laravel.ingredients')->where('id', $item['ingredient_id'])->value('purchase_price'),
+                        'alert_threshold' => 5,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                }
             }
 
-            $this->logActivity('created', 'restock', $expenseId, "Processed restock: {$description}");
+            $this->logActivity('created', 'restock', $expenseId, "Processed restock at Branch {$branchId}: {$description}");
 
             DB::commit();
             return back()->with('success', 'Restock added successfully!');
@@ -92,12 +118,14 @@ class ExpenseController extends Controller
         }
     }
 
-    private function hasEnoughSystemCash($requiredAmount){
+    private function hasEnoughSystemCash($requiredAmount, $branchId){
         $totalSystemCashIn = DB::table('laravel.orders')
+            ->where('branch_id', $branchId)
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
         $totalSystemCashSpent = DB::table('laravel.expenses')
+            ->where('branch_id', $branchId)
             ->where('fund_source', 'cash_in_hand')
             ->sum('total_amount');
 
