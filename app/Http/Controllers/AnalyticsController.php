@@ -12,32 +12,31 @@ class AnalyticsController extends Controller
     public function index() : View
     {   
         $todayCash = DB::table('laravel.orders')
-    ->whereDate('created_at', now()->toDateString())
-    ->where('payment_method', 'cash')
-    ->sum('total_amount');
+            ->whereDate('created_at', now()->toDateString())
+            ->where('payment_method', 'cash')
+            ->sum('total_amount');
 
-    $todayDigital = DB::table('laravel.orders')
-    ->whereDate('created_at', now()->toDateString())
-    ->where('payment_method', 'digital')
-    ->sum('total_amount');
+        $todayDigital = DB::table('laravel.orders')
+            ->whereDate('created_at', now()->toDateString())
+            ->where('payment_method', 'digital')
+            ->sum('total_amount');
 
-    $dailyCount = DB::table('laravel.orders')
-    ->whereDate('created_at', now()->toDateString())
-    ->count();
+        $dailyCount = DB::table('laravel.orders')
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
 
-    $totalToday = $todayCash + $todayDigital;
+        $totalToday = $todayCash + $todayDigital;
 
-    $salesData = (object) [
-        'todayCash'    => $todayCash,
-        'todayDigital' => $todayDigital,
-        'daily_total'  => $totalToday,
-        'daily_count'  => $dailyCount,
+        $salesData = (object) [
+            'todayCash'    => $todayCash,
+            'todayDigital' => $todayDigital,
+            'daily_total'  => $totalToday,
+            'daily_count'  => $dailyCount,
+            'cash_pct'     => $totalToday > 0 ? ($todayCash / $totalToday) * 100 : 0,
+            'digital_pct'  => $totalToday > 0 ? ($todayDigital / $totalToday) * 100 : 0,
+        ];
 
-        'cash_pct' => $totalToday > 0 ? ($todayCash / $totalToday) * 100 : 0,
-        'digital_pct' => $totalToday > 0 ? ($todayDigital / $totalToday) * 100 : 0,
-    ];
-
-    $fastestMovers = DB::table('laravel.order_items')
+        $fastestMovers = DB::table('laravel.order_items')
             ->join('laravel.orders', 'order_items.order_id', '=', 'orders.id')
             ->join('laravel.menu_items', 'order_items.menu_item_id', '=', 'menu_items.id')
             ->select('menu_items.name', 'menu_items.img_url', DB::raw('SUM(order_items.quantity) as total_qty'), DB::raw('SUM(order_items.subtotal) as total_revenue'))
@@ -47,17 +46,16 @@ class AnalyticsController extends Controller
             ->limit(3)
             ->get();
 
-    $activeMenuCount = DB::table('laravel.menu_items')
+        $activeMenuCount = DB::table('laravel.branch_menu_items')
             ->where('is_available', true)
-            ->count();
+            ->distinct('menu_item_id')
+            ->count('menu_item_id');
 
-        $lowStockCount = DB::table('laravel.ingredients')
+        $lowStockCount = DB::table('laravel.admin_global_inventory')
             ->whereRaw('stock_quantity <= alert_threshold')
             ->count();
 
-        $lowStockItems = DB::table('laravel.ingredients as ingredient')
-            ->join('laravel.units as p_unit', 'ingredient.primary_unit_id', '=', 'p_unit.id')
-            ->select('ingredient.*', 'p_unit.abbreviation as primary_unit_abbr')
+        $lowStockItems = DB::table('laravel.admin_global_inventory')
             ->whereRaw('stock_quantity <= alert_threshold')
             ->limit(7)
             ->get();
@@ -66,12 +64,10 @@ class AnalyticsController extends Controller
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
-        // 2. All-time Total Money Out (System Cash Expenses)
         $totalMoneyOut = DB::table('laravel.expenses')
             ->where('fund_source', 'cash_in_hand')
             ->sum('total_amount');
 
-        // 3. Current Cash in Hand Balance
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
         $metabaseSecretKey = env('METABASE_SECRET_KEY');
@@ -96,7 +92,7 @@ class AnalyticsController extends Controller
             'activeMenuCount',
             'lowStockCount',
             'lowStockItems',
-            'currentCashBalance',
+            'currentCashBalance'
         ));
     }
 }
