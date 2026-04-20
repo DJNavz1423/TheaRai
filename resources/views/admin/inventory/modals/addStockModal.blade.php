@@ -15,6 +15,18 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="input-group">
+                        <label for="add_stock_branch">Target Branch</label>
+                        <select name="branch_id" id="add_stock_branch" class="unit-selector" required>
+                            <option value="" disabled selected>Which branch is receiving this stock?</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
                         <label for="add_quantity">Quantity To Add</label>
                         <div>
                             <input type="number" name="quantity" id="add_quantity" step="0.01" min="0.01" required placeholder="Enter quantity" oninput="calculateLiveStock('add')">
@@ -23,8 +35,8 @@
                         </div>
                         
                         <div>
-                            <small class="text-muted">Current Stock: <strong id="add_current_stock_display">0</strong> </small>
-                            <small id="add_new_stock_wrapper" class="text-muted" style="display: none;">New Stock: <strong id="add_new_stock_display">0</strong></small>
+                            <small class="text-muted">Current Global Stock: <strong id="add_current_stock_display">0</strong> </small>
+                            <small id="add_new_stock_wrapper" class="text-muted" style="display: none;">New Global Stock: <strong id="add_new_stock_display">0</strong></small>
                         </div>
                     </div>
                 </div>
@@ -32,7 +44,7 @@
                 <div class="row">
                     <div class="input-group">
                         <label for="add_price">Purchase Price (Per Unit)</label>
-                        <span class="icon-wrapper">&#8369;</span>
+                        <span class="icon-wrapper currency-symbol">&#8369;</span>
                         <input type="number" name="unit_price" id="add_price" step="0.01" min="0.01" required>
                         <span class="text-muted" id="add_price_unit_display"></span>
                     </div>

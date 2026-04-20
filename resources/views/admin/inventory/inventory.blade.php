@@ -204,7 +204,10 @@
                             </div>
                         </div>
                     </td>
-                    
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="text-muted" style="text-align: center; padding: 20px;">Inventory is empty.</td>
                 </tr>
                 @endforeach
             </tbody>
@@ -259,7 +262,7 @@
                 document.getElementById('edit_item_code').value = itemCode;
                 document.getElementById('edit_conversion_factor').value = conversionFactor;
                 document.getElementById('edit_stock_qty').value = stockQty;
-                document.getElementById('edit_purchase_price').value = purchasePrice;
+                document.getElementById('edit_purchase_price').value = parseFloat(purchasePrice).toFixed(2);
                 document.getElementById('edit_threshold').value = alertThreshold;
                 document.getElementById('edit_description').value = description;
 
@@ -358,7 +361,7 @@
 
                 document.getElementById('add_new_stock_wrapper').style.display = 'none';
 
-                document.getElementById('add_price').value = price;
+                document.getElementById('add_price').value = parseFloat(price).toFixed(2);
 
                 document.getElementById('add_current_stock_display').innerText = `${currentStock} ${pUnit}`;
                 document.getElementById('add_new_stock_display').innerText = `${currentStock} ${pUnit}`;
@@ -408,7 +411,7 @@
                     displaySpan.innerText = `/ ${activeItemContext.sUnit}`;
                     // E.g., if price is 100/kg, and factor is 1000g/kg, new price is 0.10/g
                     let convertedPrice = activeItemContext.price / activeItemContext.convFactor;
-                    priceInput.value = convertedPrice.toFixed(4); // Keep some decimals for accuracy
+                    priceInput.value = convertedPrice.toFixed(2); // Keep some decimals for accuracy
                 }
             }
 
@@ -462,7 +465,7 @@
                     // Only overwrite the input field value if we are just opening the modal OR changing the unit dropdown
                     // We don't want to overwrite it if the user is just typing in the quantity box
                     if (isModalOpen || event.type === 'change') {
-                        document.getElementById('add_price').value = currentPrice.toFixed(4);
+                        document.getElementById('add_price').value = currentPrice.toFixed(2);
                     }
                 }
 

@@ -15,6 +15,18 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="input-group">
+                        <label for="reduce_stock_branch">Target Branch</label>
+                        <select name="branch_id" id="reduce_stock_branch" class="unit-selector" required>
+                            <option value="" disabled selected>Which branch is losing this stock?</option>
+                            @foreach($branches as $branch)
+                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
                         <label for="reduce_quantity">Quantity To Reduce (Spoilage, Waste, etc.)</label>
                         <div>
                             <input type="number" name="quantity" id="reduce_quantity" step="0.01" min="0.01" required placeholder="Enter quantity here" oninput="calculateLiveStock('reduce')">
@@ -22,8 +34,8 @@
                         </div>
                         
                         <div>
-                            <small class="text-muted">Current Stock: <strong id="reduce_current_stock_display">0</strong></small >
-                            <small id="reduce_new_stock_wrapper" class="text-muted" style="display: none;">New Stock: <strong id="reduce_new_stock_display">0</strong></small >
+                            <small class="text-muted">Current Global Stock: <strong id="reduce_current_stock_display">0</strong></small >
+                            <small id="reduce_new_stock_wrapper" class="text-muted" style="display: none;">New Global Stock: <strong id="reduce_new_stock_display">0</strong></small >
                         </div>
                     </div>
                 </div>

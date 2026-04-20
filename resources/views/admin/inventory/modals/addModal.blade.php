@@ -1,5 +1,4 @@
-<!-- Add item modal -->
- <div id="addModal" class="modal" style="display: none;">
+<div id="addModal" class="modal" style="display: none;">
     <div class="modal-dialog">
         <form action="{{ url('/admin/inventory') }}" method="POST" class="modal-content" enctype="multipart/form-data">
             @csrf
@@ -23,9 +22,8 @@
                 <div class="row">
                     <div class="input-group">
                         <label for="category">Item Category</label>
-                        <select name="category_id" id="category" class="unit-selector" placeholder="Select a category...">
+                        <select name="category_id" id="category" class="unit-selector" placeholder="Select a category..." required>
                             <option value="" class="d-none"></option>
-
                             @foreach($categories as $cat)
                                 <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                             @endforeach
@@ -38,7 +36,6 @@
                     </div>
                 </div>
                 
-
                 <div class="tab-container">
                     <div class="tab-titles mt-4 mb-3">
                         <h3 class="tab-links active-link underline-fullwidth" onclick="openTab(event, 'stocks')">Stock Details</h3>
@@ -49,9 +46,8 @@
                         <div class="row">
                             <div class="input-group">
                                <label for="primary-unit">Primary Unit</label>
-                                <select id="primary_unit" name="primary_unit_id" class="unit-selector" placeholder="e.g., Kilogram">
+                                <select id="primary_unit" name="primary_unit_id" class="unit-selector" placeholder="e.g., Kilogram" required>
                                     <option value="" class="d-none"></option>
-
                                     @foreach($units as $unit)
                                     <option value="{{ $unit->id }}" data-abbr="{{ $unit->abbreviation }}">{{ $unit->name }}</option>
                                     @endforeach
@@ -60,9 +56,8 @@
 
                             <div class="input-group">
                                 <label for="secondary-unit">Secondary Unit</label>
-                                <select id="secondary_unit" name="secondary_unit_id"         class="unit-selector" placeholder="e.g., Grams">
+                                <select id="secondary_unit" name="secondary_unit_id" class="unit-selector" placeholder="e.g., Grams" required>
                                     <option value="" class="d-none"></option>
-
                                     @foreach($units as $unit)
                                     <option value="{{ $unit->id }}">{{ $unit->name }}</option>
                                     @endforeach
@@ -72,6 +67,18 @@
                             <div class="input-group">
                                 <label for="conversion-factor">Conversion Rate</label>
                                 <input type="number" step="0.01" min="0" name="conversion_factor" id="conversion-factor" placeholder="e.g., 1" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="input-group">
+                                <label for="branch_id">Assign Initial Stock To Branch (If applicable)</label>
+                                <select name="branch_id" class="unit-selector" required>
+                                    <option value="" selected disabled>Select Branch...</option>
+                                    @foreach($branches as $branch)
+                                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
