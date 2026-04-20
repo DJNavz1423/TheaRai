@@ -56,6 +56,7 @@
     padding: 10px 24px !important; 
     font-size: 1rem !important;
     color: var(--secondary) !important;
+    text-wrap: pretty !important;
 }
 
 /* 6. Clean up: Hide the empty placeholder option from the list */
@@ -116,4 +117,55 @@
 
 .has-items .ts-control > input {
   margin: 0 !important;
+}
+
+
+/* ==========================================
+   13. CHECKBOX DROPDOWN (For Branch Selection)
+   ========================================== */
+
+/* 1. Hide the standard tags and force the placeholder text to show */
+.branch-select-wrapper .ts-control .item {
+    display: none !important;
+}
+
+.branch-select-wrapper .ts-control > input {
+    display: inline-block !important;
+    width: 100% !important;
+    opacity: 1 !important;
+    color: var(--secondary) !important;
+    cursor: pointer !important;
+}
+
+/* 2. Draw the empty checkbox next to the text in the dropdown */
+.ts-dropdown.branch-dropdown .option {
+    display: flex;
+    align-items: center;
+}
+
+.ts-dropdown.branch-dropdown .option::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    border: 2px solid var(--secondary-soft);
+    border-radius: 3px;
+    background: #fff;
+    transition: all 0.1s ease-in-out;
+}
+
+/* 3. When an option is clicked, fill the checkbox with blue and a checkmark */
+.ts-dropdown.branch-dropdown .option.selected::before {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="14px" height="14px"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>');
+    background-size: 12px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* 4. Keep the checkbox blue even when hovering over it */
+.ts-dropdown.branch-dropdown .option.selected.active::before {
+    background-color: var(--primary);
 }
