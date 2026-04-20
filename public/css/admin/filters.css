@@ -33,4 +33,16 @@
     color: var(--secondary-soft);
     padding: 0px 24px !important;
   }
+
+  .ts-dropdown{
+    z-index: 999 !important;
+  }
+
+  .ts-control > input{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
 }
