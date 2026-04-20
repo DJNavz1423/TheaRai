@@ -21,13 +21,13 @@
         .bold { font-weight: bold; }
   </style>
 
-  <title>TheaRai Eatery | Order Receipt</title>
+  <title>{{ $order->branch_name ?? 'TheaRai Eatery' }} | Order Receipt</title>
 </head>
 
 <body>
   <div class="text-center border-bottom">
-        <h2 style="margin: 5px 0;">TheaRai Eatery</h2>
-        <p style="margin: 2px 0;">123 Main Street, Davao City</p>
+        <h2 style="margin: 5px 0;">{{ $order->branch_name ?? 'TheaRai Eatery' }}</h2>
+        <p style="margin: 2px 0;">{{ $order->branch_address ?? 'Davao City' }}</p>
         <p style="margin: 2px 0;">Tel: 0912 345 6789</p>
     </div>
 

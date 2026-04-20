@@ -388,7 +388,7 @@ product grid
   gap: 6px;
 }
 
-.checkout-btn{
+.checkout-btn, .cancel-btn{
   display: flex;
   align-items: center;
   justify-content: center;
@@ -407,3 +407,14 @@ product grid
     background: var(--quaternary-darker);
     transform: scale(1.04);
   }
+
+.cancel-btn{
+  flex: 1;
+  background: none;
+  border: 1px solid var(--secondary-soft);
+  color: var(--secondary);
+}
+
+.cancel-btn:hover{
+  transform: scale(1.03);
+}
