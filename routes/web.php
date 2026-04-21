@@ -12,6 +12,7 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\TableController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -66,6 +67,16 @@ Route::middleware(['auth'])->group(function(){
         Route::get('/menu/{id}/branch-pricing', [MenuController::class, 'getBranchPricing']);
         
         Route::post('/menu/{id}/branch-pricing', [MenuController::class, 'updateBranchPricing']);
+
+        #tables
+        Route::get('/tables', [TableController::class, 'index'])
+            ->name('admin.menu.tables');
+
+        Route::post('/tables', [TableController::class, 'store'])
+            ->name('admin.menu.tables.store');
+
+        Route::delete('/tables/{id}', [TableController::class, 'destroy'])
+            ->name('admin.menu.tables.destroy');
 
 
 
