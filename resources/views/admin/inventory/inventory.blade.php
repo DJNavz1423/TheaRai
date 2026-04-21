@@ -78,7 +78,7 @@
             </thead>
 
             <tbody role="rowgroup">
-                @foreach($ingredients as $item)
+                @forelse($ingredients as $item)
                 <tr role="row" class="inventory-row"
                     data-name="{{ strtolower($item->name) }}"
                     data-category="{{ $item->category_id }}"
@@ -93,11 +93,11 @@
                     <td data-cell="name" role="cell">
                         <div class="d-flex item-group">
                             <span class="item-img">
-                                @empty($item->img_url)
+                                @if(empty($item->img_url))
                                 <span>{{ $item->name[0] }}</span>
                                 @else
                                 <img src="{{ $item->img_url }}" alt="Item Image">
-                                @endempty
+                                @endif
                             </span>
 
                             <span class="item-data">
@@ -107,11 +107,11 @@
                     </td>
 
                     <td data-cell="code" role="cell">
-                        @empty($item->item_code)
+                        @if(empty($item->item_code))
                         --
                         @else
                         <span class="item-data">{{ $item->item_code }}</span>
-                        @endempty
+                        @endif
                     </td>
 
                     <td data-cell="category" role="cell"><span class="item-data">{{ $item->category_name }}</span></td>
@@ -209,7 +209,7 @@
                 <tr>
                     <td colspan="4" class="text-muted" style="text-align: center; padding: 20px;">Inventory is empty.</td>
                 </tr>
-                @endforeach
+                @endforelse
             </tbody>
         </table>
     </div>

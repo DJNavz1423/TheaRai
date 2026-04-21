@@ -86,7 +86,7 @@
         </thead>
 
         <tbody role="rowgroup">
-          @foreach($expenses ?? [] as $expense)  
+          @forelse($expenses ?? [] as $expense)  
           <tr role="row" class="expense-row"
             data-type="{{ $expense->expense_type }}"
             data-source="{{ $expense->fund_source }}"
@@ -104,7 +104,7 @@
                 <tr>
                     <td colspan="4" class="text-muted" style="text-align: center; padding: 20px;">Expenses is empty.</td>
                 </tr>
-          @endforeach
+          @endforelse
         </tbody>
       </table>
     </div>
@@ -258,14 +258,14 @@
 
 @once
     @push('styles')
-        <link rel="stylesheet" href="{{ asset('css/admin/expenses/expenses.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/admin/expenses/expenses.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+      <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
     @endpush
 @endonce
 
@@ -300,7 +300,7 @@
           return `<option value="${i.id}"
             data-pcost="${i.purchase_price}"
             data-pabbr="${i.primary_unit_abbr}">
-            ${i.name}`;
+            ${i.name}</option>`;
          }).join('');
 
          function attachRestockListeners(row){

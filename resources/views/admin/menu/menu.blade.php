@@ -63,7 +63,7 @@
             </thead>
 
             <tbody role="rowgroup">
-                @foreach($menuItems as $dish)
+                @forelse($menuItems as $dish)
                 <tr role="row" class="menu-row" 
                     data-name="{{ strtolower($dish->name) }}"
                     data-category="{{ $dish->category_id ?? 'all' }}"
@@ -127,7 +127,7 @@
                 <tr>
                     <td colspan="4" class="text-muted" style="text-align: center; padding: 20px;">Menu is empty.</td>
                 </tr>
-                @endforeach
+                @endforelse
             </tbody>
         </table>
     </div>

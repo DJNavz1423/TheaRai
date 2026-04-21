@@ -4,9 +4,8 @@
 
 @section('content')
   <div class="container">
-    <div class="row mb-4">
+    <div class="row mb-3">
       <h1 class="heading">Archives / Trash ({{ count($archives) }})</h1>
-      <p class="text-muted">Items here will be automatically deleted after 14 days.</p>
     </div>
 
     <div class="container main-content">
@@ -68,6 +67,8 @@
         </tbody>
       </table>
     </div>
+
+    <small class="text-muted mt-2">Items here will be automatically deleted after 14 days.</small>
   </div>
 
   <div id="restoreModal" class="modal" style="display: none;">
