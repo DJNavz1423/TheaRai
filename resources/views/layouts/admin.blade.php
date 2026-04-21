@@ -127,10 +127,21 @@
 
             <ul class="sub-menu">
               <div>
-                <li class="{{ request()->routeIs('admin.menu.index') ? 'active' : '' }}"><a href="{{ url('/admin/menu') }}">Menu Items</a></li>
-                <li><a href="">Menu Categories</a></li>
-                <li class="{{ request()->routeIs('cashier.pos') ? 'active' : '' }}"><a href="{{ url('/cashier/pos') }}">Quick POS</a></li>
-                <li><a href="">Table Management</a></li>
+                <li class="{{ request()->routeIs('admin.menu.index') ? 'active' : '' }}">
+                  <a href="{{ url('/admin/menu') }}">Menu Items</a>
+                </li>
+
+                <li>
+                  <a href="">Menu Categories</a>
+                </li>
+
+                <li class="{{ request()->routeIs('cashier.pos') ? 'active' : '' }}">
+                  <a href="{{ url('/cashier/pos') }}">Quick POS</a>
+                </li>
+
+                <li class="{{ request()->routeIs('admin.menu.tables') ? 'active' : '' }}">
+                  <a href="{{ url('/admin/tables') }}">Table Management</a>
+                </li>
               </div>
             </ul>
           </li>
