@@ -17,10 +17,11 @@
   /*
     SECONDARY (GRAY)
   */
-   --secondary-soft: #E8E7E8; 
+  --secondary-soft: #E8E7E8; 
   --secondary-light: #6C646E;
   --secondary: #454043;
   --secondary-dark: #2c292b;
+  --secondary-cool: #2b2d42;
   --secondary-deep: #1f1c1e;
 
   /*
