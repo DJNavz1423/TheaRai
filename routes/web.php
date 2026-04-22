@@ -13,6 +13,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\TableController;
+use App\Http\Controllers\QrMenuController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -130,5 +131,15 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/cashier/pos/receipt/{id}', [PosController::class, 'printReceipt'])
         ->name('cashier.pos.receipt');
+
+
+    #QR menu routes
+    Route::get('/qr-menu', [QrMenuController::class, 'index'])
+        ->name('qr.menu');
+
+    Route::post('/qr-menu/checkout', [QrMenuController::class, 'checkout'])
+        ->name('qr.checkout');
+
+    Route::get('/qr-menu/success', [QrMenuController::class, 'success']);
 });
 
