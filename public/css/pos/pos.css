@@ -18,7 +18,7 @@ section{
 
 .table-controls{
   padding-left: 30px;
-  padding-top: 34px;
+  padding-top: 20px;
   padding-bottom: 19px;
 }
 
@@ -176,8 +176,6 @@ product grid
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  padding-top: 34px;
-  padding-right: 30px;
 
   h2{
     display: flex;
@@ -301,6 +299,7 @@ product grid
 
     button:hover{
       background: var(--quaternary-dark);
+      border-color: transparent;
 
       .icon-wrapper svg{
         fill: var(--light-pure);
@@ -364,7 +363,6 @@ product grid
 .cart-footer{
   padding: 15px 20px;
   padding-bottom: 34px;
-  padding-right: 30px;
 
   .cart-actions{
     display: flex;
@@ -394,7 +392,8 @@ product grid
   justify-content: center;
   border-radius: 8px;
   letter-spacing: normal;
-  background: var(--quaternary-darker);
+  background: var(--primary-deep);
+  transition: 250ms ease;
 
   .icon-wrapper svg{
     width: 18px;
@@ -404,8 +403,9 @@ product grid
 }
 
 .checkout-btn:hover{
-    background: var(--quaternary-darker);
-    transform: scale(1.04);
+    font-size: 1rem;
+    background: var(--primary-deep);
+    transform: perspective(1px) scale(1.02);
   }
 
 .cancel-btn{
