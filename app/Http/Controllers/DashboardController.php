@@ -6,10 +6,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Firebase\JWT\JWT;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index(): View{
+        $manilaNow = now()->timezone('Asia/Manila');
+        
+        $startOfDay = $manilaNow->copy()->startOfDay()->utc();
+        $endOfDay = $manilaNow->copy()->endOfDay()->utc();
+        
+        $startOfMonth = $manilaNow->copy()->startOfMonth()->utc();
+        $endOfMonth = $manilaNow->copy()->endOfMonth()->utc();
+
         $totalInventoryValue = DB::table('laravel.branch_inventory')
             ->selectRaw('COALESCE(SUM(stock_quantity * purchase_price), 0) as total')
             ->value('total');
@@ -25,24 +34,22 @@ class DashboardController extends Controller
         
         $salesData = (object) [
             'monthly_total' => DB::table('laravel.orders')
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
+                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
                 ->sum('total_amount'),
 
             'daily_total' => DB::table('laravel.orders')
-                ->whereDate('created_at', now()->toDateString())
+                ->whereBetween('created_at', [$startOfDay, $endOfDay])
                 ->sum('total_amount'),
 
             'daily_count' => DB::table('laravel.orders')                
-                ->whereDate('created_at', now()->toDateString())
+                ->whereBetween('created_at', [$startOfDay, $endOfDay])
                 ->count(),
         ];
 
         $expensesData = (object) [
             'monthly_total' => DB::table('laravel.expenses')
                 ->where('fund_source', 'cash_in_hand')
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
+                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
                 ->sum('total_amount'),
         ];
 
@@ -57,14 +64,14 @@ class DashboardController extends Controller
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
         $recentTransactions = DB::table('laravel.orders')
-            ->whereDate('created_at', now()->toDateString())
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->orderBy('created_at', 'desc')
             ->limit(6)
             ->get();
 
         $activityLogs = DB::table('laravel.activity_logs')
             ->select('created_at', 'action', 'model_type', 'description')
-            ->whereDate('created_at', now()->toDateString())
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->orderBy('created_at', 'desc')
             ->limit(6)
             ->get();
