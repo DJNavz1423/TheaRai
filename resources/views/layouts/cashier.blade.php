@@ -6,7 +6,6 @@
   
   <!-- css links -->
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/cashier/sidebar.css') }}">
 
@@ -116,20 +115,11 @@
   </aside>
 
   <main>
-    <header>
+    <header id="header">
       <div>
         <button onclick=toggleSidebar() id="header-toggle-btn" class="sidebar-btn hidden-btn">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-240q-17 0-28.5-11.5T120-280q0-17 11.5-28.5T160-320h640q17 0 28.5 11.5T840-280q0 17-11.5 28.5T800-240H160Zm0-200q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520h640q17 0 28.5 11.5T840-480q0 17-11.5 28.5T800-440H160Zm0-200q-17 0-28.5-11.5T120-680q0-17 11.5-28.5T160-720h640q17 0 28.5 11.5T840-680q0 17-11.5 28.5T800-640H160Z"/></svg>
           </button>
-
-          <div class="searchbox">
-            <span class="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
-            </span>
-
-            <input type="text" id="headerSearch" class="border searchBar" placeholder="Search products...">
-        </div>
-      </div>
 
         <div class="row">
           <button>

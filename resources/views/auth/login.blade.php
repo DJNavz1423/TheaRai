@@ -7,7 +7,6 @@
     <!-- css links -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/login/login-style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
 
     @stack('styles')
 
