@@ -131,9 +131,9 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/cashier/pos/receipt/{id}', [PosController::class, 'printReceipt'])
         ->name('cashier.pos.receipt');
+});
 
-
-    #QR menu routes
+ #QR menu routes
     Route::get('/qr-menu', [QrMenuController::class, 'index'])
         ->name('qr.menu');
 
@@ -141,5 +141,4 @@ Route::middleware(['auth'])->group(function(){
         ->name('qr.checkout');
 
     Route::get('/qr-menu/success', [QrMenuController::class, 'success']);
-});
 

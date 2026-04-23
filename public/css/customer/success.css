@@ -1,0 +1,191 @@
+body { 
+  font-family: 'Segoe UI', Tahoma, 
+  Geneva, Verdana, sans-serif; 
+  color: var(--secondary-cool); 
+  margin: 0; 
+  padding: 20px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  text-wrap: wrap;
+}
+      
+.success-header { 
+  text-align: center; 
+  margin-bottom: 20px; 
+  margin-top: 20px; 
+
+  h1{
+    font-family: 'Lato', sans-serif;
+    display: inline-flex;
+    gap: 8px;
+    color: var(--tertiary); 
+    margin-bottom: 12px; 
+    font-size: 2rem; 
+    font-weight: 900;
+
+    .icon-wrapper{
+      background: var(--light-pure);
+      svg{
+        height: auto;
+        width: 2.6rem;
+        fill: var(--tertiary);
+      }
+    }
+  }
+
+  p{
+    color: var(--secondary); 
+    font-size: 0.9rem; 
+    max-width: 400px; 
+    margin: 0 auto; 
+    line-height: 1.5; 
+    text-wrap: wrap !important;
+  }
+}
+
+/* The Digital Ticket Design */
+.receipt-card { 
+  background: var(--light-pure); 
+  width: 100%; 
+  max-width: 400px; 
+  border-radius: 8px; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+  padding: 25px; 
+  position: relative; 
+  margin-bottom: 20px; 
+}
+
+/* Zig-zag / Dashed top and bottom edges */
+.receipt-card::before { 
+  content: ""; 
+  position: absolute; 
+  top: -2px; 
+  left: 0; 
+  right: 0; 
+  border-top: 4px dashed var(--secondary-lighter); 
+}
+
+.receipt-card::after { 
+  content: ""; 
+  position: absolute; 
+  bottom: -2px; 
+  left: 0; 
+  right: 0; 
+  border-bottom: 4px dashed var(--secondary-lighter); 
+}
+
+.receipt-header { 
+  text-align: center; 
+  border-bottom: 1px dashed var(--secondary-lighter); 
+  padding-bottom: 15px; 
+  margin-bottom: 15px; 
+
+  h2{
+    font-family: 'MeriendaCanvas', sans-serif !important;
+    margin: 0 0 5px 0; 
+    color: var(--primary-dark); 
+    font-size: 1.4rem;
+    width: auto;
+    font-weight: 900;
+  }
+}
+
+.order-meta { 
+  display: flex; 
+  justify-content: space-between; 
+  flex-wrap: wrap; 
+  gap: 15px; 
+  font-size: 0.85rem; 
+  color: var(--secondary-light); 
+  margin-bottom: 15px; 
+  border-bottom: 1px dashed #ccc; 
+  padding-bottom: 15px; 
+}
+
+.meta-block { 
+  display: flex; 
+  flex-direction: column; 
+}
+
+.meta-label { 
+  font-weight: bold; 
+  color: var(--neutral-gray-light); 
+  text-transform: uppercase; 
+  font-size: 0.7rem; 
+  margin-bottom: 2px; 
+}
+
+.meta-value { 
+  font-weight: bold; 
+  color: var(--secondary-cool); 
+  font-size: 1.1rem; 
+}
+
+
+.receipt-items { 
+  width: 100%; 
+  border-collapse: collapse; 
+  margin-bottom: 15px; 
+  font-size: 0.9rem; 
+}
+
+.receipt-items th { 
+  text-align: left; 
+  padding-bottom: 8px; 
+  color: var(--neutral-gray-light); 
+  border-bottom: 1px solid var(--secondary-lighter); 
+  text-transform: uppercase; 
+  font-size: 0.75rem;
+}
+
+.receipt-items td { 
+  padding: 10px 0; 
+  vertical-align: top; 
+  border-bottom: 1px solid var(--neutral-light); 
+}
+
+.receipt-items .amt { 
+  text-align: right; 
+  font-weight: bold;
+}
+
+.receipt-total { 
+  border-top: 1px dashed #ccc; 
+  padding-top: 15px; 
+  margin-top: 10px; 
+  display: flex; 
+  justify-content: space-between; 
+  font-size: 1.3rem; 
+  font-weight: 900; 
+  color: var(--primary-dark); 
+}
+
+.btn { 
+  display: block; 
+  max-width: 400px; 
+  background: var(--primary-dark); 
+  color: var(--light-pure); 
+  text-align: center; 
+  padding: 16px; 
+  border-radius: 8px; 
+  margin-bottom: 10px; 
+  letter-spacing: normal;
+  transition: 300ms ease;
+}
+
+.btn:hover{
+  background: var(--primary-deep);
+}
+
+.btn-outline { 
+  background: transparent; 
+  color: var(--primary-dark); 
+  border: 2px solid var(--primary-dark); 
+}
+
+.btn-outline:hover { 
+  background: var(--primary-dark); 
+  color: var(--light-pure); 
+  border-color: var(--primary-dark);
+}
