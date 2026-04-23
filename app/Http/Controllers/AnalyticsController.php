@@ -6,23 +6,28 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Firebase\JWT\JWT;
+use Carbon\Carbon;
 
 class AnalyticsController extends Controller
 {
     public function index() : View
     {   
+        $manilaNow = now()->timezone('Asia/Manila');
+        $startOfDay = $manilaNow->copy()->startOfDay()->utc();
+        $endOfDay = $manilaNow->copy()->endOfDay()->utc();
+
         $todayCash = DB::table('laravel.orders')
-            ->whereDate('created_at', now()->toDateString())
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
         $todayDigital = DB::table('laravel.orders')
-            ->whereDate('created_at', now()->toDateString())
-            ->where('payment_method', 'digital')
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->where('payment_method', '!=', 'cash')
             ->sum('total_amount');
 
         $dailyCount = DB::table('laravel.orders')
-            ->whereDate('created_at', now()->toDateString())
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->count();
 
         $totalToday = $todayCash + $todayDigital;
@@ -40,10 +45,10 @@ class AnalyticsController extends Controller
             ->join('laravel.orders', 'order_items.order_id', '=', 'orders.id')
             ->join('laravel.menu_items', 'order_items.menu_item_id', '=', 'menu_items.id')
             ->select('menu_items.name', 'menu_items.img_url', DB::raw('SUM(order_items.quantity) as total_qty'), DB::raw('SUM(order_items.subtotal) as total_revenue'))
-            ->whereDate('orders.created_at', now()->toDateString())
+            ->whereBetween('orders.created_at', [$startOfDay, $endOfDay])
             ->groupBy('menu_items.id', 'menu_items.name', 'menu_items.img_url')
             ->orderByDesc('total_qty')
-            ->limit(3)
+            ->limit(10)
             ->get();
 
         $activeMenuCount = DB::table('laravel.branch_menu_items')
