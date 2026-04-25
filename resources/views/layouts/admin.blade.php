@@ -85,7 +85,7 @@
             <div>
               <li><a href="#">Overview</a></li>
               <li><a href="#">Transactions</a></li>
-              <li><a href="#">QR Orders</a></li>
+              <li><a href="{{ url('/admin/qr-orders') }}">QR Orders</a></li>
             </div>
           </ul>
         </li>
@@ -136,7 +136,7 @@
                 </li>
 
                 <li class="{{ request()->routeIs('cashier.pos') ? 'active' : '' }}">
-                  <a href="{{ url('/cashier/pos') }}">Quick POS</a>
+                  <a href="{{ url('/cashier/pos') }}" target="_blank">Quick POS</a>
                 </li>
 
                 <li class="{{ request()->routeIs('admin.menu.tables') ? 'active' : '' }}">

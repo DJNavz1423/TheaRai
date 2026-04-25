@@ -6,8 +6,10 @@
   
   <!-- css links -->
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/cashier/sidebar.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/cashier/header.css') }}">
 
   @stack('styles')
 
@@ -42,8 +44,8 @@
           </a>
         </li>
 
-        <li class="{{ request()->routeIs('pos.orders') ? 'active' : '' }}">
-          <a href="{{ url('/cashier/orders') }}">
+        <li class="{{ request()->routeIs('cashier.qr.*') ? 'active' : '' }}">
+          <a href="{{ url('/cashier/qr-orders') }}">
           <span class="icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-240v-436L98-810q-7-15-1-30.5t21-22.5q15-7 30.5-1.5T171-844l77 166h464l77-166q7-15 22.5-21t30.5 2q15 7 21 22.5t-1 30.5l-62 134v436q0 33-23.5 56.5T720-160H240q-33 0-56.5-23.5T160-240Zm240-200h160q17 0 28.5-11.5T600-480q0-17-11.5-28.5T560-520H400q-17 0-28.5 11.5T360-480q0 17 11.5 28.5T400-440ZM240-240h480v-358H240v358Zm0 0v-358 358Z"/></svg>
           </span>
@@ -69,7 +71,6 @@
             <div>
               <li><a href="#">Overview</a></li>
               <li><a href="#">Transactions</a></li>
-              <li><a href="#">QR Orders</a></li>
             </div>
           </ul>
         </li>
@@ -122,10 +123,11 @@
           </button>
 
         <div class="row">
-          <button>
+          <button onclick="window.location.href='{{ url('/cashier/qr-orders') }}'" style="position: relative;">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200q-17 0-28.5-11.5T160-240q0-17 11.5-28.5T200-280h40v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h40q17 0 28.5 11.5T800-240q0 17-11.5 28.5T760-200H200Zm280-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z"/></svg>
             </span>
+            <span id="qr-notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold;">0</span>
           </button>
 
           <button>
@@ -139,6 +141,7 @@
           <span class="icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M520-496v-144q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640v159q0 8 3 15.5t9 13.5l132 132q11 11 28 11t28-11q11-11 11-28t-11-28L520-496ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z"/></svg>
           </span>
+
           <span id="live-clock"></span>
         </div>
     </header>
@@ -150,6 +153,26 @@
 
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/utils/liveClock.js') }}"></script>
+
+  <script>
+  function fetchQrNotifications() {
+      fetch('{{ route("qr.orders.notifications") }}')
+          .then(response => response.json())
+          .then(data => {
+              const badge = document.getElementById('qr-notif-badge');
+              if (data.count > 0) {
+                  badge.innerText = data.count;
+                  badge.style.display = 'block';
+              } else {
+                  badge.style.display = 'none';
+              }
+          })
+          .catch(error => console.error('Error fetching notifications:', error));
+  }
+
+  fetchQrNotifications();
+  setInterval(fetchQrNotifications, 10000); 
+</script>
 
   @stack('scripts')
 </body>
