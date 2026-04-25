@@ -1,5 +1,6 @@
 main{
   display: flex;
+  flex-direction: column;
 }
 
 section{
@@ -22,10 +23,13 @@ section{
   padding-bottom: 19px;
 }
 
-.filters{
+.table-controls .filters{
+  .ts-wrapper{
+    width: 195px !important;
+  }
   .ts-wrapper:last-child{
     margin-left: unset !important;
-    width: 200px !important;
+    width: max-content !important;
   }
 
   .ts-wrapper .ts-control .item{

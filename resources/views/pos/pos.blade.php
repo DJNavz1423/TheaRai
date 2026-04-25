@@ -21,10 +21,10 @@
                 @endforeach
             </select>
 
-            <select id="" class="ts-filter">
-                <option value="">All Status</option>
-                <option value="" selected>Enabled</option>
-                <option value="">Disabled</option>
+            <select id="" class="ts-filter unit-selector">
+                <option value="all">All Status</option>
+                <option value="enabled" selected>Enabled</option>
+                <option value="disabled">Disabled</option>
             </select>
         </div>
     </div>
@@ -172,8 +172,8 @@
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
+         <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
     @endpush
 @endonce
 
