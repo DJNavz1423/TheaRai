@@ -66,7 +66,7 @@
                 </td>
                 <td data-cell="email" role="cell"><span class="item-data">{{ $user->email }}</span></td>
                 <td data-cell="role" role="cell">
-                    <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}" style="padding: 4px 8px; border-radius: 4px; color: white;">
+                    <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}">
                         {{ ucfirst($user->role) }}
                     </span>
                 </td>
