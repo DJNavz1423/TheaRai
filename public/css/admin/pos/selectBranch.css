@@ -1,0 +1,46 @@
+.container{
+  align-items: center;
+   height: 70vh;
+}
+
+.card-container{
+  display: flex; 
+  gap: 1.5rem; 
+  flex-wrap: wrap; 
+}
+
+.branch-card{
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;
+  border: 2px solid var(--secondary-light); 
+  padding: 2rem; 
+  border-radius: 12px; 
+  background: var(--light-pure); 
+  text-align: center; 
+  min-width: 250px; 
+  transition: 200ms ease; 
+  cursor: pointer;
+
+  .icon-wrapper{
+    margin-bottom: 1rem;
+    align-self: center;
+    svg{
+      width: 50px;
+      height: 50px;
+      fill: var(--primary-dark);
+    }
+  }
+
+  h2{
+    font-family: 'Lato', sans-serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.branch-card:hover{
+  border-color: var(--primary-dark);
+  transform: translateY(-5px);
+}
