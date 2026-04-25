@@ -75,7 +75,8 @@ class QrMenuController extends Controller
                 'receipt_no' => $receiptNo,
                 'total_amount' => $totalAmount,
                 'payment_method' => 'xendit', 
-                'payment_status' => 'pending', // Locked until Xendit verifies it
+                'payment_status' => 'pending',
+                'status' => 'pending',
                 'cash_tendered' => $totalAmount,
                 'change_amount' => 0,
                 'created_at' => now(),
