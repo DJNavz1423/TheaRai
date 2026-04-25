@@ -6,7 +6,7 @@
           <div class="section-header mb-1">
           <h2>Cashflow Overview</h2>
 
-          <div class="input-group">
+          <div class="filters">
           <select name="chart-timeframe" id="chart-timeframe" class="unit-selector">
             <option value="{{ $dailyToken }}">Daily</option>
             <option value="{{ $monthlyToken }}">Monthly</option>
@@ -140,6 +140,9 @@
 
                   @elseif($activity->action == 'created' && $activity->model_type == 'menu_item')
                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#00b960"><path d="M240-120q-33 0-56.5-23.5T160-200v-360q0-19 8.5-36t23.5-28l240-180q21-16 48-16t48 16l240 180q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T720-120H240Zm0-80h480v-360L480-740 240-560v360Zm240-270Zm-60 230q8 0 14-6t6-14v-140q25 0 42.5-17.5T500-460v-100q0-8-6-14t-14-6q-8 0-14 6t-6 14v100h-20v-100q0-8-6-14t-14-6q-8 0-14 6t-6 14v100h-20v-100q0-8-6-14t-14-6q-8 0-14 6t-6 14v100q0 25 17.5 42.5T400-400v140q0 8 6 14t14 6Zm174-6q6-6 6-14v-294q0-11-7.5-18.5T574-580q-27 0-40.5 25T520-500v80q0 16 14.5 22.5T560-380v120q0 8 6 14t14 6q8 0 14-6Z"/></svg>
+
+                  @elseif($activity->action == 'created' && $activity->model_type == 'user')
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#00b960"><path d="M720-520h-80q-17 0-28.5-11.5T600-560q0-17 11.5-28.5T640-600h80v-80q0-17 11.5-28.5T760-720q17 0 28.5 11.5T800-680v80h80q17 0 28.5 11.5T920-560q0 17-11.5 28.5T880-520h-80v80q0 17-11.5 28.5T760-400q-17 0-28.5-11.5T720-440v-80Zm-473-7q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47ZM40-240v-32q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v32q0 33-23.5 56.5T600-160H120q-33 0-56.5-23.5T40-240Z"/></svg>
 
                   @endif
                 </span>

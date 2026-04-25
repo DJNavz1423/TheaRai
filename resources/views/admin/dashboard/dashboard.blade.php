@@ -43,6 +43,9 @@
   @push('styles')
     <link rel="stylesheet" href="{{ asset('css/admin/dashboard/dashboard.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   @endpush
 @endonce
 
@@ -50,6 +53,8 @@
   @push('scripts')
     <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
     <script defer src="{{ $metabaseSiteUrl }}/app/embed.js"></script>
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
     
     <script>
       function defineMetabaseConfig(config){
