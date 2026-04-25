@@ -14,6 +14,7 @@ use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\TableController;
 use App\Http\Controllers\QrMenuController;
+use App\Http\Controllers\QrOrderController;
 
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
@@ -32,6 +33,9 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 // auth middleware | check if user is logged in before letting them inside this group
 Route::middleware(['auth'])->group(function(){
+
+    Route::get('/api/qr-orders/notifications', [QrOrderController::class, 'getNotifications'])
+        ->name('qr.orders.notifications');
 
     Route::prefix('admin')->middleware('role:admin')->group(function(){
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.index');
@@ -107,30 +111,43 @@ Route::middleware(['auth'])->group(function(){
 
         Route::get('/pos/set-branch/{id}', [PosController::class, 'setBranch'])
             ->name('admin.pos.set');
+
+        Route::get('/qr-orders', [QrOrderController::class, 'index'])
+            ->name('admin.qr.orders');
+
+        Route::post('/qr-orders/{id}/serve', [QrOrderController::class, 'serve'])
+            ->name('admin.qr.orders.serve');
+    });
+
+
+
+
+
+    
+    Route::prefix('cashier')->group(function(){
+        Route::get('/pos', [PosController::class, 'index'])
+            ->middleware('role:admin|staff')
+            ->name('cashier.pos');
+
+        Route::post('/pos/order', [PosController::class, 'processOrder'])
+            ->middleware('role:admin|staff')
+            ->name('cashier.pos.order');
+
+        Route::post('/pos/{id}/toggle-availability', [PosController::class, 'toggleAvailability'])
+            ->middleware('role:admin|staff')
+            ->name('cashier.pos.toggleAvailability');
+
+        Route::get('/pos/receipt/{id}', [PosController::class, 'printReceipt'])
+            ->name('cashier.pos.receipt');
+
+        Route::get('/qr-orders', [QrOrderController::class, 'index'])
+            ->name('cashier.qr.orders');
+
+        Route::post('/qr-orders/{id}/serve', [QrOrderController::class, 'serve'])
+            ->name('cashier.qr.orders.serve');
     });
     
-    Route::get('/cashier/pos', function(){ //allowed if user is logged in and has a role of staff
-        return view('pos.pos');
-    })->middleware('role:admin|staff');
     
-
-    /*
-        POS routes
-    */
-    Route::get('/cashier/pos', [PosController::class, 'index'])
-        ->middleware('role:admin|staff')
-        ->name('cashier.pos');
-
-    Route::post('/cashier/pos/order', [PosController::class, 'processOrder'])
-        ->middleware('role:admin|staff')
-        ->name('cashier.pos.order');
-
-    Route::post('/cashier/pos/{id}/toggle-availability', [PosController::class, 'toggleAvailability'])
-        ->middleware('role:admin|staff')
-        ->name('cashier.pos.toggleAvailability');
-
-    Route::get('/cashier/pos/receipt/{id}', [PosController::class, 'printReceipt'])
-        ->name('cashier.pos.receipt');
 });
 
  #QR menu routes
