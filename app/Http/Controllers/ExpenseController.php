@@ -16,11 +16,32 @@ class ExpenseController extends Controller
             ->get();
 
         $ingredients = DB::table('laravel.admin_global_inventory')
-            ->select('id', 'name', 'purchase_price', 'primary_unit_abbr')
+            ->select('id', 
+                'name', 
+                'purchase_price', 
+                'primary_unit_abbr', 
+                'secondary_unit_abbr',
+                DB::raw('(purchase_price / NULLIF(conversion_factor, 0)) as s_unit_price')
+            )
             ->orderBy('name')
             ->get();
             
         $branches = DB::table('laravel.branches')->get();
+
+        // Calculate available system cash for each branch
+        foreach ($branches as $branch) {
+            $totalSystemCashIn = DB::table('laravel.orders')
+                ->where('branch_id', $branch->id)
+                ->where('payment_method', 'cash')
+                ->sum('total_amount');
+
+            $totalSystemCashSpent = DB::table('laravel.expenses')
+                ->where('branch_id', $branch->id)
+                ->where('fund_source', 'cash_in_hand')
+                ->sum('total_amount');
+
+            $branch->available_cash = $totalSystemCashIn - $totalSystemCashSpent;
+        }
 
         return view('admin.expenses.expenses', compact('expenses', 'ingredients', 'branches'));
     }
@@ -58,6 +79,7 @@ class ExpenseController extends Controller
             'items'        => 'required|array',
             'items.*.ingredient_id' => 'required|integer|exists:pgsql.laravel.ingredients,id',
             'items.*.quantity' => 'required|numeric|min:0.01',
+            'items.*.unit_cost' => 'required|numeric|min:0',
         ]);
 
         $totalExpense = $request->total_amount;
@@ -84,22 +106,40 @@ class ExpenseController extends Controller
             ]);
 
             foreach($request->items as $item){
-                $exists = DB::table('laravel.branch_inventory')
+
+                $branchInventory = DB::table('laravel.branch_inventory')
                     ->where('branch_id', $branchId)
                     ->where('ingredient_id', $item['ingredient_id'])
-                    ->exists();
+                    ->first();
 
-                if ($exists) {
+                $qty = $item['quantity'];
+                $unitCost = $item['unit_cost'];
+                $totalCost = $qty * $unitCost;
+
+                if ($branchInventory) {
+
+                    // 🔥 WAC CALCULATION
+                    $currentTotalValue = $branchInventory->stock_quantity * $branchInventory->purchase_price;
+                    $newTotalValue = $currentTotalValue + $totalCost;
+                    $newTotalStock = $branchInventory->stock_quantity + $qty;
+
+                    $newWacPrice = $newTotalStock > 0
+                        ? round($newTotalValue / $newTotalStock, 2)
+                        : $branchInventory->purchase_price;
+
                     DB::table('laravel.branch_inventory')
-                        ->where('branch_id', $branchId)
-                        ->where('ingredient_id', $item['ingredient_id'])
-                        ->increment('stock_quantity', $item['quantity']);
+                        ->where('id', $branchInventory->id)
+                        ->update([
+                            'stock_quantity' => $newTotalStock,
+                            'purchase_price' => $newWacPrice
+                        ]);
+
                 } else {
                     DB::table('laravel.branch_inventory')->insert([
                         'branch_id' => $branchId,
                         'ingredient_id' => $item['ingredient_id'],
-                        'stock_quantity' => $item['quantity'],
-                        'purchase_price' => DB::table('laravel.ingredients')->where('id', $item['ingredient_id'])->value('purchase_price'),
+                        'stock_quantity' => $qty,
+                        'purchase_price' => $unitCost, // use entered price
                         'alert_threshold' => 5,
                         'created_at' => now(),
                         'updated_at' => now()

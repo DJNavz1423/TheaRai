@@ -133,7 +133,7 @@
               <select name="branch_id" id="reg-branch" class="unit-selector" required>
                 <option value="" disabled selected>Select Branch...</option>
                 @foreach($branches as $branch)
-                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    <option value="{{ $branch->id }}" data-cash="{{ $branch->available_cash }}">{{ $branch->name }}</option>
                 @endforeach
               </select>
             </div>
@@ -141,6 +141,7 @@
             <div class="input-group">
               <label for="reg-amount">Amount</label>
               <input type="number" id="reg-amount" name="total_amount" step="0.01" required placeholder="Enter amount...">
+              <span class="icon-wrapper unit-abbr" id="reg-cash-display">/₱0.00</span>
             </div>
           </div>
 
@@ -162,6 +163,8 @@
       </form>
     </div>
   </div>
+
+
 
 
   <div id="restockModal" class="modal" style="display: none;">
@@ -187,7 +190,7 @@
               <select name="branch_id" id="restock-branch" class="unit-selector" required>
                 <option value="" disabled selected>Select Branch...</option>
                 @foreach($branches as $branch)
-                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    <option value="{{ $branch->id }}" data-cash="{{ $branch->available_cash }}">{{ $branch->name }}</option>
                 @endforeach
               </select>
             </div>
@@ -222,7 +225,7 @@
 
               <tbody id="restock-list"></tbody>
 
-              <tfoot>
+              <tfoot class="border-t">
                 <tr>
                   <td colspan="3" class="border-r">
                     <button type="button" id="addRestockRowBtn" class="btn">
@@ -235,8 +238,11 @@
 
                   <td><span>Grand Total</span></td>
                   <td>
-                    <span id="restock-grand-total" class="format-peso">0</span>
-                    <input type="hidden" name="total_amount" id="hidden-grand-total">
+                    <div class="row">
+                      <span id="restock-grand-total" class="format-peso">0</span>
+                      <input type="hidden" name="total_amount" id="hidden-grand-total">
+                      <span class="icon-wrapper unit-abbr" id="restock-cash-display" style="display:none;">/₱0.00</span>
+                    </div>
                   </td>
                 </tr>
               </tfoot>
@@ -258,7 +264,6 @@
 
 @once
     @push('styles')
-      <link rel="stylesheet" href="{{ asset('css/admin/expenses/expenses.css') }}">
       <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
       <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
       <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
@@ -283,9 +288,13 @@
           document.getElementById(id).style.display = 'flex';
           document.getElementById('expenseDropdown').style.display = 'none';
           
-          if(id === 'restockModal' && document.querySelectorAll('.restock-row').length === 0){
-            document.getElementById('addRestockRowBtn').click(); 
-          }
+            if(id === 'restockModal'){
+              if(document.querySelectorAll('.restock-row').length === 0){
+                  document.getElementById('addRestockRowBtn').click(); 
+              }
+
+              updateRestockCashDisplay();
+            }
          }
 
          function closeModal(id){
@@ -299,15 +308,17 @@
          const ingredientOptions = ingredientsData.map(i => {
           return `<option value="${i.id}"
             data-pcost="${i.purchase_price}"
-            data-pabbr="${i.primary_unit_abbr}">
+            data-scost="${i.s_unit_price || 0}"
+            data-pabbr="${i.primary_unit_abbr}"
+            data-sabbr="${i.secondary_unit_abbr || ''}">
             ${i.name}</option>`;
          }).join('');
 
          function attachRestockListeners(row){
-          const selectEl = row.querySelector('.restock-select');
+          const selectEl = row.querySelector('.recipe-select');
+          const unitToggle = row.querySelector('.unit-toggle');
           const qtyInput = row.querySelector('.restock-qty');
           const activeCostInput = row.querySelector('.active-unit-cost');
-          const unitCostDisplay = row.querySelector('.unit-cost-display');
 
           new TomSelect(selectEl, {
             create: false,
@@ -315,33 +326,81 @@
             dropdownParent: 'body'
           });
 
+          if (!unitToggle.tomselect) {
+            new TomSelect(unitToggle, {
+              controlInput: null,
+              maxOptions: null,
+              placeholder: "Unit",
+              dropdownParent: 'body'
+            });
+          }
+
           selectEl.tomselect.on('change', function(val){
+            const tsUnit = unitToggle.tomselect;
+
             if(!val){
-              row.querySelector('.unit-label').textContent = 'Unit';
-              activeCostInput.value = 0;
-              unitCostDisplay.textContent = '₱0.00';
+              tsUnit.clear(true);
+              tsUnit.clearOptions();
+              activeCostInput.value = '0.00';
               calculateRestock();
               return;
             }
 
             const originalOption = selectEl.querySelector(`option[value="${val}"]`);
+            tsUnit.clear(true);
+            tsUnit.clearOptions();
 
-            row.querySelector('.unit-label').textContent = originalOption.dataset.pabbr;
-            const cost = parseFloat(originalOption.dataset.pcost) || 0;
+            if(originalOption.dataset.sabbr && originalOption.dataset.sabbr !== 'undefined' && originalOption.dataset.sabbr !== '') {
+              tsUnit.addOption({
+                  value: 'secondary',
+                  text: originalOption.dataset.sabbr,
+                  cost: originalOption.dataset.scost
+              });
+            }
+        
+            tsUnit.addOption({
+                value: 'primary',
+                text: originalOption.dataset.pabbr,
+                cost: originalOption.dataset.pcost
+            });
+            
+            tsUnit.refreshOptions(false);
+            tsUnit.setValue('primary', false);
+          });
 
-            activeCostInput.value = cost;
-            unitCostDisplay.textContent = window.formatPeso.format(cost)
+          unitToggle.tomselect.on('change', function(value) {
+            const selected = this.options[value];
+            if (!selected) return;
+            
+            const cost = parseFloat(selected.cost) || 0;
+            activeCostInput.value = cost.toFixed(2);
+
             calculateRestock();
           });
 
           qtyInput.addEventListener('input', calculateRestock);
+          activeCostInput.addEventListener('input', calculateRestock);
 
-          row.querySelector('.remove-row-btn').addEventListener('click', function(){
-            row.remove();
-            updateRestockSerialNumbers();
-            calculateRestock();
-          });
+            row.querySelector('.remove-row').addEventListener('click', function() {
+                row.remove();
+                updateRestockSerialNumbers();
+                calculateRestock();
+            });
          }
+
+        function closeOpenDropdowns() {
+          document.querySelectorAll('.recipe-select, .unit-toggle').forEach(selectEl => {
+            if (selectEl.tomselect && selectEl.tomselect.isOpen) {
+                selectEl.tomselect.close(); 
+                selectEl.tomselect.blur(); 
+            }
+          });
+        }
+
+        const restockModalDialog = document.querySelector('#restockModal .modal-dialog');
+          if (restockModalDialog) {
+              restockModalDialog.addEventListener('scroll', closeOpenDropdowns, { passive: true });
+          }
 
          document.getElementById('addRestockRowBtn').addEventListener('click', function(){
           const container = document.getElementById('restock-list');
@@ -351,25 +410,31 @@
           row.innerHTML = `
             <td><span class="serial-number"></span></td>
             <td>
-              <select name="items[${restockRowCount}][ingredient_id]" class="restock-select" required>
+              <select name="items[${restockRowCount}][ingredient_id]" class="recipe-select">
                 <option value="" class="d-none"></option>
                 ${ingredientOptions}
               </select>  
             </td>
             <td>
               <div>
-                <input type="number" name="items[${restockRowCount}][quantity]" class="restock-qty" step="0.01" min="0.01" value="1" required>
-                <span class="unit-label text-muted">Unit</span>  
+                <div class="input-group">
+                  <input type="number" name="items[${restockRowCount}][quantity]" class="restock-qty" step="0.01" min="0.01" value="" required>
+                  <select name="ingredients[${restockRowCount}][unit_type]" class="unit-toggle">
+                    <option value="" class="d-none">Unit</option>
+                  </select>
+                </div>
               </div>  
             </td>
             <td>
-              <span class="unit-cost-display">₱0.00</span>
-              <input type="hidden" class="active-unit-cost" value="0">  
+              <div class="input-group">
+                <span class="icon-wrapper currency-symbol" style="font-size:1rem; color:var(--secondary);">&#8369;</span>
+                <input type="number" name="items[${restockRowCount}][unit_cost]" class="active-unit-cost" step="0.01" min="0" value="0.00" style="padding-left:1.5rem; padding-right:0.5rem">
+              </div>
             </td>
             <td>
               <div>
                 <span class="line-cost-display">₱0.00</span>  
-                <button type="button" class="remove-row-btn btn" style="padding: 4px; background: none; border: none; cursor: pointer;">
+                <button type="button" class="remove-row">
                     <span class="icon-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#ff4d4f"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
                       </span>
@@ -406,6 +471,60 @@
           document.getElementById('restock-grand-total').textContent = window.formatPeso.format(grandTotal);
           document.getElementById('hidden-grand-total').value = grandTotal;
          }
+
+         // Update Available Cash Display for Regular Expense
+         document.getElementById('reg-branch').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const displaySpan = document.getElementById('reg-cash-display');
+            
+            if (selectedOption && selectedOption.value !== "") {
+                const availableCash = parseFloat(selectedOption.getAttribute('data-cash')) || 0;
+                
+                // Uses your existing formatPeso formatter if available, else fallback
+                if (window.formatPeso) {
+                    displaySpan.textContent = '/ Available: ' + window.formatPeso.format(availableCash);
+                } else {
+                    displaySpan.textContent = `/ Available: ₱${availableCash.toFixed(2)}`;
+                }
+                
+                // Optional UI flare: Turn text red if cash is 0 or negative
+                displaySpan.style.color = availableCash <= 0 ? '#ff4d4f' : '';
+            } else {
+                displaySpan.textContent = '/₱0.00';
+                displaySpan.style.color = '';
+            }
+         });
+
+         const restockBranch = document.getElementById('restock-branch');
+const fundSource = document.getElementById('fund-source');
+const restockCashDisplay = document.getElementById('restock-cash-display');
+
+function updateRestockCashDisplay() {
+    const selectedBranch = restockBranch.options[restockBranch.selectedIndex];
+    const source = fundSource.value;
+
+    // Only show if system cash
+    if (source === 'cash_in_hand' && selectedBranch && selectedBranch.value !== "") {
+        const availableCash = parseFloat(selectedBranch.getAttribute('data-cash')) || 0;
+
+        restockCashDisplay.style.display = 'inline';
+
+        if (window.formatPeso) {
+            restockCashDisplay.textContent = '/ Available: ' + window.formatPeso.format(availableCash);
+        } else {
+            restockCashDisplay.textContent = `/ Available: ₱${availableCash.toFixed(2)}`;
+        }
+
+        restockCashDisplay.style.color = availableCash <= 0 ? '#ff4d4f' : '';
+
+    } else {
+        restockCashDisplay.style.display = 'none';
+        restockCashDisplay.textContent = '/₱0.00';
+    }
+}
+
+restockBranch.addEventListener('change', updateRestockCashDisplay);
+fundSource.addEventListener('change', updateRestockCashDisplay);
         </script>
 
   @if(session('error'))
