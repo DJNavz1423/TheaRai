@@ -21,7 +21,7 @@
     <title>Order Successful</title>
 </head>
 <body>
-    @include('loader')
+    @include('partials.loader')
 
     <div class="success-header">
         <h1>
