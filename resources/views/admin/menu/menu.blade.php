@@ -100,7 +100,7 @@
                             <div class="dropdown-section">
                                 <button type="button" class="dropdown-item btn" onclick="openBranchPricingModal({{ $dish->id }}, '{{ addslashes($dish->name) }}', {{ $dish->final_price }})">
                                     <span class="icon-wrapper">
-                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-120v-80h720v80H120Zm74-200L80-514l62-12 70 114 212-320 54 36-284 376Zm352 0-56-56 184-184H360v-80h314L490-824l56-56 274 274-274 286Z"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z"/></svg>
                                     </span>
                                     Manage Branch Pricing
                                 </button>
@@ -108,15 +108,15 @@
                                 <button type="button" class="dropdown-item btn">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
-                                        Edit Item
                                     </span>
+                                    Edit Item
                                 </button>
 
                                 <button type="button" class="dropdown-item btn">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v126q0 17-13.5 28t-31.5 8q-8-1-17-1.5t-18-.5q-20 0-40 2.5t-40 8.5v-51q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v90q-24 17-44.5 38.5T440-424v-176q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q0 29 6.5 57.5T424-168q8 17-1.5 32.5T396-120H280Zm258.5-18.5Q480-197 480-280t58.5-141.5Q597-480 680-480t141.5 58.5Q880-363 880-280t-58.5 141.5Q763-80 680-80t-141.5-58.5ZM700-288v-92q0-8-6-14t-14-6q-8 0-14 6t-6 14v91q0 8 3 15.5t9 13.5l60 60q6 6 14 6t14-6q6-6 6-14t-6-14l-60-60Z"/></svg>
-                                        Delete Item
                                     </span>
+                                    Delete Item
                                 </button>
                             </div>
                         </div>
@@ -216,7 +216,7 @@
                                     </td>
                                     <td>
                                         <div class="input-group">
-                                            <input type="number" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="1" required>
+                                            <input type="number" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
 
                                             <select name="ingredients[0][unit_type]"  class="unit-toggle">
                                                 <option value="" class="d-none">Unit</option>
@@ -224,7 +224,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="unit-cost-display"></span>
+                                        <span class="unit-cost-display">₱0.00</span>
                                         <input type="hidden" class="active-unit-cost" value="0">
                                     </td>
                                     <td>
@@ -392,7 +392,6 @@
         hideSelected: false, 
         closeAfterSelect: false, 
         maxItems: null,
-        dropdownParent: 'body',
         dropdownClass: 'ts-dropdown branch-dropdown',
         render: {
             item: function(data, escape) {
@@ -462,11 +461,27 @@
         const activeCostInput = row.querySelector('.active-unit-cost');
         const unitCostDisplay = row.querySelector('.unit-cost-display');
         
-        new TomSelect(selectEl, { create: false, maxItems: 1, dropdownParent: 'body' });
+        new TomSelect(selectEl, { 
+            create: false, 
+            maxItems: 1,
+            dropdownParent: 'body'
+        });
+
+        if (!unitToggle.tomselect) {
+            new TomSelect(unitToggle, {
+                controlInput: null,
+                maxOptions: null,
+                placeholder: "Unit",
+                dropdownParent: 'body'
+            });
+        }
 
         selectEl.tomselect.on('change', function(val) {
+            const tsUnit = unitToggle.tomselect;
+
             if(!val) {
-                unitToggle.innerHTML = '<option value="" class="d-none">Unit</option>';
+                tsUnit.clear(true);
+                tsUnit.clearOptions();
                 activeCostInput.value = 0;
                 unitCostDisplay.textContent = '₱0.00';
                 calculateAll();
@@ -474,24 +489,36 @@
             }
 
             const originalOption = selectEl.querySelector(`option[value="${val}"]`);
-            
-            unitToggle.innerHTML = `
-                <option value="secondary" data-cost="${originalOption.dataset.scost}">${originalOption.dataset.sabbr}</option>
-                <option value="primary" data-cost="${originalOption.dataset.pcost}">${originalOption.dataset.pabbr}</option>
-            `;
-            
-            unitToggle.dispatchEvent(new Event('change'));
+            tsUnit.clear(true);
+            tsUnit.clearOptions();
+
+            tsUnit.addOption({
+                value: 'secondary',
+                text: originalOption.dataset.sabbr,
+                cost: originalOption.dataset.scost
+            });
+
+            tsUnit.addOption({
+                value: 'primary',
+                text: originalOption.dataset.pabbr,
+                cost: originalOption.dataset.pcost
+            });
+
+            tsUnit.refreshOptions(false);
+            tsUnit.setValue('secondary', false);
         });
 
-        unitToggle.addEventListener('change', function() {
-            const selectedOpt = this.options[this.selectedIndex];
-            if(!selectedOpt || !selectedOpt.value) return; 
-            
-            const cost = parseFloat(selectedOpt.getAttribute('data-cost')) || 0;
-            activeCostInput.value = cost;
-            unitCostDisplay.textContent = `₱${cost.toFixed(2)} / ${selectedOpt.text}`;
-            calculateAll();
-        });
+        unitToggle.tomselect.on('change', function(value) {
+        const selected = this.options[value];
+        if (!selected) return;
+
+        const cost = parseFloat(selected.cost) || 0;
+
+        activeCostInput.value = cost;
+        unitCostDisplay.textContent = `₱${cost.toFixed(2)} / ${selected.text}`;
+
+        calculateAll();
+    });
 
         qtyInput.addEventListener('input', calculateAll);
 
@@ -506,17 +533,21 @@
         });
     }
 
+    function closeOpenDropdowns() {
+        document.querySelectorAll('.recipe-select, .unit-toggle').forEach(selectEl => {
+            if (selectEl.tomselect && selectEl.tomselect.isOpen) {
+                selectEl.tomselect.close(); 
+                selectEl.tomselect.blur(); 
+            }
+        });
+    }
+
     const modalDialog = document.querySelector('#addModal .modal-dialog');
     if (modalDialog) {
-        modalDialog.addEventListener('scroll', function() {
-            document.querySelectorAll('.recipe-select').forEach(selectEl => {
-                if (selectEl.tomselect && selectEl.tomselect.isOpen) {
-                    selectEl.tomselect.close(); 
-                    selectEl.tomselect.blur(); 
-                }
-            });
-        }, { passive: true });
+        modalDialog.addEventListener('scroll', closeOpenDropdowns, { passive: true });
     }
+    
+    window.addEventListener('scroll', closeOpenDropdowns, { passive: true });
 
     document.querySelectorAll('.recipe-row').forEach(row => attachRowListeners(row));
 
@@ -535,7 +566,7 @@
             </td>
             <td>
                 <div class="input-group">
-                    <input type="number" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="1" required>
+                    <input type="number" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
                     <select name="ingredients[${rowCount}][unit_type]" class="unit-toggle">
                         <option value="" class="d-none">Unit</option>
                     </select>
