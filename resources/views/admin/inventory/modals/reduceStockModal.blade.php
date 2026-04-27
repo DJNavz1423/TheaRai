@@ -3,7 +3,7 @@
         <form id="reduceStockForm" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
-                <h2>Reduce Stock</h2>
+                <h2 id="reduceStockModalTitle">Reduce Stock</h2>
 
                 <button type="button" class="btn close-btn" onclick="document.getElementById('reduceStockModal').style.display='none'">
                     <span class="icon-wrapper close-modal">

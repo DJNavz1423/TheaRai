@@ -3,7 +3,7 @@
         <form id="addStockForm" method="POST" class="modal-content">
             @csrf
             <div class="modal-header">
-                <h2>Add Stock</h2>
+                <h2 id="addStockModalTitle">Add Stock</h2>
 
                 <button type="button" class="btn close-btn" onclick="document.getElementById('addStockModal').style.display='none'">
                     <span class="icon-wrapper close-modal">
@@ -46,7 +46,7 @@
                         <label for="add_price">Purchase Price (Per Unit)</label>
                         <span class="icon-wrapper currency-symbol">&#8369;</span>
                         <input type="number" name="unit_price" id="add_price" step="0.01" min="0.01" required>
-                        <span class="text-muted" id="add_price_unit_display"></span>
+                        <span class="icon-wrapper text-muted unit-abbr" id="add_price_unit_display"></span>
                     </div>
 
                     <div class="input-group">

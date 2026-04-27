@@ -1,6 +1,5 @@
 @extends('layouts.admin')
 
-
 @section('title', 'Inventory')
 
 @section('content')
@@ -146,6 +145,7 @@
 
                                         <button type="button" class="dropdown-item btn" onclick="openAddStockModal(
                                         {{ $item->id }}, 
+                                        '{{ addslashes($item->name) }}',
                                         '{{ $item->primary_unit_abbr }}', 
                                         '{{ $item->secondary_unit_abbr }}', 
                                         {{ $item->conversion_factor }}, 
@@ -158,7 +158,8 @@
                                         </button>
 
                                         <button type="button" class="dropdown-item dropdown-red btn" onclick="openReduceStockModal(
-                                        {{ $item->id }}, 
+                                        {{ $item->id }},
+                                        '{{ addslashes($item->name) }}', 
                                         '{{ $item->primary_unit_abbr }}', 
                                         '{{ $item->secondary_unit_abbr }}', 
                                         {{ $item->conversion_factor }}, 
@@ -340,7 +341,7 @@
 
             // Opens the Add Stock Modal (You'll need to set the form actions when you build the backend for this)
             let activeItemContext = {}; 
-            function openAddStockModal(id, pUnit, sUnit, convFactor, currentStock, price) {
+            function openAddStockModal(id, itemName, pUnit, sUnit, convFactor, currentStock, price) {
                 activeItemContext = {
                     pUnit,
                     sUnit,
@@ -349,13 +350,25 @@
                     price
                 };
 
+                document.getElementById('addStockModalTitle').innerText = `Add Stock to ${itemName}`;
+
                 document.getElementById('addStockForm').action = "{{ url('/admin/inventory') }}/" + id + "/add-stock";
 
                 let unitSelect = document.getElementById('add_unit');
-                unitSelect.innerHTML = `
-                    <option value="primary">${pUnit}</option>
-                    <option value="secondary">${sUnit}</option>
-                `;
+
+                if (unitSelect.tomselect) {
+                    unitSelect.tomselect.clearOptions();
+                    
+                    unitSelect.tomselect.addOption({value: 'primary', text: pUnit});
+                    unitSelect.tomselect.addOption({value: 'secondary', text: sUnit});
+
+                    unitSelect.tomselect.setValue('primary', true); 
+                } else {
+                    unitSelect.innerHTML = `
+                        <option value="primary">${pUnit}</option>
+                        <option value="secondary">${sUnit}</option>
+                    `;
+                }
 
                 document.getElementById('add_quantity').value = '';
 
@@ -370,20 +383,33 @@
             }
 
             // Opens the Reduce Stock Modal 
-            function openReduceStockModal(id, pUnit, sUnit, convFactor, currentStock) {
+            function openReduceStockModal(id, itemName, pUnit, sUnit, convFactor, currentStock) {
                 activeItemContext = {
                     pUnit,
                     sUnit,
                     convFactor,
                     currentStock
                 };
+
+                document.getElementById('reduceStockModalTitle').innerText = `Reduce Stock to ${itemName}`;
+
                 document.getElementById('reduceStockForm').action = "{{ url('/admin/inventory') }}/" + id + "/reduce-stock";
 
                 let unitSelect = document.getElementById('reduce_unit');
-                unitSelect.innerHTML = `
-                    <option value="primary">${pUnit}</option>
-                    <option value="secondary">${sUnit}</option>
-                `;
+
+                    if (unitSelect.tomselect) {
+                        unitSelect.tomselect.clearOptions();
+                        
+                        unitSelect.tomselect.addOption({value: 'primary', text: pUnit});
+                        unitSelect.tomselect.addOption({value: 'secondary', text: sUnit});
+                        
+                        unitSelect.tomselect.setValue('primary', true); 
+                    } else {
+                        unitSelect.innerHTML = `
+                            <option value="primary">${pUnit}</option>
+                            <option value="secondary">${sUnit}</option>
+                        `;
+                    }
 
                 document.getElementById('reduce_quantity').value = '';
                 document.getElementById('reduce_remarks').value = '';
@@ -490,7 +516,10 @@
             
             // ATTACH THE EVENT LISTENERS
             document.getElementById('add_quantity').addEventListener('input', function() { updateLiveUI('add'); });
-            document.getElementById('add_unit').addEventListener('change', function(event) { updateLiveUI('add'); });
+
+            document.getElementById('add_unit').addEventListener('change', function(event) {
+                 updateLiveUI('add'); 
+                });
             
             document.getElementById('reduce_quantity').addEventListener('input', function() { updateLiveUI('reduce'); });
             document.getElementById('reduce_unit').addEventListener('change', function(event) { updateLiveUI('reduce'); });
