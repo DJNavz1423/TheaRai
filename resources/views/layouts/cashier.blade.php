@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/cashier/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/cashier/header.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
 
   @stack('styles')
 
@@ -17,7 +18,7 @@
 </head>
 
 <body>
-  @include('loader')
+  @include('partials.loader')
 
   <aside id="sidebar">
     <nav>
@@ -51,6 +52,8 @@
           </span>
           <span class="nav-item">Orders</span>
           </a>
+
+          <span class="qr-notif-badge">0</span>
         </li>
 
         <!-- dropdown sales -->
@@ -127,7 +130,7 @@
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200q-17 0-28.5-11.5T160-240q0-17 11.5-28.5T200-280h40v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h40q17 0 28.5 11.5T800-240q0 17-11.5 28.5T760-200H200Zm280-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z"/></svg>
             </span>
-            <span id="qr-notif-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 12px; font-weight: bold;">0</span>
+            <span class="qr-notif-badge">0</span>
           </button>
 
           <button>
@@ -154,25 +157,7 @@
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/utils/liveClock.js') }}"></script>
 
-  <script>
-  function fetchQrNotifications() {
-      fetch('{{ route("qr.orders.notifications") }}')
-          .then(response => response.json())
-          .then(data => {
-              const badge = document.getElementById('qr-notif-badge');
-              if (data.count > 0) {
-                  badge.innerText = data.count;
-                  badge.style.display = 'block';
-              } else {
-                  badge.style.display = 'none';
-              }
-          })
-          .catch(error => console.error('Error fetching notifications:', error));
-  }
-
-  fetchQrNotifications();
-  setInterval(fetchQrNotifications, 10000); 
-</script>
+  @include('partials.qr_notif')
 
   @stack('scripts')
 </body>

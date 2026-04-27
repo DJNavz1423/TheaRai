@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
 
   @stack('styles')
 
@@ -15,7 +16,7 @@
 </head>
 
 <body>
-  @include('loader')
+  @include('partials.loader')
 
   <aside id="sidebar">
     <nav>
@@ -79,13 +80,20 @@
             <span class="icon-wrapper dropdown-arrow">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M465-363.5q-7-2.5-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5q-8 0-15-2.5Z"/></svg>
             </span>
+
+            <span class="qr-notif-badge">0</span>
           </button>
 
           <ul class="sub-menu">
             <div>
               <li><a href="#">Overview</a></li>
               <li><a href="#">Transactions</a></li>
-              <li><a href="{{ url('/admin/qr-orders') }}">QR Orders</a></li>
+              <li>
+                <a href="{{ url('/admin/qr-orders') }}">
+                  QR Orders
+                  <span class="qr-notif-badge">0</span>
+                </a>
+              </li>
             </div>
           </ul>
         </li>
@@ -225,6 +233,8 @@
   </main>
 
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
+
+  @include('partials.qr_notif')
 
   @stack('scripts')
 </body>
