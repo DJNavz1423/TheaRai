@@ -50,3 +50,13 @@ document.querySelectorAll('.unit-selector').forEach((el) => {
             }
         });
     });
+
+document.querySelectorAll('.unit-toggle').forEach(function(selectEl) {
+    new TomSelect(selectEl, {
+        controlInput: null,
+        maxOptions: null,
+        placeholder: "Select Unit",
+        dropdownParent: 'body'
+    });
+});
+
