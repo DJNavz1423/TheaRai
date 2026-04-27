@@ -28,6 +28,7 @@ body{
 
 main{
   position: relative;
+  anchor-name: --main;
 }
 
 /* headings */
