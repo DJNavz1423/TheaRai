@@ -14,7 +14,7 @@ body{
   top: 0;
   align-self: self-start;
   transition: 300ms ease-in-out;
-  overflow: hidden;
+  overflow-x: hidden;
   overflow-y: auto;
   text-wrap: nowrap;
   scrollbar-gutter: stable;
@@ -143,6 +143,11 @@ body{
 
 #sidebar .sub-menu a{
   padding-left: 3.2em;
+  padding-right: 1em;
+  display: flex; 
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .sidebar-btn{
