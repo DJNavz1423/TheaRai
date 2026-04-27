@@ -6,6 +6,7 @@
 
     <!-- css links -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
     <link rel="stylesheet" href="{{ asset('css/login/login-style.css') }}">
 
     @stack('styles')
@@ -14,7 +15,7 @@
 </head>
 <!-- MARCH 9 -->
 <body>
-     @include('loader')
+     @include('partials.loader')
 
     <div class="container">
         <div class="row">

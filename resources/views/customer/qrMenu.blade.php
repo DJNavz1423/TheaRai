@@ -17,7 +17,7 @@
 </head>
 
 <body>
-    @include('loader')
+    @include('partials.loader')
 
     <header>
         <h2>TheaRai Eatery - {{ str_replace('TheaRai ', '', $branch->name) }}</h2>
