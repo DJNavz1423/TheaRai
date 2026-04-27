@@ -169,7 +169,7 @@
         .icon-wrapper svg{
           width: 18px;
           height: 18px;
-          fill: var(--secondary-dark);
+          fill: var(--secondary-light);
         }
       }
 
