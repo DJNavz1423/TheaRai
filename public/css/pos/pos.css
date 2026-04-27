@@ -1,6 +1,7 @@
 main{
   display: flex;
   flex-direction: column;
+  height: 100dvh;
 }
 
 section{
@@ -15,12 +16,14 @@ section{
   flex: 1;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .table-controls{
   padding-left: 30px;
   padding-top: 20px;
   padding-bottom: 19px;
+  flex-shrink: 0;
 }
 
 .table-controls .filters{
@@ -43,6 +46,7 @@ product grid
 
 .product-grid{
   flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   align-content: start;
@@ -60,12 +64,16 @@ product grid
   overflow: hidden;
   transition: 300ms ease;
   cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+  height: max-content;
 }
 
 .dish-card:hover{
   transform: translateY(-4px) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  border-color: var(--quaternary-dark);
+  border-color: var(--primary-dark);
 }
 
 .dish-img{
@@ -91,6 +99,7 @@ product grid
   flex-direction: column;
   gap: 4px;
   padding: 1rem;
+  flex-shrink: 0;
 
   .dish-name{
     font-size: 1rem;
@@ -366,7 +375,6 @@ product grid
 
 .cart-footer{
   padding: 15px 20px;
-  padding-bottom: 34px;
 
   .cart-actions{
     display: flex;

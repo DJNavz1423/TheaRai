@@ -44,8 +44,6 @@
                 Clear All
             </button>
     </div>
-
-    <div class="cart-body">
         <div class="cart-items">
             <div id="empty-cart-msg">
                 <span class="icon-wrapper">
@@ -62,13 +60,12 @@
                 <h3 id="cart-total">&#8369;0.00</h3>
             </div>
         </div>
-    </div>
 
     <div class="cart-footer border-t">
             <div class="cart-actions">
                 <div class="input-group">
                     <label for="payment-method">Payment Method</label>
-                    <select name="payment-method" id="payment-method">
+                    <select name="payment-method" id="payment-method" class="unit-selector">
                         <option value="cash">Cash</option>
                         <option value="digital">E-Wallet (e.g., Gcash, Maya)</option>
                     </select>
