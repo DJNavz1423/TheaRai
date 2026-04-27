@@ -1,0 +1,52 @@
+.order-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.order-card{
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  border: 1px solid var(--secondary-light); 
+  padding: 1rem; 
+  border-radius: 8px;
+
+  .card-header{
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+
+    h2{
+      font-family: 'Lato', sans-serif;
+      color: var(--primary-dark);
+      font-weight: 900;
+    }
+
+    p{
+      font-size: 14px;
+    }
+
+    button{
+      background: var(--success); 
+      color: var(--light-pure);
+      font-size: 14px; 
+      padding: 10px 20px; 
+      border: none; 
+      border-radius: 5px; 
+      letter-spacing: normal;
+      transition: 250ms ease;
+    }
+
+    button:hover{
+      background: var(--tertiary);
+    }
+  }
+
+  .order-list{
+    strong{
+      color: var(--quaternary-dark);
+      font-weight: 900;
+    }
+  }
+}
