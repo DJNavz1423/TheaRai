@@ -5,6 +5,72 @@ header{
   flex-direction: row;
   position: sticky;
   top: 0;
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   z-index: 999;
+
+  .row{
+  align-items: center;
+  gap: 1rem;
+
+  svg{
+    fill: var(--secondary-light);
+    height: auto;
+    transition: 250ms ease;
+  }
+}
+
+  button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.row>*{
+  width: unset;
+}
+
+#header-toggle-btn{
+  svg{
+    fill: var(--secondary);
+    transition: 250ms ease;
+  }
+
+  svg:last-child{
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    rotate: 180deg;
+  }
+}
+
+#header-toggle-btn:hover{
+  svg:first-child{
+    opacity: 0;
+  }
+
+  svg:last-child{
+    opacity: 1;
+  }
+}
+
+.btn-row{
+  gap: .75rem !important;
+
+  button{
+    background: none;
+    border: 0;
+    border-radius: 8px;
+    padding: 8px;
+    transition: 250ms ease;
+  }
+
+  button:hover{
+    svg{
+      fill: var(--secondary);
+    }
+
+    background: var(--light-dim);
+  }
 }
