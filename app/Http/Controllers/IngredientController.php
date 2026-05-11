@@ -11,12 +11,14 @@ class IngredientController extends Controller
 {
     public function index(): View{
         $ingredients = DB::table('laravel.admin_global_inventory')->orderBy('updated_at', 'desc')->get();
+
+        $inventoryBreakdown = DB::table('laravel.branch_inventory')->get();
         
         $categories = DB::table('laravel.ingredient_categories')->get();
         $units = DB::table('laravel.units')->get();
         $branches = DB::table('laravel.branches')->get();
 
-        return view('admin.inventory.inventory', compact('ingredients', 'categories', 'units', 'branches'));
+        return view('admin.inventory.inventory', compact('ingredients', 'inventoryBreakdown', 'categories', 'units', 'branches'));
     }
 
     public function store(Request $request){

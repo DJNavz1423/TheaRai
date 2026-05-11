@@ -53,6 +53,13 @@
                     <option value="secondary">Secondary Unit</option>
                 </select>
 
+                <select id="filter-branch" class="ts-filter">
+                    <option value="all" selected>Global View</option>
+                    @foreach($branches as $branch)
+                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                    @endforeach
+                </select>
+
                 <select id="sort-items" class="ts-filter">
                     <option value="latest" selected>Latest</option>
                     <option value="qty_desc">High Quantity</option>
@@ -87,7 +94,9 @@
                     data-base-price="{{ $item->purchase_price }}"
                     data-conv="{{ $item->conversion_factor }}"
                     data-p-abbr="{{ $item->primary_unit_abbr }}"
-                    data-s-abbr="{{ $item->secondary_unit_abbr }}">
+                    data-s-abbr="{{ $item->secondary_unit_abbr }}"
+                    data-branch-stocks='@json($inventoryBreakdown->where("ingredient_id", $item->id)->keyBy("branch_id"))'>
+                    
 
                     <td data-cell="name" role="cell">
                         <div class="d-flex item-group">

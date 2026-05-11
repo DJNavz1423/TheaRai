@@ -19,23 +19,49 @@ document.addEventListener('DOMContentLoaded', function() {
         const unitToggle = document.getElementById('filter-unit').value; // 'primary' or 'secondary'
         const sortType = document.getElementById('sort-items').value;
 
+        const selectedBranch = document.getElementById('filter-branch').value;
+
         let rows = Array.from(document.querySelectorAll('.inventory-row'));
         const tbody = document.querySelector('tbody[role="rowgroup"]');
 
         rows.forEach(row => {
-            // Grab all the math variables from the row
             const name = row.getAttribute('data-name');
             const rowCat = row.getAttribute('data-category');
-            const baseQty = parseFloat(row.getAttribute('data-qty'));
-            const threshold = parseFloat(row.getAttribute('data-threshold'));
-            const basePrice = parseFloat(row.getAttribute('data-base-price'));
+        
+            // 2. Get the branch data we tucked away in the HTML
+            const branchStocks = JSON.parse(row.getAttribute('data-branch-stocks') || '{}');
+            
+            // 3. CONTEXT SWITCHING LOGIC
+            let baseQty, basePrice, threshold;
+            let matchesBranch = true;
+
+            if (selectedBranch === 'all') {
+                // Use the global totals from the view
+                baseQty = parseFloat(row.getAttribute('data-qty'));
+                basePrice = parseFloat(row.getAttribute('data-base-price'));
+                threshold = parseFloat(row.getAttribute('data-threshold'));
+            } else {
+                // Use branch-specific numbers from the branch_inventory table
+                const branchData = branchStocks[selectedBranch];
+                if (branchData) {
+                    baseQty = parseFloat(branchData.stock_quantity);
+                    basePrice = parseFloat(branchData.purchase_price);
+                    threshold = parseFloat(branchData.alert_threshold);
+                } else {
+                    // This branch doesn't have this ingredient
+                    baseQty = 0;
+                    basePrice = 0;
+                    threshold = 0;
+                    matchesBranch = false; // Ingredient doesn't exist in this branch's inventory
+                }
+            }
+
             const conv = parseFloat(row.getAttribute('data-conv'));
             const pAbbr = row.getAttribute('data-p-abbr');
             const sAbbr = row.getAttribute('data-s-abbr');
 
-            // --- DYNAMIC MATH RECALCULATION ---
+            // --- DYNAMIC MATH RECALCULATION (Uses the swapped values) ---
             let currentQty, currentPrice, currentAbbr;
-
             if (unitToggle === 'secondary') {
                 currentQty = baseQty * conv;
                 currentPrice = basePrice / conv;
@@ -46,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentAbbr = pAbbr;
             }
 
-            // Inject the new math into the HTML
+            // Update the UI
             row.querySelector('.display-price').innerHTML = `&#8369;${currentPrice.toFixed(2)}`;
             row.querySelector('.display-unit').innerText = currentAbbr;
             row.querySelector('.display-qty').innerText = `${currentQty.toFixed(2)} ${currentAbbr}`;
@@ -60,7 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (stockStatus === 'low_stock') matchesStock = (baseQty <= threshold && baseQty > 0);
             if (stockStatus === 'out_of_stock') matchesStock = (baseQty <= 0);
 
-            if (matchesSearch && matchesCat && matchesStock) {
+            // Only show the row if it matches everything AND exists in the selected branch
+            if (matchesSearch && matchesCat && matchesStock && matchesBranch) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
