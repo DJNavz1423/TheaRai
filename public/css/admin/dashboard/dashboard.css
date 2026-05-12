@@ -232,12 +232,12 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--quaternary);
+  border-bottom: 2px solid var(--primary-darker);
   padding-bottom: 12px;
   padding-top: 24px;
 
   >a{
-    color: var(--quaternary);
+    color: var(--primary-darker);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -246,7 +246,7 @@
     transition: 300ms ease;
     
     .icon-wrapper svg{
-      fill: var(--quaternary);
+      fill: var(--primary-darker);
       width: 18px;
       height: 18px;
       transition: 300ms ease;
@@ -254,11 +254,11 @@
   }
 
   a:hover{
-    color: var(--quaternary-dark);
+    color: var(--primary-dark);
     transform: translateX(4px);
 
     svg{
-      fill: var(--quaternary-dark);
+      fill: var(--primary-dark);
     }
   }
 }
