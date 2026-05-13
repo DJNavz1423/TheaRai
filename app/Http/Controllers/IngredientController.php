@@ -121,6 +121,9 @@ class IngredientController extends Controller
             'description'       => 'nullable|string|max:1000',
             'img_url'           => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
             'alert_threshold'   => 'nullable|numeric|min:0',
+            'stock_quantity' => 'nullable|numeric|min:0',
+            'purchase_price' => 'nullable|numeric|min:0',
+            'branch_id'      => 'nullable|exists:pgsql.laravel.branches,id',
         ]);
 
         if ($request->hasFile('img_url')) {
@@ -132,15 +135,48 @@ class IngredientController extends Controller
         }
 
         $newThreshold = $validated['alert_threshold'] ?? null;
-        unset($validated['alert_threshold']);
+        $newStockQty = $validated['stock_quantity'] ?? null;
+        $newPurchasePrice = $validated['purchase_price'] ?? null;
+        $branchId = $validated['branch_id'] ?? null;
+
+        unset(
+            $validated['alert_threshold'],
+            $validated['stock_quantity'],
+            $validated['purchase_price'],
+            $validated['branch_id']
+        );
 
         $validated['updated_at'] = now();
         DB::table('laravel.ingredients')->where('id', $id)->update($validated);
 
-        if ($newThreshold !== null) {
-            DB::table('laravel.branch_inventory')
+        if ($branchId) {
+
+            $branchInventory = DB::table('laravel.branch_inventory')
                 ->where('ingredient_id', $id)
-                ->update(['alert_threshold' => $newThreshold]);
+                ->where('branch_id', $branchId)
+                ->first();
+
+            if ($branchInventory) {
+
+                DB::table('laravel.branch_inventory')
+                    ->where('id', $branchInventory->id)
+                    ->update([
+                        'stock_quantity' => $newStockQty,
+                        'purchase_price' => $newPurchasePrice,
+                        'alert_threshold' => $newThreshold,
+                    ]);
+
+            } else {
+
+                DB::table('laravel.branch_inventory')
+                    ->insert([
+                        'ingredient_id' => $id,
+                        'branch_id' => $branchId,
+                        'stock_quantity' => $newStockQty ?? 0,
+                        'purchase_price' => $newPurchasePrice ?? 0,
+                        'alert_threshold' => $newThreshold ?? 0,
+                    ]);
+            }
         }
 
         $this->logActivity('updated', 'ingredient', $id, "Updated global details for ingredient: {$validated['name']}");

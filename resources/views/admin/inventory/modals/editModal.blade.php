@@ -3,6 +3,7 @@
         <form id="editForm" method="POST" class="modal-content" enctype="multipart/form-data">
             @csrf
             @method('PUT')
+            <input type="hidden" name="branch_id" id="edit_branch_id">
             <div class="modal-header">
                 <h2>Edit Item</h2>
 

@@ -153,7 +153,7 @@
                                         <div class="dropdown-header"><p class="text-muted">Adjust Stock</p></div>
 
                                         <button type="button" class="dropdown-item btn" onclick="openAddStockModal(
-                                        {{ $item->id }}, 
+                                        '{{ $item->id }}', 
                                         '{{ addslashes($item->name) }}',
                                         '{{ $item->primary_unit_abbr }}', 
                                         '{{ $item->secondary_unit_abbr }}', 
@@ -167,7 +167,7 @@
                                         </button>
 
                                         <button type="button" class="dropdown-item dropdown-red btn" onclick="openReduceStockModal(
-                                        {{ $item->id }},
+                                        '{{ $item->id }}',
                                         '{{ addslashes($item->name) }}', 
                                         '{{ $item->primary_unit_abbr }}', 
                                         '{{ $item->secondary_unit_abbr }}', 
@@ -183,19 +183,21 @@
                                     <div class="dropdown-section border-t pt-2">
                                         <div class="dropdown-header"><p class="text-muted">Actions</p></div>
                                         
-                                        <button type="button" class="dropdown-item btn" onclick="openEditModal(
-                                            {{ $item->id }}, 
-                                            '{{ addslashes($item->name) }}', 
-                                            '{{ $item->item_code ?? '' }}', 
-                                            '{{ $item->category_id }}', 
-                                            '{{ $item->primary_unit_id }}', 
-                                            '{{ $item->secondary_unit_id }}', 
-                                            '{{ $item->conversion_factor }}', 
-                                            '{{ $item->stock_quantity }}', 
-                                            '{{ $item->purchase_price }}', 
-                                            '{{ $item->alert_threshold ?? '' }}', 
-                                            '{{ addslashes($item->description ?? '') }}',
-                                            '{{ $item->img_url ?? ''}}')">
+                                        <button type="button" class="dropdown-item btn" onclick='openEditModal(
+    @json($item->id),
+    @json($item->name),
+    @json($item->item_code),
+    @json($item->category_id),
+    @json($item->primary_unit_id),
+    @json($item->secondary_unit_id),
+    @json($item->conversion_factor),
+    @json($item->stock_quantity),
+    @json($item->purchase_price),
+    @json($item->alert_threshold),
+    @json($item->description),
+    @json($item->img_url),
+    @json($inventoryBreakdown->where("ingredient_id", $item->id)->keyBy("branch_id"))
+)'>
                                             <span class="icon-wrapper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v111q0 12-8.5 20t-20.5 9q-25 2-46.5 11T725-520l-85 85v-205H320v255q0 23 19 34.5t39 1.5l102-51 83 42-59 58q-11 11-17.5 26t-6.5 31v83q0 17-11.5 28.5T440-120H200Zm360-40v-66q0-8 3-15.5t9-13.5l209-208q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q8 9 12.5 20t4.5 22q0 11-4 22.5T903-340L695-132q-6 6-13.5 9t-15.5 3h-66q-17 0-28.5-11.5T560-160Zm263-184 37-39-37-37-38 38 38 38ZM216-720h528l-34-40H250l-34 40Z"/></svg>
                                             </span>
@@ -264,17 +266,35 @@
 
         <script>
             // Injects row data into the Full Edit Modal
-            function openEditModal(id, name, itemCode, categoryId, primaryUnitId, secondaryUnitId, conversionFactor, stockQty, purchasePrice, alertThreshold, description, imgUrl) {
+            function openEditModal(id, name, itemCode, categoryId, primaryUnitId, secondaryUnitId, conversionFactor, stockQty, purchasePrice, alertThreshold, description, imgUrl, branchStocks) {
+                if (typeof branchStocks === 'string') {
+                    branchStocks = JSON.parse(branchStocks);
+                }
+
                 document.getElementById('editForm').action = "{{ url('/admin/inventory') }}/" + id;
+
+                const selectedBranch = document.getElementById('filter-branch').value;
+
+                let finalStockQty = stockQty;
+                let finalPurchasePrice = purchasePrice;
+                let finalThreshold = alertThreshold;
+
+                // If branch filter is selected, override global values
+                if (selectedBranch !== 'all' && branchStocks[selectedBranch]) {
+                    finalStockQty = branchStocks[selectedBranch].stock_quantity ?? 0;
+                    finalPurchasePrice = branchStocks[selectedBranch].purchase_price ?? 0;
+                    finalThreshold = branchStocks[selectedBranch].alert_threshold ?? 0;
+                }
                 
                 // 1. Standard text and number fields
                 document.getElementById('edit_name').value = name;
                 document.getElementById('edit_item_code').value = itemCode;
                 document.getElementById('edit_conversion_factor').value = conversionFactor;
-                document.getElementById('edit_stock_qty').value = stockQty;
-                document.getElementById('edit_purchase_price').value = parseFloat(purchasePrice).toFixed(2);
-                document.getElementById('edit_threshold').value = alertThreshold;
+                document.getElementById('edit_stock_qty').value = finalStockQty;
+                document.getElementById('edit_purchase_price').value = parseFloat(finalPurchasePrice).toFixed(2);
+                document.getElementById('edit_threshold').value = finalThreshold;
                 document.getElementById('edit_description').value = description;
+                document.getElementById('edit_branch_id').value = selectedBranch !== 'all' ? selectedBranch : '';
 
                 // 2. Tom Select Dropdowns (Category, Primary Unit, Secondary Unit)
                 let categorySelect = document.getElementById('edit_category');
@@ -282,11 +302,18 @@
                 else { categorySelect.value = categoryId; } // Fallback if Tom Select fails to load
 
                 let primarySelect = document.getElementById('edit_primary_unit');
-                if (primarySelect.tomselect) { primarySelect.tomselect.setValue(primaryUnitId); } 
-                else { primarySelect.value = primaryUnitId; }
 
-                let targetOption = primarySelect.querySelector(`option[value="${primaryUnitId}"]`);
-                let primaryAbbr = targetOption ? targetOption.getAttribute('data-abbr') : '';
+                if (primarySelect.tomselect) { 
+                    primarySelect.tomselect.setValue(primaryUnitId, true); 
+                } else { 
+                    primarySelect.value = primaryUnitId; 
+                }
+
+                let targetOption = [...primarySelect.options].find(
+                    option => option.value == primaryUnitId
+                );
+
+                let primaryAbbr = targetOption?.dataset?.abbr || '';
 
                 document.getElementById('edit_opening_stock_unit').innerText = primaryAbbr ? `${primaryAbbr}` : '';
 
@@ -389,6 +416,7 @@
                 document.getElementById('add_new_stock_display').innerText = `${currentStock} ${pUnit}`;
 
                 document.getElementById('addStockModal').style.display = 'flex';
+                updateLiveUI('add', true);
             }
 
             // Opens the Reduce Stock Modal 
@@ -429,6 +457,7 @@
                 document.getElementById('reduce_new_stock_display').innerText = `${currentStock} ${pUnit}`;
 
                 document.getElementById('reduceStockModal').style.display = 'flex';
+                updateLiveUI('reduce', true);
             }
 
             function updatePriceUnitDisplay(type){
@@ -474,7 +503,7 @@
                 document.getElementById(`${type}_new_stock_display`).innerText = `${newStock.toFixed(2)} ${activeItemContext.pUnit}`;
             }
 
-            function updateLiveUI(type, isModalOpen = false) {
+            function updateLiveUI(type, isModalOpen = false, event = null) {
                 let unitType = document.getElementById(`${type}_unit`).value;
                 let inputQty = parseFloat(document.getElementById(`${type}_quantity`).value) || 0;
                 let wrapper = document.getElementById(`${type}_new_stock_wrapper`);
@@ -499,7 +528,7 @@
                     
                     // Only overwrite the input field value if we are just opening the modal OR changing the unit dropdown
                     // We don't want to overwrite it if the user is just typing in the quantity box
-                    if (isModalOpen || event.type === 'change') {
+                    if (isModalOpen || (event && event.type === 'change')) {
                         document.getElementById('add_price').value = currentPrice.toFixed(2);
                     }
                 }
@@ -524,14 +553,21 @@
             }
             
             // ATTACH THE EVENT LISTENERS
-            document.getElementById('add_quantity').addEventListener('input', function() { updateLiveUI('add'); });
+            document.getElementById('add_quantity').addEventListener('input', function(e) { 
+                updateLiveUI('add', false, e); 
+            });
 
-            document.getElementById('add_unit').addEventListener('change', function(event) {
-                 updateLiveUI('add'); 
-                });
+            document.getElementById('add_unit').addEventListener('change', function(e) {
+                updateLiveUI('add', false, e); 
+            });
             
-            document.getElementById('reduce_quantity').addEventListener('input', function() { updateLiveUI('reduce'); });
-            document.getElementById('reduce_unit').addEventListener('change', function(event) { updateLiveUI('reduce'); });
+            document.getElementById('reduce_quantity').addEventListener('input', function(e) { 
+                updateLiveUI('reduce', false, e); 
+            });
+
+            document.getElementById('reduce_unit').addEventListener('change', function(e) { 
+                updateLiveUI('reduce', false, e); 
+            });
 
             document.getElementById('primary_unit').addEventListener('change', function() {
                 let selectedOption = this.options[this.selectedIndex];
