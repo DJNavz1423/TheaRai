@@ -75,7 +75,7 @@ Route::middleware(['auth'])->group(function(){
 
         #tables
         Route::get('/tables', [TableController::class, 'index'])
-            ->name('admin.menu.tables');
+            ->name('admin.tables');
 
         Route::post('/tables', [TableController::class, 'store'])
             ->name('admin.menu.tables.store');
