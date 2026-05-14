@@ -298,19 +298,36 @@
 
             tsUnit.refreshOptions(false);
             tsUnit.setValue(originalOption.dataset.sunitid, true);
+
+            updateUnitCost(
+                tsUnit,
+                originalOption.dataset.sunitid,
+                activeCostInput,
+                unitCostDisplay
+            );
         });
 
+        function updateUnitCost(tsUnit, value, activeCostInput, unitCostDisplay) {
+            const selected = tsUnit.options[String(value)];
+
+            if (!selected) {
+                activeCostInput.value = 0;
+                unitCostDisplay.textContent = '₱0.00';
+                calculateAll();
+                return;
+            }
+
+            const cost = parseFloat(selected.cost) || 0;
+
+            activeCostInput.value = cost;
+            unitCostDisplay.textContent = `₱${cost.toFixed(2)} / ${selected.text}`;
+
+            calculateAll();
+        }
+
         unitToggle.tomselect.on('change', function(value) {
-        const selected = this.options[String(value)];
-        if (!selected) return;
-
-        const cost = parseFloat(selected.cost) || 0;
-
-        activeCostInput.value = cost;
-        unitCostDisplay.textContent = `₱${cost.toFixed(2)} / ${selected.text}`;
-
-        calculateAll();
-    });
+            updateUnitCost(this, value, activeCostInput, unitCostDisplay);
+        });
 
         qtyInput.addEventListener('input', calculateAll);
 
