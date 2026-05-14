@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <!-- css links -->
+  <link rel="icon" href="{{ asset('img/logos/TheaRaiLogo_Secondary.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
