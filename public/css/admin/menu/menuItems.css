@@ -1,3 +1,7 @@
+body{
+  overflow: hidden;
+}
+
 .heading-btn-row .btn:first-child{
   padding: 8px;
   background: none;
@@ -18,10 +22,6 @@
 /*
   modal
 */
-
-
-
-
 
 #recipe .row:first-child {
   margin-bottom: 2rem;
