@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function(){
     const searchQuery = document.getElementById('menuSearch').value.toLowerCase();
     const catId = document.getElementById('filter-category').value;
     const sortType = document.getElementById('sort-items').value;
-    const statusVal = document.getElementById('filter-status').value;
+    const statusSelect = document.getElementById('filter-status');
+    const statusVal = statusSelect ? statusSelect.value : 'all';
 
     let rows = Array.from(document.querySelectorAll('.menu-row'));
     const tbody = document.querySelector('tbody[role="rowgroup"]');
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function(){
       const matchesSearch = name.includes(searchQuery);
       const matchesCat = (catId === 'all' || rowCat === catId);
       
-      const matchesStatus = (statusVal === 'all' || rowStatus === statusVal);
+      const matchesStatus = (!statusSelect || statusVal === 'all' || rowStatus === statusVal);
 
       if(matchesSearch && matchesCat && matchesStatus) {
          row.style.display = '';
@@ -68,6 +69,10 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   document.querySelectorAll('.ts-filter').forEach(select => {
-    select.addEventListener('change', applyMenuFilters);
+    if (select.tomselect) {
+        select.tomselect.on('change', applyMenuFilters);
+    } else {
+        select.addEventListener('change', applyMenuFilters);
+    }
   });
 })

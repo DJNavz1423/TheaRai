@@ -27,6 +27,8 @@ class MenuController extends Controller
                 'agi.id', 
                 'agi.name', 
                 'agi.purchase_price',
+                'agi.primary_unit_id',
+                'agi.secondary_unit_id',
                 'agi.primary_unit_abbr', 
                 'agi.secondary_unit_abbr',
                 DB::raw('(agi.purchase_price / NULLIF(agi.conversion_factor, 0)) as s_unit_price')
@@ -43,13 +45,19 @@ class MenuController extends Controller
             'final_price' => 'required|numeric|min:0',
             'branch_ids' => 'required|array|min:1', 
             'branch_ids.*' => 'integer|exists:pgsql.laravel.branches,id',
-            
-            'ingredients' => 'nullable|array',
-            'ingredients.*.ingredient_id' => 'required|integer',
+            'ingredients' => 'required|array|min:1',
+            'ingredients.*.ingredient_id' => 'required|integer|exists:pgsql.laravel.ingredients,id',
+            'ingredients.*.unit_id' => 'required|exists:pgsql.laravel.units,id',
             'ingredients.*.quantity_used' => 'required|numeric|min:0.01',
             'description'       => 'nullable|string|max:1000',
             'img_url'           => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
         ]);
+
+        $ingredientIds = collect($validated['ingredients'])->pluck('ingredient_id');
+
+        if ($ingredientIds->duplicates()->isNotEmpty()) {
+            return back()->with('error', 'Duplicate ingredients are not allowed.');
+        }
 
         if($request->hasFile('img_url')){
             $file = $request->file('img_url');
@@ -87,7 +95,8 @@ class MenuController extends Controller
                     $pivotData[] = [
                         'menu_item_id' => $menuItemId,
                         'ingredient_id' => $item['ingredient_id'],
-                        'quantity_used' => $item['quantity_used']
+                        'quantity_used' => $item['quantity_used'],
+                        'unit_id' => $item['unit_id'],
                     ];
                 }
                 DB::table('laravel.menu_item_ingredient')->insert($pivotData);
@@ -102,8 +111,6 @@ class MenuController extends Controller
             return back()->with('error', 'Error saving menu item: '. $e->getMessage());
         }
     }
-
-
 
     // Fetches the data for the modal via JavaScript
     public function getBranchPricing($id)
