@@ -154,7 +154,7 @@
 
                                         <button type="button" class="dropdown-item btn" onclick="openAddStockModal(
                                         '{{ $item->id }}', 
-                                        '{{ addslashes($item->name) }}',
+                                        '{{ ($item->name) }}',
                                         '{{ $item->primary_unit_abbr }}', 
                                         '{{ $item->secondary_unit_abbr }}', 
                                         {{ $item->conversion_factor }}, 
@@ -168,7 +168,7 @@
 
                                         <button type="button" class="dropdown-item dropdown-red btn" onclick="openReduceStockModal(
                                         '{{ $item->id }}',
-                                        '{{ addslashes($item->name) }}', 
+                                        '{{ ($item->name) }}', 
                                         '{{ $item->primary_unit_abbr }}', 
                                         '{{ $item->secondary_unit_abbr }}', 
                                         {{ $item->conversion_factor }}, 
