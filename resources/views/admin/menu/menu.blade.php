@@ -110,14 +110,21 @@
 
                         <div class="dropdown-menu border" style="display: none;">
                             <div class="dropdown-section">
-                                <button type="button" class="dropdown-item btn" onclick="openBranchPricingModal({{ $dish->id }}, '{{ addslashes($dish->name) }}', {{ $dish->final_price }})">
+                                <button type="button" class="dropdown-item btn" onclick="openBranchPricingModal({{ $dish->id }}, '{{ ($dish->name) }}', {{ $dish->final_price }})">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z"/></svg>
                                     </span>
                                     Manage Branch Pricing
                                 </button>
 
-                                <button type="button" class="dropdown-item btn">
+                                <button type="button" class="dropdown-item btn edit-menu-btn" 
+                                    data-id="{{ $dish->id }}"
+                                    data-name="{{ $dish->name }}"
+                                    data-category="{{ $dish->category_id }}"
+                                    data-price="{{ $dish->final_price }}"
+                                    data-description="{{ $dish->description }}"
+                                    data-image="{{ $dish->img_url }}"
+                                    onclick="openEditModal(this)">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
                                     </span>
@@ -147,6 +154,8 @@
 
 <!-- modal -->
 @include('admin.menu.menu_modals.addModal')
+
+@include('admin.menu.menu_modals.editModal')
 
 @include('admin.menu.menu_modals.branchPricingModal')
 
@@ -487,6 +496,124 @@
             });
     }
   </script>
+
+  <script>
+
+const editBranchTs = new TomSelect('#edit-dish_branches', {
+    hideSelected: false,
+    closeAfterSelect: false,
+    maxItems: null
+});
+
+function openEditModal(button)
+{
+    const id = button.dataset.id;
+
+    fetch(`/admin/menu/${id}/edit`)
+    .then(res => res.json())
+    .then(data => {
+
+        document.getElementById('edit-name').value = data.menu.name;
+
+        document.getElementById('edit-category').tomselect.setValue(
+            data.menu.category_id
+        );
+
+        document.getElementById('edit-final-price').value =
+            data.menu.final_price;
+
+        document.getElementById('edit-description').value =
+            data.menu.description ?? '';
+
+        document.getElementById('editMenuForm').action =
+            `/admin/menu/${id}`;
+
+        editBranchTs.clear();
+
+        data.branches.forEach(branchId => {
+            editBranchTs.addItem(branchId);
+        });
+
+        const recipeList = document.getElementById('edit-recipe-list');
+
+        recipeList.innerHTML = '';
+
+        data.ingredients.forEach((ingredient, index) => {
+
+            const row = document.createElement('tr');
+
+            row.className = 'recipe-row';
+
+            row.innerHTML = `
+                <td>
+                    <span class="serial-number">${index + 1}</span>
+                </td>
+
+                <td>
+                    <select name="ingredients[${index}][ingredient_id]" class="recipe-select" required>
+                        ${ingredientOptions}
+                    </select>
+                </td>
+
+                <td>
+                    <div class="input-group">
+
+                        <input
+                            type="number"
+                            name="ingredients[${index}][quantity_used]"
+                            class="recipe-qty"
+                            step="0.01"
+                            min="0"
+                            value="${ingredient.quantity_used}"
+                            required
+                        >
+
+                        <select
+                            name="ingredients[${index}][unit_id]"
+                            class="unit-toggle"
+                        >
+                            <option value="">Unit</option>
+                        </select>
+
+                    </div>
+                </td>
+
+                <td>
+                    <span class="unit-cost-display">₱0.00</span>
+                    <input type="hidden" class="active-unit-cost" value="0">
+                </td>
+
+                <td>
+                    <div>
+                        <span class="line-cost-display">₱0.00</span>
+
+                        <button type="button" class="remove-row">
+                            Remove
+                        </button>
+                    </div>
+                </td>
+            `;
+
+            recipeList.appendChild(row);
+
+            attachRowListeners(row);
+
+            row.querySelector('.recipe-select').tomselect.setValue(
+                ingredient.ingredient_id
+            );
+
+            row.querySelector('.unit-toggle').tomselect.setValue(
+                ingredient.unit_id
+            );
+        });
+
+        calculateAll();
+
+        document.getElementById('editModal').style.display = 'flex';
+    });
+}
+
+</script>
 
 @if(session('error'))
     <script>

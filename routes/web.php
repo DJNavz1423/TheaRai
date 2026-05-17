@@ -69,6 +69,10 @@ Route::middleware(['auth'])->group(function(){
         Route::post('/menu', [MenuController::class, 'store'])
         ->name('admin.menu.store');
 
+        Route::get('/menu/{id}/edit', [MenuController::class, 'edit']);
+
+        Route::put('/menu/{id}', [MenuController::class, 'update']);
+
         Route::get('/menu/{id}/branch-pricing', [MenuController::class, 'getBranchPricing']);
         
         Route::post('/menu/{id}/branch-pricing', [MenuController::class, 'updateBranchPricing']);

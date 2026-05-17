@@ -112,6 +112,124 @@ class MenuController extends Controller
         }
     }
 
+    //edit modal
+    public function edit($id){
+    $menu = DB::table('laravel.menu_items')
+        ->where('id', $id)
+        ->first();
+
+    $ingredients = DB::table('laravel.menu_item_ingredient as mii')
+        ->join('laravel.admin_global_inventory as agi', 'mii.ingredient_id', '=', 'agi.id')
+        ->select(
+            'mii.*',
+            'agi.name',
+            'agi.purchase_price',
+            'agi.primary_unit_id',
+            'agi.secondary_unit_id',
+            'agi.primary_unit_abbr',
+            'agi.secondary_unit_abbr',
+            DB::raw('(agi.purchase_price / NULLIF(agi.conversion_factor, 0)) as s_unit_price')
+        )
+        ->where('mii.menu_item_id', $id)
+        ->get();
+
+    $branches = DB::table('laravel.branch_menu_items')
+        ->where('menu_item_id', $id)
+        ->pluck('branch_id');
+
+    return response()->json([
+        'menu' => $menu,
+        'ingredients' => $ingredients,
+        'branches' => $branches,
+    ]);
+}
+
+// update
+public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'category_id' => 'required|integer',
+        'final_price' => 'required|numeric|min:0',
+        'branch_ids' => 'required|array|min:1',
+
+        'ingredients' => 'required|array|min:1',
+        'ingredients.*.ingredient_id' => 'required|integer',
+        'ingredients.*.unit_id' => 'required|integer',
+        'ingredients.*.quantity_used' => 'required|numeric|min:0.01',
+
+        'description' => 'nullable|string|max:1000',
+        'img_url' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+
+        $updateData = [
+            'name' => $validated['name'],
+            'category_id' => $validated['category_id'],
+            'final_price' => $validated['final_price'],
+            'description' => $validated['description'] ?? null,
+            'updated_at' => now()
+        ];
+
+        if($request->hasFile('img_url')){
+            $file = $request->file('img_url');
+            $path = $file->store('images', 'supabase');
+            $updateData['img_url'] = Storage::disk('supabase')->url($path);
+        }
+
+        DB::table('laravel.menu_items')
+            ->where('id', $id)
+            ->update($updateData);
+
+        DB::table('laravel.menu_item_ingredient')
+            ->where('menu_item_id', $id)
+            ->delete();
+
+        $pivotData = [];
+
+        foreach($validated['ingredients'] as $item){
+            $pivotData[] = [
+                'menu_item_id' => $id,
+                'ingredient_id' => $item['ingredient_id'],
+                'quantity_used' => $item['quantity_used'],
+                'unit_id' => $item['unit_id'],
+            ];
+        }
+
+        DB::table('laravel.menu_item_ingredient')->insert($pivotData);
+
+        DB::table('laravel.branch_menu_items')
+            ->where('menu_item_id', $id)
+            ->delete();
+
+        $branchData = [];
+
+        foreach($validated['branch_ids'] as $branchId){
+            $branchData[] = [
+                'menu_item_id' => $id,
+                'branch_id' => $branchId,
+                'is_available' => true
+            ];
+        }
+
+        DB::table('laravel.branch_menu_items')->insert($branchData);
+
+        DB::commit();
+
+        return back()->with('success', 'Menu item updated successfully!');
+
+    } catch(\Exception $e){
+
+        DB::rollBack();
+
+        return back()->with('error', $e->getMessage());
+    }
+}
+
+
     // Fetches the data for the modal via JavaScript
     public function getBranchPricing($id)
     {
