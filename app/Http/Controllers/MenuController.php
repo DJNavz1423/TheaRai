@@ -217,6 +217,8 @@ public function update(Request $request, $id)
 
         DB::table('laravel.branch_menu_items')->insert($branchData);
 
+        $this->logActivity('updated', 'menu_item', $id, "Updated dish: {$validated['name']}");
+
         DB::commit();
 
         return back()->with('success', 'Menu item updated successfully!');
