@@ -82,7 +82,7 @@
                                     </td>
                                     <td>
                                         <div class="input-group">
-                                            <input type="number" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
+                                            <input type="text" inputmode="numeric" pattern="[0-9]*" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
 
                                             <select name="ingredients[0][unit_id]"  class="unit-toggle">
                                                 <option value="" class="d-none">Unit</option>
@@ -109,7 +109,7 @@
                             <tfoot class="border-t">
                                 <tr>
                                     <td colspan="3" class="border-r">
-                                        <button class="btn" type="button" id="addIngredientBtn">
+                                        <button class="btn" type="button" id="edit-addIngredientBtn">
                                             <span class="icon-wrapper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
                                             </span>
@@ -141,13 +141,13 @@
                         <div class="row">
                            <div class="input-group">
                                 <label for="margin">Target Margin (%)</label>
-                                <input type="number" name="margin" id="margin" required value="30">
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" name="margin" id="edit-margin" required value="30">
                             </div>
 
                             <div class="input-group">
                                 <label for="final-price">Your Price</label>
                                 <span class="icon-wrapper currency-symbol">&#8369;</span>
-                                <input type="number" name="final_price" id="edit-final-price" required>
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" name="final_price" id="edit-final-price" required>
                             </div>
                         </div>
                     </div>
@@ -162,7 +162,7 @@
 
                         <div class="row">
                             <div class="input-group">
-                            <label for="image">Add Image</label>
+                            <label for="image">Update Image</label>
                                 <div id="upload-box" class="image-upload">
                                     <input type="file" accept="image/png,.png,image/jpeg,.jpeg,image/jpg,.jpg" name="img_url" id="edit-image" style="display: none;">
 

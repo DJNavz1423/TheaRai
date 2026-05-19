@@ -81,7 +81,7 @@
                                     </td>
                                     <td>
                                         <div class="input-group">
-                                            <input type="number" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
+                                            <input type="text" inputmode="numeric" pattern="[0-9]*" name="ingredients[0][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
 
                                             <select name="ingredients[0][unit_id]"  class="unit-toggle">
                                                 <option value="" class="d-none">Unit</option>
@@ -140,13 +140,13 @@
                         <div class="row">
                            <div class="input-group">
                                 <label for="margin">Target Margin (%)</label>
-                                <input type="number" name="margin" id="margin" required value="30">
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" name="margin" id="margin" required value="30">
                             </div>
 
                             <div class="input-group">
                                 <label for="final-price">Your Price</label>
                                 <span class="icon-wrapper currency-symbol">&#8369;</span>
-                                <input type="number" name="final_price" id="final-price" required>
+                                <input type="text" inputmode="numeric" pattern="[0-9]*" name="final_price" id="final-price" required>
                             </div>
                         </div>
                     </div>

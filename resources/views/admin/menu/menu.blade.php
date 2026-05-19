@@ -285,7 +285,11 @@
                 tsUnit.clearOptions();
                 activeCostInput.value = 0;
                 unitCostDisplay.textContent = '₱0.00';
-                calculateAll();
+                if (row.closest('#edit-recipe-list')) {
+                    calculateEditAll();
+                } else {
+                    calculateAll();
+                }
                 return;
             }
 
@@ -322,7 +326,11 @@
             if (!selected) {
                 activeCostInput.value = 0;
                 unitCostDisplay.textContent = '₱0.00';
-                calculateAll();
+                if (row.closest('#edit-recipe-list')) {
+                    calculateEditAll();
+                } else {
+                    calculateAll();
+                }
                 return;
             }
 
@@ -331,21 +339,44 @@
             activeCostInput.value = cost;
             unitCostDisplay.textContent = `₱${cost.toFixed(2)} / ${selected.text}`;
 
-            calculateAll();
+            if (row.closest('#edit-recipe-list')) {
+                calculateEditAll();
+            } else {
+                calculateAll();
+            }
         }
 
         unitToggle.tomselect.on('change', function(value) {
             updateUnitCost(this, value, activeCostInput, unitCostDisplay);
         });
 
-        qtyInput.addEventListener('input', calculateAll);
+        qtyInput.addEventListener('input', function() {
+            if (row.closest('#edit-recipe-list')) {
+                calculateEditAll();
+            } else {
+                calculateAll();
+            }
+        });
 
         row.querySelector('.remove-row').addEventListener('click', function() {
-            if (document.querySelectorAll('.recipe-row').length > 1) {
+            const container = row.closest('#edit-recipe-list')
+                ? document.querySelectorAll('#edit-recipe-list .recipe-row')
+                : document.querySelectorAll('#recipe-list .recipe-row');
+
+            if (container.length > 1) {
+
                 row.remove();
+
                 updateSerialNumbers();
-                calculateAll();
+
+                if (row.closest('#edit-recipe-list')) {
+                    calculateEditAll();
+                } else {
+                    calculateAll();
+                }
+
             } else {
+
                 alert("You must have at least one ingredient row.");
             }
         });
@@ -367,7 +398,7 @@
     
     window.addEventListener('scroll', closeOpenDropdowns, { passive: true });
 
-    document.querySelectorAll('.recipe-row').forEach(row => attachRowListeners(row));
+    document.querySelectorAll('#recipe-list .recipe-row').forEach(row => attachRowListeners(row));
 
     document.getElementById('addIngredientBtn').addEventListener('click', function() {
         const container = document.getElementById('recipe-list');
@@ -384,7 +415,7 @@
             </td>
             <td>
                 <div class="input-group">
-                    <input type="number" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
+                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
                     <select name="ingredients[${rowCount}][unit_id]" class="unit-toggle">
                         <option value="" class="d-none">Unit</option>
                     </select>
@@ -412,16 +443,99 @@
         rowCount++;
     });
 
+    document.getElementById('edit-addIngredientBtn').addEventListener('click', function() {
+
+        const container = document.getElementById('edit-recipe-list');
+
+        const row = document.createElement('tr');
+
+        row.className = 'recipe-row';
+
+        row.innerHTML = `
+            <td><span class="serial-number"></span></td>
+
+            <td>
+                <select name="ingredients[${rowCount}][ingredient_id]" class="recipe-select" required>
+                    <option value="" class="d-none"></option>
+                    ${ingredientOptions}
+                </select>
+            </td>
+
+            <td>
+                <div class="input-group">
+
+                    <input
+                        type="text"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        name="ingredients[${rowCount}][quantity_used]"
+                        class="recipe-qty"
+                        step="0.01"
+                        min="0"
+                        value=""
+                        required
+                    >
+
+                    <select
+                        name="ingredients[${rowCount}][unit_id]"
+                        class="unit-toggle"
+                    >
+                        <option value="" class="d-none">Unit</option>
+                    </select>
+
+                </div>
+            </td>
+
+            <td>
+                <span class="unit-cost-display">₱0.00</span>
+                <input type="hidden" class="active-unit-cost" value="0">
+            </td>
+
+            <td>
+                <div>
+                    <span class="line-cost-display">₱0.00</span>
+
+                    <button type="button" class="remove-row">
+                        <span class="icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
+                        </span>
+                    </button>
+
+                </div>
+            </td>
+        `;
+
+        container.appendChild(row);
+
+        attachRowListeners(row);
+
+        updateSerialNumbers();
+
+        calculateEditAll();
+
+        rowCount++;
+    });
+
     function updateSerialNumbers() {
-        document.querySelectorAll('.recipe-row').forEach((row, index) => {
-            row.querySelector('.serial-number').textContent = index + 1;
-        });
+        document.querySelectorAll('#recipe-list .recipe-row')
+            .forEach((row, index) => {
+
+                row.querySelector('.serial-number').textContent =
+                    index + 1;
+            });
+
+        document.querySelectorAll('#edit-recipe-list .recipe-row')
+            .forEach((row, index) => {
+
+                row.querySelector('.serial-number').textContent =
+                    index + 1;
+            });
     }
 
     function calculateAll() {
         let subTotal = 0;
 
-        document.querySelectorAll('.recipe-row').forEach(row => {
+        document.querySelectorAll('#recipe-list .recipe-row').forEach(row => {
             const qty = parseFloat(row.querySelector('.recipe-qty').value) || 0;
             const unitCost = parseFloat(row.querySelector('.active-unit-cost').value) || 0;
             
@@ -445,7 +559,53 @@
         document.getElementById('suggested-price-display').textContent = '₱' + suggested.toFixed(2);
     }
 
+    function calculateEditAll() {
+        let subTotal = 0;
+
+        document.querySelectorAll('#edit-recipe-list .recipe-row').forEach(row => {
+
+            const qty = parseFloat(
+                row.querySelector('.recipe-qty').value
+            ) || 0;
+
+            const unitCost = parseFloat(
+                row.querySelector('.active-unit-cost').value
+            ) || 0;
+
+            const lineCost = qty * unitCost;
+
+            subTotal += lineCost;
+
+            row.querySelector('.line-cost-display').textContent =
+                '₱' + lineCost.toFixed(2);
+        });
+
+        const qFactor = subTotal * 0.10;
+
+        const totalCost = subTotal + qFactor;
+
+        const marginPct = parseFloat(
+            document.getElementById('edit-margin').value
+        ) || 0;
+
+        let suggested = 0;
+
+        if (marginPct < 100 && totalCost > 0) {
+            suggested = totalCost / (1 - (marginPct / 100));
+        }
+
+        document.getElementById('edit-sub-total-display').textContent =
+            '₱' + subTotal.toFixed(2);
+
+        document.getElementById('edit-q-factor-display').textContent =
+            '₱' + qFactor.toFixed(2);
+
+        document.getElementById('edit-suggested-price-display').textContent =
+            '₱' + suggested.toFixed(2);
+    }
+
     document.getElementById('margin').addEventListener('input', calculateAll);
+    document.getElementById('edit-margin').addEventListener('input', calculateEditAll);
   </script>
 
   <script>
@@ -481,7 +641,7 @@
                             </td>
                             <td class="border-r">
                                 <div class="input-group" style="margin: 0;">
-                                    <input type="number" name="branch_data[${index}][branch_price]" step="0.01" min="0" value="${priceValue}" placeholder="Uses Global" style="padding: 5px; width: 100%;">
+                                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="branch_data[${index}][branch_price]" step="0.01" min="0" value="${priceValue}" placeholder="Uses Global" style="padding: 5px; width: 100%;">
                                 </div>
                             </td>
                             <td style="text-align: center;">
@@ -502,7 +662,48 @@
 const editBranchTs = new TomSelect('#edit-dish_branches', {
     hideSelected: false,
     closeAfterSelect: false,
-    maxItems: null
+    maxItems: null,
+    dropdownClass: 'ts-dropdown branch-dropdown',
+
+    render: {
+        item: function(data, escape) {
+            return '<div style="display:none;"></div>';
+        }
+    },
+
+    onInitialize: function() {
+
+        updateBranchText(this);
+
+        this.control_input.readOnly = true;
+        this.control_input.style.cursor = 'pointer';
+        this.control.style.cursor = 'pointer';
+
+        this.dropdown.addEventListener('mousedown', (e) => {
+
+            const option = e.target.closest('.option');
+
+            if (option && option.classList.contains('selected')) {
+
+                const value = option.dataset.value;
+
+                this.removeItem(value);
+
+                this.refreshOptions(false);
+
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    },
+
+    onChange: function() {
+        updateBranchText(this);
+    },
+
+    onBlur: function() {
+        updateBranchText(this);
+    }
 });
 
 function openEditModal(button)
@@ -534,6 +735,9 @@ function openEditModal(button)
             editBranchTs.addItem(branchId);
         });
 
+        editBranchTs.refreshOptions(false);
+        updateBranchText(editBranchTs);
+
         const recipeList = document.getElementById('edit-recipe-list');
 
         recipeList.innerHTML = '';
@@ -559,7 +763,9 @@ function openEditModal(button)
                     <div class="input-group">
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
                             name="ingredients[${index}][quantity_used]"
                             class="recipe-qty"
                             step="0.01"
@@ -588,7 +794,9 @@ function openEditModal(button)
                         <span class="line-cost-display">₱0.00</span>
 
                         <button type="button" class="remove-row">
-                            Remove
+                            <span class="icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
+                        </span>
                         </button>
                     </div>
                 </td>
@@ -607,7 +815,7 @@ function openEditModal(button)
             );
         });
 
-        calculateAll();
+        calculateEditAll();
 
         document.getElementById('editModal').style.display = 'flex';
     });
