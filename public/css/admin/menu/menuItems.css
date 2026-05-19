@@ -41,7 +41,7 @@ body{
       font-size: 15px;
     }
 
-    #suggested-price-display{
+    #suggested-price-display, #edit-suggested-price-display{
       font-size: 1.2rem;
       color: var(--quaternary-dark);
       font-weight: 900;
