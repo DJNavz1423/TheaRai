@@ -29,7 +29,7 @@
                     <div class="input-group">
                         <label for="reduce_quantity">Quantity To Reduce (Spoilage, Waste, etc.)</label>
                         <div>
-                            <input type="number" name="quantity" id="reduce_quantity" step="0.01" min="0.01" required placeholder="Enter quantity here" oninput="calculateLiveStock('reduce')">
+                            <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0.01" name="quantity" id="reduce_quantity" required placeholder="Enter quantity here" oninput="calculateLiveStock('reduce')">
                         <select name="unit_type" id="reduce_unit" class="unit-toggle" onchange="calculateLiveStock('reduce')"></select>
                         </div>
                         

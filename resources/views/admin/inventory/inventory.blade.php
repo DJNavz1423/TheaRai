@@ -323,8 +323,7 @@
                 if (secondarySelect.tomselect) { secondarySelect.tomselect.setValue(secondaryUnitId); } 
                 else { secondarySelect.value = secondaryUnitId; }
 
-                //image
-
+                //image preview and removal setup
                 const editUploadBox = document.getElementById('edit-upload-box');
                 const editUploadIcon = document.getElementById('edit-upload-icon');
 

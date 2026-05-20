@@ -66,7 +66,7 @@
 
                             <div class="input-group">
                                 <label for="conversion-factor">Conversion Rate</label>
-                                <input type="number" step="0.01" min="0" name="conversion_factor" id="conversion-factor" placeholder="e.g., 1" required>
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="conversion_factor" id="conversion-factor" placeholder="e.g., 1" required>
                             </div>
                         </div>
 
@@ -85,14 +85,14 @@
                         <div class="row">
                             <div class="input-group">
                                 <label for="stock-qty">Opening Stock</label>
-                                <input type="number" step="0.01" min="0" name="stock_quantity" id="stock-qty">
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="stock_quantity" id="stock-qty">
                                 <span id="add_opening_stock_unit" class="icon-wrapper unit-abbr text-muted"></span>
                             </div>
 
                             <div class="input-group">
                                 <label for="purchase-price">Purchase Price</label>
                                 <span class="icon-wrapper currency-symbol">&#8369;</span>
-                                <input type="number" step="0.01" min="0" name="purchase_price" id="purchase-price" required>
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="purchase_price" id="purchase-price" required>
                                 <span class="text-muted icon-wrapper unit-abbr" id="add_purchase_price_unit"></span>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
 
                             <div class="input-group">
                                 <label for="threshold">Low Stock Alert</label>
-                                <input type="number" step="0.01" min="0" name="alert_threshold" id="threshold" placeholder="Enter Stock Quantity">
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="alert_threshold" id="threshold" placeholder="Enter Stock Quantity">
                                 <span class="p_unit_abbreviation"></span>
                             </div>
                         </div>

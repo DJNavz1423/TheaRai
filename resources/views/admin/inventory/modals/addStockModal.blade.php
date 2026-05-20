@@ -29,7 +29,7 @@
                     <div class="input-group">
                         <label for="add_quantity">Quantity To Add</label>
                         <div>
-                            <input type="number" name="quantity" id="add_quantity" step="0.01" min="0.01" required placeholder="Enter quantity" oninput="calculateLiveStock('add')">
+                            <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" name="quantity" id="add_quantity" step="0.01" min="0.01" required placeholder="Enter quantity" oninput="calculateLiveStock('add')">
                         <select name="unit_type" id="add_unit" class="unit-toggle" onchange="calculateLiveStock('add'); updatePriceUnitDisplay('add');">
                         </select>
                         </div>
@@ -45,7 +45,7 @@
                     <div class="input-group">
                         <label for="add_price">Purchase Price (Per Unit)</label>
                         <span class="icon-wrapper currency-symbol">&#8369;</span>
-                        <input type="number" name="unit_price" id="add_price" step="0.01" min="0.01" required>
+                        <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" name="unit_price" id="add_price" step="0.01" min="0.01" required>
                         <span class="icon-wrapper text-muted unit-abbr" id="add_price_unit_display"></span>
                     </div>
 

@@ -66,21 +66,21 @@
 
                             <div class="input-group">
                                 <label for="edit_conversion_factor">Conversion Rate</label>
-                                <input type="number" step="0.01" min="0" name="conversion_factor" id="edit_conversion_factor" required>
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="conversion_factor" id="edit_conversion_factor" required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="input-group">
                                 <label for="edit_stock_qty">Stock Quantity</label>
-                                <input type="number" step="0.01" min="0" name="stock_quantity" id="edit_stock_qty">
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="stock_quantity" id="edit_stock_qty">
                                 <span class="text-muted icon-wrapper unit-abbr" id="edit_opening_stock_unit"></span>
                             </div>
 
                             <div class="input-group">
                                 <label for="edit_purchase_price">Purchase Price</label>
                                 <span class="icon-wrapper currency-symbol">&#8369;</span>
-                                <input type="number" step="0.01" min="0" name="purchase_price" id="edit_purchase_price" required>
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="purchase_price" id="edit_purchase_price" required>
                                 <span class="text-muted icon-wrapper unit-abbr" id="edit_purchase_price_unit"></span>
                             </div>
                         </div>
@@ -88,7 +88,7 @@
                         <div class="row">
                             <div class="input-group">
                                 <label for="edit_threshold">Low Stock Alert</label>
-                                <input type="number" step="0.01" min="0" name="alert_threshold" id="edit_threshold">
+                                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0" name="alert_threshold" id="edit_threshold">
                             </div>
                         </div>
                     </div>
