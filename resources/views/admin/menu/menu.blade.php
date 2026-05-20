@@ -415,7 +415,7 @@
             </td>
             <td>
                 <div class="input-group">
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
+                    <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" name="ingredients[${rowCount}][quantity_used]" class="recipe-qty" step="0.01" min="0" value="" required>
                     <select name="ingredients[${rowCount}][unit_id]" class="unit-toggle">
                         <option value="" class="d-none">Unit</option>
                     </select>
@@ -466,8 +466,8 @@
 
                     <input
                         type="text"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
+                        inputmode="decimal"
+                        pattern="[0-9]*(\.[0-9]+)?"
                         name="ingredients[${rowCount}][quantity_used]"
                         class="recipe-qty"
                         step="0.01"
@@ -641,7 +641,7 @@
                             </td>
                             <td class="border-r">
                                 <div class="input-group" style="margin: 0;">
-                                    <input type="text" inputmode="numeric" pattern="[0-9]*" name="branch_data[${index}][branch_price]" step="0.01" min="0" value="${priceValue}" placeholder="Uses Global" style="padding: 5px; width: 100%;">
+                                    <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" name="branch_data[${index}][branch_price]" step="0.01" min="0" value="${priceValue}" placeholder="Uses Global" style="padding: 5px; width: 100%;">
                                 </div>
                             </td>
                             <td style="text-align: center;">
@@ -706,8 +706,7 @@ const editBranchTs = new TomSelect('#edit-dish_branches', {
     }
 });
 
-function openEditModal(button)
-{
+function openEditModal(button){
     const id = button.dataset.id;
 
     fetch(`/admin/menu/${id}/edit`)
@@ -728,6 +727,70 @@ function openEditModal(button)
 
         document.getElementById('editMenuForm').action =
             `/admin/menu/${id}`;
+
+        const imgUrl = data.menu.img_url
+            ? `${data.menu.img_url}`
+            : '';
+
+        // image preview and removal setup
+        const editUploadBox = document.getElementById('edit-upload-box');
+        const editUploadIcon = document.getElementById('edit-upload-icon');
+
+        // remove old preview first
+        const oldPreview = document.getElementById('edit-preview-figure');
+        if (oldPreview) oldPreview.remove();
+
+        // remove old hidden delete flag
+        const oldRemoveInput = document.getElementById('remove-image-flag');
+        if (oldRemoveInput) oldRemoveInput.remove();
+
+        // clear selected file input
+        document.getElementById('edit-image').value = '';
+
+        if (imgUrl && imgUrl !== '') {
+            editUploadIcon.style.display = 'none';
+
+            const figure = document.createElement('figure');
+
+            figure.className = 'image-preview';
+            figure.id = 'edit-preview-figure';
+
+            figure.innerHTML = `
+                <img src="${imgUrl}" alt="Preview">
+
+                <button
+                    type="button"
+                    class="remove-img-btn"
+                    title="Remove image"
+                >
+                    ✕
+                </button>
+            `;
+            editUploadBox.appendChild(figure);
+
+            figure.querySelector('.remove-img-btn')
+                .addEventListener('click', function(e) {
+
+                    e.stopPropagation();
+
+                    figure.remove();
+
+                    editUploadIcon.style.display = 'flex';
+
+                    // tell Laravel to remove image
+                    const removeInput = document.createElement('input');
+
+                    removeInput.type = 'hidden';
+                    removeInput.name = 'remove_image';
+                    removeInput.value = 'true';
+                    removeInput.id = 'remove-image-flag';
+
+                    document.getElementById('editMenuForm')
+                        .appendChild(removeInput);
+                });
+        } else {
+            editUploadIcon.style.display = 'flex';
+        }
 
         editBranchTs.clear();
 
@@ -764,8 +827,8 @@ function openEditModal(button)
 
                         <input
                             type="text"
-                            inputmode="numeric"
-                            pattern="[0-9]*"
+                            inputmode="decimal"
+                            pattern="[0-9]*(\.[0-9]+)?"
                             name="ingredients[${index}][quantity_used]"
                             class="recipe-qty"
                             step="0.01"
