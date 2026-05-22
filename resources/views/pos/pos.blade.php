@@ -74,7 +74,7 @@
                 <div id="cash-fields" class="cash-fields row">
                     <div class="input-group">
                         <label for="cash-tendered">Cash Tendered</label>
-                        <input type="number" id="cash-tendered" class="cash-input" min="1" step="0.01">
+                        <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" id="cash-tendered" class="cash-input" min="1" step="0.01">
                     </div>
 
                     <div class="input-group">

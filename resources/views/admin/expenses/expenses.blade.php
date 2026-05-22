@@ -140,7 +140,7 @@
 
             <div class="input-group">
               <label for="reg-amount">Amount</label>
-              <input type="number" id="reg-amount" name="total_amount" step="0.01" required placeholder="Enter amount...">
+              <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" id="reg-amount" name="total_amount" step="0.01" required placeholder="Enter amount...">
               <span class="icon-wrapper unit-abbr" id="reg-cash-display">/₱0.00</span>
             </div>
           </div>
@@ -418,7 +418,7 @@
             <td>
               <div>
                 <div class="input-group">
-                  <input type="number" name="items[${restockRowCount}][quantity]" class="restock-qty" step="0.01" min="0.01" value="" required>
+                  <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" name="items[${restockRowCount}][quantity]" class="restock-qty" step="0.01" min="0.01" value="" required>
                   <select name="ingredients[${restockRowCount}][unit_type]" class="unit-toggle">
                     <option value="" class="d-none">Unit</option>
                   </select>
@@ -428,7 +428,7 @@
             <td>
               <div class="input-group">
                 <span class="icon-wrapper currency-symbol" style="font-size:1rem; color:var(--secondary);">&#8369;</span>
-                <input type="number" name="items[${restockRowCount}][unit_cost]" class="active-unit-cost" step="0.01" min="0" value="0.00" style="padding-left:1.5rem; padding-right:0.5rem">
+                <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" name="items[${restockRowCount}][unit_cost]" class="active-unit-cost" step="0.01" min="0" value="0.00" style="padding-left:1.5rem; padding-right:0.5rem">
               </div>
             </td>
             <td>
