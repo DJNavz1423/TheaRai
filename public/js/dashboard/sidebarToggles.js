@@ -3,6 +3,8 @@ const headerToggleButton = document.getElementById('header-toggle-btn');
 const sidebar = document.getElementById('sidebar');
 
 function toggleSidebar(){
+  closeAllSubMenus();
+
   sidebar.classList.toggle('close');
   toggleButton.classList.toggle('rotate');
 
@@ -11,8 +13,6 @@ function toggleSidebar(){
   }else{
     headerToggleButton.classList.add('hidden-btn');
   }
-
-  closeAllSubMenus();
 }
 
 function toggleSubMenu(button){
