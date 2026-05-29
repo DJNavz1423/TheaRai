@@ -27,7 +27,7 @@
         <!-- logo -->
         <li>
           <span class="logo d-flex">
-            <img src="{{ asset('img/logos/TheaRaiLogo_Secondary.png') }}" alt="TheaRai Logo">
+            <img src="{{ asset('img/logos/TheaRaiLogo_Secondary.webp') }}" alt="TheaRai Logo">
           </span>
 
           <button onclick=toggleSidebar() id="toggle-btn" class="sidebar-btn">

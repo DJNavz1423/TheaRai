@@ -22,7 +22,7 @@
             <div class="col">
                 <h1 class="login-heading">
                     <span class = "logo d-none">
-                        <img src="{{ asset('img/logos/TheaRaiLogo.png') }}" alt="TheaRai Logo">
+                        <img src="{{ asset('img/logos/TheaRaiLogo.webp') }}" alt="TheaRai Logo">
                     </span>
                     <span class="heading underline-fullwidth d-flex">Admin Login</span>
                 </h1>
@@ -77,7 +77,7 @@
             </div>
 
             <div class="col">
-                 <img src="{{ asset('img/logos/TheaRai_fullLogo.png') }}" alt="TheaRai Logo">
+                 <img src="{{ asset('img/logos/TheaRai_fullLogo.webp') }}" alt="TheaRai Logo">
             </div>
         </div>
     </div>
