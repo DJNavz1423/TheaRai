@@ -18,16 +18,13 @@ body{
   overflow-y: auto;
   text-wrap: nowrap;
   scrollbar-gutter: stable;
-  scrollbar-width: thin;
   scrollbar-color: var(--secondary-soft) var(--primary-transparent);
 }
 #sidebar.close{
-  scrollbar-gutter: unset;
   padding: 5px;
-  width: 60px;
-  
+  width: 70px;
 
-  .nav-item, .dropdown-arrow{
+  .nav-item, .dropdown-arrow, .logo{
     opacity: 0;
   }
 }
@@ -184,11 +181,13 @@ body{
 }
 
 .logo{
-  width: clamp(60px, 10vw, 80px);
   white-space: nowrap;
   transition: 300ms ease-in-out;
+  flex-shrink: 0;
+
   img{
-     transition: 300ms ease-in-out;
+    width: 80px;
+    transition: 300ms ease-in-out;
   }
 }
 
