@@ -102,7 +102,7 @@ Route::middleware(['auth'])->group(function(){
             ->name('admin.archive');
 
         Route::post('/archive/restore', [ArchiveController::class, 'restore']);
-        Route::post('/archive/force-delete', [ArchiveController::class, 'forceDelete']);
+        Route::delete('/archive/force-delete', [ArchiveController::class, 'forceDelete']);
 
         #analytics
         Route::get('/analytics', [AnalyticsController::class, 'index'])
