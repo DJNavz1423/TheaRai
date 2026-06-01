@@ -153,7 +153,7 @@ a{
   color: var(--light-pure);
   font-size: 1rem;
   letter-spacing: 1px;
-  transition: ease 400ms;
+  transition: ease 300ms;
 }
 
 .btn:hover{
@@ -162,6 +162,22 @@ a{
 .btn:active{
   background: var(--primary-light);
   color: var(--secondary-soft);
+}
+
+.btn-icon{
+  width: fit-content;
+  padding: 5px;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--danger);
+}
+
+.btn-icon:hover{
+  background: none;
+  transform: scale(1.2);
 }
 
 .icon-wrapper{
