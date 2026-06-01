@@ -262,13 +262,15 @@
         const activeCostInput = row.querySelector('.active-unit-cost');
         const unitCostDisplay = row.querySelector('.unit-cost-display');
         
-        new TomSelect(selectEl, { 
-            create: false, 
-            maxItems: 1,
-            dropdownParent: 'body'
-        });
+        if(!selectEl.tomselect){
+            new TomSelect(selectEl, { 
+                create: false, 
+                maxItems: 1,
+                dropdownParent: 'body'
+            });
+        }
 
-        if (!unitToggle.tomselect) {
+        if(!unitToggle.tomselect) {
             new TomSelect(unitToggle, {
                 controlInput: null,
                 maxOptions: null,
@@ -707,12 +709,52 @@ const editBranchTs = new TomSelect('#edit-dish_branches', {
 });
 
 function openEditModal(button){
+    // clear old data first
+    document.getElementById('edit-name').value = '';
+    document.getElementById('edit-final-price').value = '';
+    document.getElementById('edit-description').value = '';
+    document.getElementById('edit-margin').value = '30';
+    document.getElementById('edit-category').tomselect.clear();
+    editBranchTs.clear();
+    document.getElementById('edit-sub-total-display').textContent = '₱0.00';
+    document.getElementById('edit-q-factor-display').textContent = '₱0.00';
+    document.getElementById('edit-suggested-price-display').textContent = '₱0.00';
+
+    // show modal
+    document.getElementById('editModal').style.display = 'flex';
+
+    const recipeList = document.getElementById('edit-recipe-list');
+
+    // loading state
+    recipeList.innerHTML = `
+        <tr>
+            <td colspan="5" style="text-align:center;padding:20px;">
+                Loading...
+            </td>
+        </tr>
+    `;
+
     const id = button.dataset.id;
 
     fetch(`/admin/menu/${id}/edit`)
     .then(res => res.json())
     .then(data => {
+        
+        recipeList.querySelectorAll('.recipe-select').forEach(el => {
+            if(el.tomselect){
+                el.tomselect.destroy();
+            }
+        });
 
+        recipeList.querySelectorAll('.unit-toggle').forEach(el => {
+            if(el.tomselect){
+                el.tomselect.destroy();
+            }
+        });
+
+        // =================
+        // basic fields
+        // =================
         document.getElementById('edit-name').value = data.menu.name;
 
         document.getElementById('edit-category').tomselect.setValue(
@@ -728,23 +770,22 @@ function openEditModal(button){
         document.getElementById('editMenuForm').action =
             `/admin/menu/${id}`;
 
-        const imgUrl = data.menu.img_url
-            ? `${data.menu.img_url}`
-            : '';
 
-        // image preview and removal setup
+        // =================
+        // image
+        // =================
+        const imgUrl = data.menu.img_url ? `${data.menu.img_url}` : '';
+
         const editUploadBox = document.getElementById('edit-upload-box');
+
         const editUploadIcon = document.getElementById('edit-upload-icon');
 
-        // remove old preview first
         const oldPreview = document.getElementById('edit-preview-figure');
         if (oldPreview) oldPreview.remove();
 
-        // remove old hidden delete flag
         const oldRemoveInput = document.getElementById('remove-image-flag');
         if (oldRemoveInput) oldRemoveInput.remove();
 
-        // clear selected file input
         document.getElementById('edit-image').value = '';
 
         if (imgUrl && imgUrl !== '') {
@@ -777,7 +818,6 @@ function openEditModal(button){
 
                     editUploadIcon.style.display = 'flex';
 
-                    // tell Laravel to remove image
                     const removeInput = document.createElement('input');
 
                     removeInput.type = 'hidden';
@@ -792,18 +832,23 @@ function openEditModal(button){
             editUploadIcon.style.display = 'flex';
         }
 
-        editBranchTs.clear();
+        // =================
+        // branches
+        // =================
 
-        data.branches.forEach(branchId => {
-            editBranchTs.addItem(branchId);
-        });
+        editBranchTs.clear(true);
 
-        editBranchTs.refreshOptions(false);
+        editBranchTs.setValue(data.branches, true);
+
         updateBranchText(editBranchTs);
 
-        const recipeList = document.getElementById('edit-recipe-list');
+        // =================
+        // ingredients row
+        // =================
 
         recipeList.innerHTML = '';
+
+        const fragment = document.createDocumentFragment();
 
         data.ingredients.forEach((ingredient, index) => {
 
@@ -865,23 +910,54 @@ function openEditModal(button){
                 </td>
             `;
 
-            recipeList.appendChild(row);
+            fragment.appendChild(row);
+        });
+
+        recipeList.appendChild(fragment);
+
+        const rows = recipeList.querySelectorAll('.recipe-row');
+
+        rows.forEach((row, index) => {
 
             attachRowListeners(row);
 
-            row.querySelector('.recipe-select').tomselect.setValue(
+            const ingredient = data.ingredients[index];
+
+            const ingredientSelect = row.querySelector('.recipe-select').tomselect;
+
+            const unitSelect = row.querySelector('.unit-toggle').tomselect;
+
+            ingredientSelect.setValue(
                 ingredient.ingredient_id
             );
 
-            row.querySelector('.unit-toggle').tomselect.setValue(
-                ingredient.unit_id
-            );
+            setTimeout(() => {
+                unitSelect.setValue(
+                    ingredient.unit_id
+                );
+
+            }, 0);
         });
 
-        calculateEditAll();
+        // CALCULATE ONLY ONCE
+        requestAnimationFrame(() => {
+            calculateEditAll();
+        });
+    })
+    .catch(error => {
 
-        document.getElementById('editModal').style.display = 'flex';
+        console.error(error);
+
+        recipeList.innerHTML = `
+            <tr>
+                <td colspan="5"
+                    style="text-align:center;padding:20px;color:red;">
+                    Failed to load data
+                </td>
+            </tr>
+        `;
     });
+    
 }
 
 </script>
