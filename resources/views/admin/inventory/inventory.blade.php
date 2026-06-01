@@ -102,14 +102,14 @@
                         <div class="d-flex item-group">
                             <span class="item-img">
                                 @if(empty($item->img_url))
-                                <span>{{ $item->name[0] }}</span>
+                                <span>{{ strtoupper($item->name[0]) }}</span>
                                 @else
                                 <img src="{{ $item->img_url }}" alt="Item Image">
                                 @endif
                             </span>
 
                             <span class="item-data">
-                                {{ $item->name }}
+                                {{ Str::title($item->name) }}
                             </span>
                         </div>
                     </td>
