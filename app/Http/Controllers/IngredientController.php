@@ -188,11 +188,25 @@ class IngredientController extends Controller
 
     public function destroy($id)
     {
-        $ingredientName = DB::table('laravel.ingredients')->where('id', $id)->value('name');
+        $ingredientName = DB::table('laravel.ingredients')
+            ->where('id', $id)
+            ->value('name');
 
-        DB::table('laravel.ingredients')->where('id', $id)->update([
-            'deleted_at' => now()
-        ]);
+        $isUsedInMenu = DB::table('laravel.menu_item_ingredient')
+            ->where('ingredient_id', $id)
+            ->exists();
+
+        if ($isUsedInMenu) {
+            return back()->with(
+                'error',
+                "Cannot archive {$ingredientName} because it is currently used in one or more menu items."
+            );
+        }
+
+        DB::table('laravel.ingredients')
+            ->where('id', $id)
+            ->update(['deleted_at' => now()
+            ]);
 
         $this->logActivity('archived', 'ingredient', $id, "Moved inventory item to trash: {$ingredientName}");
 
