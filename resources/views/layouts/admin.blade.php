@@ -35,14 +35,37 @@
 
         <!-- Navigation tabs -->
 
-
-        <li class="{{ request()->routeIs('admin.index') ? 'active' : '' }}">
-          <a href="{{ url('/admin/dashboard') }}">
+        <!-- // =================== 
+            dashboard 
+        \\ =================-->
+        <li>
+          <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn {{ request()->routeIs('admin.index', 'admin.analytics', 'cashier.pos') ? 'active' : '' }}">
           <span class="icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M520-640v-160q0-17 11.5-28.5T560-840h240q17 0 28.5 11.5T840-800v160q0 17-11.5 28.5T800-600H560q-17 0-28.5-11.5T520-640ZM120-480v-320q0-17 11.5-28.5T160-840h240q17 0 28.5 11.5T440-800v320q0 17-11.5 28.5T400-440H160q-17 0-28.5-11.5T120-480Zm400 320v-320q0-17 11.5-28.5T560-520h240q17 0 28.5 11.5T840-480v320q0 17-11.5 28.5T800-120H560q-17 0-28.5-11.5T520-160Zm-400 0v-160q0-17 11.5-28.5T160-360h240q17 0 28.5 11.5T440-320v160q0 17-11.5 28.5T400-120H160q-17 0-28.5-11.5T120-160Zm80-360h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Zm160-320Zm240-160Zm0 240ZM360-280Z"/></svg>
           </span>
+            
           <span class="nav-item">Dashboard</span>
-          </a>
+
+          <span class="icon-wrapper dropdown-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M465-363.5q-7-2.5-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5q-8 0-15-2.5Z"/></svg>
+            </span>
+          </button>
+
+          <ul class="sub-menu">
+            <div>
+              <li class="{{ request()->routeIs('admin.index') ? 'active' : '' }}">
+                <a href="{{ url('/admin/dashboard') }}">Home Dashboard</a>
+              </li>
+
+              <li class="{{ request()->routeIs('admin.analytics') ? 'active' : '' }}">
+                <a href="{{ url('/admin/analytics') }}">Analytics Report</a>
+              </li>
+
+              <li class="{{ request()->routeIs('cashier.pos') ? 'active' : '' }}">
+                <a href="{{ url('/cashier/pos') }}" target="_blank">Quick POS</a>
+              </li>
+            </div>
+          </ul>
         </li>
 
         <!-- dropdown inventory -->
@@ -110,37 +133,14 @@
           </a>
         </li>
 
-        <!-- analytics -->
-        <li class="{{ request()->routeIs('admin.analytics') ? 'active' : '' }}">
-          <a href="{{ url('/admin/analytics') }}">
-            <span class="icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-600q0-17 11.5-28.5T160-840q17 0 28.5 11.5T200-800v600h600q17 0 28.5 11.5T840-160q0 17-11.5 28.5T800-120H200Zm80-120q-17 0-28.5-11.5T240-280v-280q0-17 11.5-28.5T280-600h80q17 0 28.5 11.5T400-560v280q0 17-11.5 28.5T360-240h-80Zm200 0q-17 0-28.5-11.5T440-280v-480q0-17 11.5-28.5T480-800h80q17 0 28.5 11.5T600-760v480q0 17-11.5 28.5T560-240h-80Zm200 0q-17 0-28.5-11.5T640-280v-120q0-17 11.5-28.5T680-440h80q17 0 28.5 11.5T800-400v120q0 17-11.5 28.5T760-240h-80Z"/></svg>
-            </span>
-
-            <span class="nav-item">Analytics Report</span>
-          </a>
-        </li>
-
-        <!-- table management -->
-         <li class="{{ request()->routeIs('admin.tables') ? 'active' : '' }}">
-          <a href="{{ url('/admin/tables') }}">
-            <span class="icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-600q-17 0-28.5-11.5T280-640q0-66 47-113t113-47v-80q0-17 11.5-28.5T480-920q17 0 28.5 11.5T520-880v80q66 0 113 47t47 113q0 17-11.5 28.5T640-600H320Zm120 160H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h480q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v280q0 17-11.5 28.5T480-120q-17 0-28.5-11.5T440-160v-280ZM180-240v90q0 13-8.5 21.5T150-120q-13 0-21.5-8.5T120-150v-92q-18-5-30-19t-14-34L44-637q-2-17 10.5-30T84-680q16 0 27 10.5t13 25.5l25 284h171q33 0 56.5 23.5T400-280q0 17-11.5 28.5T360-240v90q0 13-8.5 21.5T330-120q-13 0-21.5-8.5T300-150v-90H180Zm608.5 111.5Q780-137 780-150v-90H660v90q0 13-8.5 21.5T630-120q-13 0-21.5-8.5T600-150v-90q-17 0-28.5-11.5T560-280q0-33 23.5-56.5T640-360h172l25-284q2-15 13-25.5t27-10.5q17 0 29 13t10 30l-31 342q-2 20-14.5 34T840-242v92q0 13-8.5 21.5T810-120q-13 0-21.5-8.5Z"/></svg>
-            </span>
-
-            <span class="nav-item">Table Management</span>
-          </a>
-        </li>
-
-
         <!-- dropdown menu -->
           <li >
-            <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn {{ request()->routeIs('admin.menu.*', 'cashier.pos') ? 'active' : '' }}">
+            <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn {{ request()->routeIs('admin.menu.*', 'admin.tables') ? 'active' : '' }}">
               <span class="icon-wrapper">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-80q-33 0-56.5-23.5T160-160v-80q-17 0-28.5-11.5T120-280q0-17 11.5-28.5T160-320v-120q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520v-120q-17 0-28.5-11.5T120-680q0-17 11.5-28.5T160-720v-80q0-33 23.5-56.5T240-880h480q33 0 56.5 23.5T800-800v640q0 33-23.5 56.5T720-80H240Zm0-80h480v-640H240v80q17 0 28.5 11.5T280-680q0 17-11.5 28.5T240-640v120q17 0 28.5 11.5T280-480q0 17-11.5 28.5T240-440v120q17 0 28.5 11.5T280-280q0 17-11.5 28.5T240-240v80Zm140-280v130q0 13 8.5 21.5T410-280q13 0 21.5-8.5T440-310v-130q26-7 43-28.5t17-48.5v-143q0-8-6-14t-14-6q-8 0-14 6t-6 14v131h-30v-131q0-8-6-14t-14-6q-8 0-14 6t-6 14v131h-30v-131q0-8-6-14t-14-6q-8 0-14 6t-6 14v143q0 27 17 48.5t43 28.5Zm220 0v130q0 13 8.5 21.5T630-280q13 0 21.5-8.5T660-310v-347q0-11-7.5-17t-19.5-6q-13 0-28.5 7T575-652q-17 17-26 38.5t-9 46.5v87q0 17 11.5 28.5T580-440h20ZM240-160v-640 640Z"/></svg>
               </span>
               
-              <span class="nav-item">Manage Menu</span>
+              <span class="nav-item">Management</span>
               
               <span class="icon-wrapper dropdown-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M465-363.5q-7-2.5-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5q-8 0-15-2.5Z"/></svg>
@@ -149,16 +149,18 @@
 
             <ul class="sub-menu">
               <div>
+                <li class="{{ request()->routeIs('admin.tables') ? 'active' : '' }}">
+                  <a href="{{ url('/admin/tables') }}">
+                    Manage Tables
+                  </a>
+                </li>
+
                 <li class="{{ request()->routeIs('admin.menu.index') ? 'active' : '' }}">
-                  <a href="{{ url('/admin/menu') }}">Menu Items</a>
+                  <a href="{{ url('/admin/menu') }}">Manage Menu</a>
                 </li>
 
                 <li>
                   <a href="">Menu Categories</a>
-                </li>
-
-                <li class="{{ request()->routeIs('cashier.pos') ? 'active' : '' }}">
-                  <a href="{{ url('/cashier/pos') }}" target="_blank">Quick POS</a>
                 </li>
               </div>
             </ul>
