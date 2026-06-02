@@ -915,6 +915,8 @@ function openEditModal(button){
 
         recipeList.appendChild(fragment);
 
+        rowCount = data.ingredients.length + 1;
+
         const rows = recipeList.querySelectorAll('.recipe-row');
 
         rows.forEach((row, index) => {
@@ -959,7 +961,6 @@ function openEditModal(button){
     });
     
 }
-
 </script>
 
 @if(session('error'))
