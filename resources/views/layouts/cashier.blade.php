@@ -146,7 +146,7 @@
         </div>
         
         <div class="row time-row">
-          <span id="live-clock"></span>
+          <time id="live-clock"></time>
         </div>
         </div>
     </header>
