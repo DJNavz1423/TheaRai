@@ -62,6 +62,13 @@
           <option value="external_cash">External Cash</option>
         </select>
 
+        <select id="filter-branch" class="ts-filter">
+          <option value="all" selected>All Branches</option>
+          @foreach($branches as $branch)
+              <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+          @endforeach
+        </select>
+
         <select id="sort-items" class="ts-filter">
           <option value="latest" selected>Latest</option>
           <option value="amount_desc">High Amount</option>

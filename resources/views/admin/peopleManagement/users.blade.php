@@ -33,6 +33,13 @@
                 <option value="admin">Admin</option>
             </select>
 
+            <select id="filter-branch" class="ts-filter">
+                <option value="all" selected>All Branches</option>
+                @foreach($branches as $branch)
+                    <option value="{{ strtolower($branch->name) }}">{{ $branch->name }}</option>
+                @endforeach
+            </select>
+
             <select id="sort-users" class="ts-filter">
                 <option value="latest" selected>Latest</option>
                 <option value="name_asc">Name: A-Z</option>
