@@ -14,7 +14,9 @@ class IngredientController extends Controller
             ->where('is_deleted', false)
             ->get();
 
-        $inventoryBreakdown = DB::table('laravel.branch_inventory')->get();
+        $inventoryBreakdown = DB::table('laravel.branch_inventory')
+            ->whereNull('deleted_at')
+            ->get();
         
         $categories = DB::table('laravel.ingredient_categories')->get();
         $units = DB::table('laravel.units')->get();
@@ -186,8 +188,10 @@ class IngredientController extends Controller
         return back()->with('success', 'Item Updated successfully!');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
+        $branchId = $request->branch_id;
+
         $ingredientName = DB::table('laravel.ingredients')
             ->where('id', $id)
             ->value('name');
@@ -203,14 +207,47 @@ class IngredientController extends Controller
             );
         }
 
+        // BRANCH VIEW
+        if ($branchId) {
+
+            DB::table('laravel.branch_inventory')
+                ->where('ingredient_id', $id)
+                ->where('branch_id', $branchId)
+                ->update([
+                    'deleted_at' => now()
+                ]);
+
+            $this->logActivity(
+                'archived',
+                'ingredient_branch',
+                $id,
+                "Archived {$ingredientName} from branch {$branchId}"
+            );
+
+            return back()->with(
+                'success',
+                'Item archived from selected branch successfully!'
+            );
+        }
+
+        // GLOBAL VIEW
         DB::table('laravel.ingredients')
             ->where('id', $id)
-            ->update(['deleted_at' => now()
+            ->update([
+                'deleted_at' => now()
             ]);
 
-        $this->logActivity('archived', 'ingredient', $id, "Moved inventory item to trash: {$ingredientName}");
+        $this->logActivity(
+            'archived',
+            'ingredient',
+            $id,
+            "Moved inventory item to trash: {$ingredientName}"
+        );
 
-        return back()->with('success', 'Item moved to trash successfully!');
+        return back()->with(
+            'success',
+            'Item moved to trash successfully!'
+        );
     }
 
     public function addStock(Request $request, $id){

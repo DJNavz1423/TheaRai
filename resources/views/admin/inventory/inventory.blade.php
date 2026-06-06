@@ -370,7 +370,12 @@
 
             // Sets the correct URL for the Delete Modal
             function openDeleteModal(id) {
+                const selectedBranch = document.getElementById('filter-branch').value;
+
                 document.getElementById('deleteForm').action = "{{ url('/admin/inventory') }}/" + id;
+
+                document.getElementById('delete_branch_id').value = selectedBranch !== 'all' ? selectedBranch : '';
+
                 document.getElementById('deleteModal').style.display = 'flex';
             }
 
