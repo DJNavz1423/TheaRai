@@ -97,6 +97,7 @@
           <tr role="row" class="expense-row"
             data-type="{{ $expense->expense_type }}"
             data-source="{{ $expense->fund_source }}"
+            data-branch="{{ $expense->branch_id ?? 'global' }}"
             data-amount="{{ $expense->total_amount }}"
             data-desc="{{ strtolower($expense->description) }}"
             data-created="{{ strtotime($expense->created_at) }}">

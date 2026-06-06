@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function applyExpenseFilters(){
     const searchQuery = document.getElementById('expenseSearch').value.toLowerCase();
     const typeVal = document.getElementById('filter-type').value;
+    const branchVal = document.getElementById('filter-branch').value;
     const sourceVal = document.getElementById('filter-source').value;
     const sortType = document.getElementById('sort-items').value;
     
@@ -23,13 +24,15 @@ document.addEventListener('DOMContentLoaded', function(){
     rows.forEach(row => {
       const desc = row.getAttribute('data-desc');
       const type = row.getAttribute('data-type');
+      const branch = row.getAttribute('data-branch');
       const source = row.getAttribute('data-source');
 
       const matchesSearch = desc.includes(searchQuery) || type.includes(searchQuery) || source.includes(searchQuery);
       const matchesType = (typeVal === 'all' || type === typeVal);
       const matchesSource = (sourceVal === 'all' || source === sourceVal);
+      const matchesBranch = (branchVal === 'all' || branch === branchVal);
       
-      if (matchesSearch && matchesType && matchesSource) {
+      if (matchesSearch && matchesType && matchesSource && matchesBranch) {
           row.style.display = '';
       } else {
           row.style.display = 'none';
