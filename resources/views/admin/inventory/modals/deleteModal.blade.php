@@ -3,6 +3,9 @@
         <form id="deleteForm" method="POST" class="modal-content">
             @csrf
             @method('DELETE')
+
+            <input type="hidden" name="branch_id" id="delete_branch_id">
+            
             <div class="modal-header">
                 <h2>Move to Trash?</h2>
 
