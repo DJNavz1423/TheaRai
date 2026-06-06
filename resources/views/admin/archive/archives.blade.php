@@ -21,6 +21,9 @@
         <div class="filters">
           <select id="filter-type" class="ts-filter">
               <option value="all" selected>All Types</option>
+              <option value="ingredient">Ingredients</option>
+              <option value="menu item">Menu Items</option>
+              <option value="user">Users</option>
           </select>
 
           <select id="sort-items" class="ts-filter">
@@ -46,7 +49,10 @@
 
         <tbody role="rowgroup">
           @forelse($archives as $item)
-          <tr role="row">
+          <tr role="row" class ="archive-row"
+              data-name="{{ strtolower($item->name) }}"
+              data-type="{{ strtolower($item->type) }}"
+              data-created="{{ strtotime($item->deleted_at) }}">
             <td role="cell"><span class="item-data">{{ $item->name }}</span></td>
             <td role="cell"><span class="badge">{{ $item->type }}</span></td>
             <td role="cell">
@@ -160,13 +166,16 @@
   <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
   <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
   <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   @endpush
 @endonce
 
 @once
   @push('scripts')
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsArchiveFilter.js') }}"></script>
+
     <script>
       function openRestoreModal(id, tableName, name) {
         document.getElementById('restore_id').value = id;
