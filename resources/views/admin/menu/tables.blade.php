@@ -59,7 +59,10 @@
                     // Generates the exact URL the customer phone will scan
                     $qrUrl = $baseUrl . "/qr-menu?branch=" . $table->branch_id . "&table=" . $table->id;
                 @endphp
-                <tr role="row">
+                <tr role="row" class="table-row"
+                    data-branch="{{ $table->branch_id }}"
+                    data-number="{{ strtolower($table->table_number) }}"
+                    data-created="{{ strtotime($table->created_at ?? now()) }}">
                     <td role="cell"><span style="font-weight: bold; color: var(--primary);">{{ $table->branch_name }}</span></td>
                     <td role="cell"><span class="item-data">Table {{ $table->table_number }}</span></td>
                     <td role="cell"><span class="text-muted" style="font-size: 0.8rem;">{{ $qrUrl }}</span></td>
@@ -127,12 +130,18 @@
   <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/table.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   @endpush
 @endonce
 
 @once
     @push('scripts')
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTableFilter.js') }}"></script>
     @if(session('error')) <script>alert("🚨 ERROR: {{ session('error') }}");</script> @endif
     @if(session('success')) <script>alert("✅ SUCCESS: {{ session('success') }}");</script> @endif
     @endpush
