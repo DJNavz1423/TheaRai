@@ -65,6 +65,7 @@
             <tr role="row" class="user-row"
                 data-name="{{ strtolower($user->name) }}"
                 data-role="{{ strtolower($user->role) }}"
+                data-branch="{{ strtolower($user->branch_name ?? 'unassigned') }}"
                 data-created="{{ strtotime($user->created_at) }}">
                 <td data-cell="name" role="cell">
                     <div class="d-flex item-group">

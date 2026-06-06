@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function applyUserFilters(){
     const searchQuery = document.getElementById('userSearch').value.toLowerCase();
     const roleVal = document.getElementById('filter-role').value;
+    const branchVal = document.getElementById('filter-branch').value;
     const sortType = document.getElementById('sort-users').value;
 
     let rows = Array.from(document.querySelectorAll('.user-row'));
@@ -23,11 +24,13 @@ document.addEventListener('DOMContentLoaded', function(){
     rows.forEach(row => {
       const name = row.getAttribute('data-name');
       const rowVal = row.getAttribute('data-role');
+      const branch = row.getAttribute('data-branch');
 
       const matchesSearch = name.includes(searchQuery);
       const matchesRole = (roleVal === 'all' || rowVal === roleVal);
+      const matchesBranch = branchVal === 'all' ? true : (rowVal !== 'admin' && branch === branchVal);
 
-      if(matchesSearch && matchesRole){
+      if(matchesSearch && matchesRole && matchesBranch){
         row.style.display = '';
       } else{
         row.style.display = 'none';
