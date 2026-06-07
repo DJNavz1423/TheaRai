@@ -152,27 +152,28 @@
                                     <div class="dropdown-section">
                                         <div class="dropdown-header"><p class="text-muted">Adjust Stock</p></div>
 
-                                        <button type="button" class="dropdown-item btn" onclick="openAddStockModal(
-                                        '{{ $item->id }}', 
-                                        '{{ ($item->name) }}',
-                                        '{{ $item->primary_unit_abbr }}', 
-                                        '{{ $item->secondary_unit_abbr }}', 
-                                        {{ $item->conversion_factor }}, 
-                                        {{ $item->stock_quantity }}, 
-                                        {{ $item->purchase_price }})">
+                                        <button type="button" class="dropdown-item btn" onclick='openAddStockModal(
+                                            @json($item->id),
+                                            @json($item->name),
+                                            @json($item->primary_unit_abbr),
+                                            @json($item->secondary_unit_abbr),
+                                            @json($item->conversion_factor),
+                                            @json($inventoryBreakdown->where("ingredient_id", $item->id)->keyBy("branch_id"))
+                                        )'>
                                             <span class="icon-wrapper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-640h338-18 14-334Zm440 0h120-120Zm-424-80h528l-34-40H250l-34 40Zm184 270 80-40 80 40v-190H400v190ZM200-120q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v156q0 17-11.5 28.5T800-503q-17 0-28.5-11.5T760-543v-97H640v153q-35 20-61 49.5T538-371l-58-29-102 51q-20 10-39-1.5T320-385v-255H200v440h311q17 0 28.5 11.5T551-160q0 16-11.5 28T511-120H200Zm531.5-11.5Q720-143 720-160v-80h-80q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320h80v-80q0-17 11.5-28.5T760-440q17 0 28.5 11.5T800-400v80h80q17 0 28.5 11.5T920-280q0 17-11.5 28.5T880-240h-80v80q0 17-11.5 28.5T760-120q-17 0-28.5-11.5ZM200-640h338-18 14-334Z"/></svg>
                                             </span>
                                             Add Stock
                                         </button>
 
-                                        <button type="button" class="dropdown-item dropdown-red btn" onclick="openReduceStockModal(
-                                        '{{ $item->id }}',
-                                        '{{ ($item->name) }}', 
-                                        '{{ $item->primary_unit_abbr }}', 
-                                        '{{ $item->secondary_unit_abbr }}', 
-                                        {{ $item->conversion_factor }}, 
-                                        {{ $item->stock_quantity }})">
+                                        <button type="button" class="dropdown-item dropdown-red btn" onclick='openReduceStockModal(
+                                            @json($item->id),
+                                            @json($item->name),
+                                            @json($item->primary_unit_abbr),
+                                            @json($item->secondary_unit_abbr),
+                                            @json($item->conversion_factor),
+                                            @json($inventoryBreakdown->where("ingredient_id", $item->id)->keyBy("branch_id"))
+                                        )'>
                                             <span class="icon-wrapper">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-499q0-14 4.5-27t13.5-24l50-61q11-14 27.5-21.5T250-840h460q18 0 34.5 7.5T772-811l50 61q9 11 13.5 24t4.5 27v111q0 12-8.5 20t-20.5 9q-25 2-46.5 11T725-520l-85 85v-205H320v255q0 23 19 34.5t39 1.5l102-51 83 42-59 58q-11 11-17.5 26t-6.5 31v83q0 17-11.5 28.5T440-120H200Zm360-40v-66q0-8 3-15.5t9-13.5l209-208q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q8 9 12.5 20t4.5 22q0 11-4 22.5T903-340L695-132q-6 6-13.5 9t-15.5 3h-66q-17 0-28.5-11.5T560-160Zm263-184 37-39-37-37-38 38 38 38ZM216-720h528l-34-40H250l-34 40Z"/></svg>
                                             </span>
@@ -266,6 +267,8 @@
 
         <script>
             // Injects row data into the Full Edit Modal
+            const branchCash = @json($branchCash);
+
             function openEditModal(id, name, itemCode, categoryId, primaryUnitId, secondaryUnitId, conversionFactor, stockQty, purchasePrice, alertThreshold, description, imgUrl, branchStocks) {
                 if (typeof branchStocks === 'string') {
                     branchStocks = JSON.parse(branchStocks);
@@ -380,14 +383,22 @@
             }
 
             // Opens the Add Stock Modal (You'll need to set the form actions when you build the backend for this)
-            let activeItemContext = {}; 
-            function openAddStockModal(id, itemName, pUnit, sUnit, convFactor, currentStock, price) {
+            let activeItemContext = {
+                branchStocks: {}
+            }; 
+            
+            function openAddStockModal(id, itemName, pUnit, sUnit, convFactor, branchStocks) {
+                if(typeof branchStocks === 'string'){
+                    branchStocks = JSON.parse(branchStocks);
+                }
+
                 activeItemContext = {
                     pUnit,
                     sUnit,
                     convFactor,
-                    currentStock,
-                    price
+                    branchStocks,
+                    currentStock: 0,
+                    price: 0
                 };
 
                 document.getElementById('addStockModalTitle').innerText = `Add Stock to ${itemName}`;
@@ -414,25 +425,31 @@
 
                 document.getElementById('add_new_stock_wrapper').style.display = 'none';
 
-                document.getElementById('add_price').value = parseFloat(price).toFixed(2);
+                document.getElementById('add_price').value = activeItemContext.price.toFixed(2);
 
-                document.getElementById('add_current_stock_display').innerText = `${currentStock} ${pUnit}`;
-                document.getElementById('add_new_stock_display').innerText = `${currentStock} ${pUnit}`;
+                document.getElementById('add_current_stock_display').innerText = `0.00 ${pUnit}`;
+                document.getElementById('add_new_stock_display').innerText = `0.00 ${pUnit}`;
 
                 document.getElementById('addStockModal').style.display = 'flex';
+                updateBranchStockDisplay('add');
                 updateLiveUI('add', true);
             }
 
             // Opens the Reduce Stock Modal 
-            function openReduceStockModal(id, itemName, pUnit, sUnit, convFactor, currentStock) {
+            function openReduceStockModal(id, itemName, pUnit, sUnit, convFactor, branchStocks) {
+                if(typeof branchStocks === 'string'){
+                    branchStocks = JSON.parse(branchStocks);
+                }
+
                 activeItemContext = {
                     pUnit,
                     sUnit,
                     convFactor,
-                    currentStock
+                    branchStocks,
+                    currentStock: 0
                 };
 
-                document.getElementById('reduceStockModalTitle').innerText = `Reduce Stock to ${itemName}`;
+                document.getElementById('reduceStockModalTitle').innerText = `Reduce Stock from ${itemName}`;
 
                 document.getElementById('reduceStockForm').action = "{{ url('/admin/inventory') }}/" + id + "/reduce-stock";
 
@@ -457,11 +474,47 @@
 
                 document.getElementById('reduce_new_stock_wrapper').style.display = 'none';
 
-                document.getElementById('reduce_current_stock_display').innerText = `${currentStock} ${pUnit}`;
-                document.getElementById('reduce_new_stock_display').innerText = `${currentStock} ${pUnit}`;
+                document.getElementById('reduce_current_stock_display').innerText = `0.00 ${pUnit}`;
+                document.getElementById('reduce_new_stock_display').innerText = `0.00 ${pUnit}`;
 
                 document.getElementById('reduceStockModal').style.display = 'flex';
+                updateBranchStockDisplay('reduce');
                 updateLiveUI('reduce', true);
+            }
+
+            function updateBranchStockDisplay(type) {
+
+                const branchId =
+                    document.getElementById(`${type}_stock_branch`).value;
+
+                if(!branchId)
+                    return;
+
+                if(type === 'add') {
+                    document.getElementById('branch_cash_display').innerText = '₱' + Number(branchCash[branchId] ?? 0).toLocaleString();
+                }
+
+                const branchData =
+                    activeItemContext.branchStocks[branchId];
+
+                activeItemContext.currentStock =
+                    parseFloat(branchData?.stock_quantity ?? 0);
+
+                activeItemContext.price =
+                    parseFloat(branchData?.purchase_price ?? 0);
+
+                document.getElementById(
+                    `${type}_current_stock_display`
+                ).innerText =
+                    `${activeItemContext.currentStock.toFixed(2)} ${activeItemContext.pUnit}`;
+
+                document.getElementById(
+                    `${type}_new_stock_wrapper`
+                ).style.display = 'none';
+
+                if(type === 'add'){
+                    updateLiveUI('add', true);
+                }
             }
 
             function updatePriceUnitDisplay(type){
@@ -572,6 +625,26 @@
             document.getElementById('reduce_unit').addEventListener('change', function(e) { 
                 updateLiveUI('reduce', false, e); 
             });
+
+            // BRANCH LISTENERS
+
+            const addBranchSelect =
+                document.getElementById('add_stock_branch');
+
+            if(addBranchSelect){
+                addBranchSelect.addEventListener('change', () => {
+                    updateBranchStockDisplay('add');
+                });
+            }
+
+            const reduceBranchSelect =
+                document.getElementById('reduce_stock_branch');
+
+            if(reduceBranchSelect){
+                reduceBranchSelect.addEventListener('change', () => {
+                    updateBranchStockDisplay('reduce');
+                });
+            }
 
             document.getElementById('primary_unit').addEventListener('change', function() {
                 let selectedOption = this.options[this.selectedIndex];

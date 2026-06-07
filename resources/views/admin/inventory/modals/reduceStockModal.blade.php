@@ -34,8 +34,8 @@
                         </div>
                         
                         <div>
-                            <small class="text-muted">Current Global Stock: <strong id="reduce_current_stock_display">0</strong></small >
-                            <small id="reduce_new_stock_wrapper" class="text-muted" style="display: none;">New Global Stock: <strong id="reduce_new_stock_display">0</strong></small >
+                            <small class="text-muted">Current Branch Stock: <strong id="reduce_current_stock_display">0</strong></small >
+                            <small id="reduce_new_stock_wrapper" class="text-muted" style="display: none;">New Branch Stock: <strong id="reduce_new_stock_display">0</strong></small >
                         </div>
                     </div>
                 </div>

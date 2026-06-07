@@ -16,12 +16,18 @@
                 <div class="row">
                     <div class="input-group">
                         <label for="add_stock_branch">Target Branch</label>
-                        <select name="branch_id" id="add_stock_branch" class="unit-selector" required>
-                            <option value="" disabled selected>Which branch is receiving this stock?</option>
-                            @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                            @endforeach
-                        </select>
+                        <div>
+                            <select name="branch_id" id="add_stock_branch" class="unit-selector" required>
+                                <option value="" disabled selected>Which branch is receiving this stock?</option>
+                                @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <small class="text-muted">Available Cash: <strong id="branch_cash_display">&#8369;0</strong></small>
+                        </div>
                     </div>
                 </div>
 
@@ -35,8 +41,8 @@
                         </div>
                         
                         <div>
-                            <small class="text-muted">Current Global Stock: <strong id="add_current_stock_display">0</strong> </small>
-                            <small id="add_new_stock_wrapper" class="text-muted" style="display: none;">New Global Stock: <strong id="add_new_stock_display">0</strong></small>
+                            <small class="text-muted">Current Branch Stock: <strong id="add_current_stock_display">0</strong> </small>
+                            <small id="add_new_stock_wrapper" class="text-muted" style="display: none;">New Branch Stock: <strong id="add_new_stock_display">0</strong></small>
                         </div>
                     </div>
                 </div>

@@ -20,9 +20,32 @@ class IngredientController extends Controller
         
         $categories = DB::table('laravel.ingredient_categories')->get();
         $units = DB::table('laravel.units')->get();
-        $branches = DB::table('laravel.branches')->get();
 
-        return view('admin.inventory.inventory', compact('ingredients', 'inventoryBreakdown', 'categories', 'units', 'branches'));
+        $branches = DB::table('laravel.branches')
+            ->get()
+            ->map(function($branch) {
+
+                $cashIn = DB::table('laravel.orders')
+                    ->where('branch_id', $branch->id)
+                    ->where('payment_method', 'cash')
+                    ->sum('total_amount');
+
+                $cashSpent = DB::table('laravel.expenses')
+                    ->where('branch_id', $branch->id)
+                    ->where('fund_source', 'cash_in_hand')
+                    ->sum('total_amount');
+
+                $branch->cash_in_hand = max(0, $cashIn - $cashSpent);
+                return $branch;
+            });
+
+        $branchCash = [];
+
+        foreach ($branches as $branch) {
+            $branchCash[$branch->id] = $branch->cash_in_hand;
+        }    
+
+        return view('admin.inventory.inventory', compact('ingredients', 'inventoryBreakdown', 'categories', 'units', 'branches', 'branchCash'));
     }
 
     public function store(Request $request){
@@ -55,12 +78,26 @@ class IngredientController extends Controller
         $totalExpense = $stockQty * $purchasePrice;
 
         if($validated['fund_source'] === 'cash_in_hand' && $totalExpense > 0){
-            $totalSystemCashIn = DB::table('laravel.orders')->where('payment_method', 'cash')->sum('total_amount');
-            $totalSystemCashSpent = DB::table('laravel.expenses')->where('fund_source', 'cash_in_hand')->sum('total_amount');
-            $availableSystemCash = $totalSystemCashIn - $totalSystemCashSpent;
+            $branchId = $validated['branch_id'];
+
+            $totalBranchCashIn = DB::table('laravel.orders')
+                ->where('payment_method', 'cash')
+                ->where('branch_id', $branchId)
+                ->sum('total_amount');
+
+            $totalBranchCashSpent = DB::table('laravel.expenses')
+                ->where('fund_source', 'cash_in_hand')
+                ->where('branch_id', $branchId)
+                ->sum('total_amount');
+
+            $availableSystemCash = $totalBranchCashIn - $totalBranchCashSpent;
 
             if($totalExpense > $availableSystemCash){
-                return back()->with('error', 'Insufficient System Cash! Available: ₱' . number_format($availableSystemCash, 2));
+                return back()->with(
+                    'error',
+                    'Insufficient System Cash! Available: ₱' .
+                    number_format($availableSystemCash, 2)
+                );
             }
         }
 
@@ -270,12 +307,22 @@ class IngredientController extends Controller
         $actualTotalCost = $addedQuantityPrimary * $validated['unit_price'];
 
         if($validated['fund_source'] === 'cash_in_hand' && $actualTotalCost > 0){
-            $totalSystemCashIn = DB::table('laravel.orders')->where('payment_method', 'cash')->sum('total_amount');
-            $totalSystemCashSpent = DB::table('laravel.expenses')->where('fund_source', 'cash_in_hand')->sum('total_amount');
-            $availableSystemCash = $totalSystemCashIn - $totalSystemCashSpent;
+            $branchId = $validated['branch_id'];
 
-            if($actualTotalCost > $availableSystemCash){
-                return back()->with('error', 'Insufficient System Cash! Available: ₱' . number_format($availableSystemCash, 2));
+            $totalBranchCashIn = DB::table('laravel.orders')
+                ->where('payment_method', 'cash')
+                ->where('branch_id', $branchId)
+                ->sum('total_amount');
+
+            $totalBranchCashSpent = DB::table('laravel.expenses')
+                ->where('fund_source', 'cash_in_hand')
+                ->where('branch_id', $branchId)
+                ->sum('total_amount');
+
+            $availableBranchCash = $totalBranchCashIn - $totalBranchCashSpent;
+
+            if($actualTotalCost > $availableBranchCash){
+                return back()->with('error', 'Insufficient Branch Cash! Available at branch: ₱' . number_format($availableBranchCash, 2));
             }
         }
 
