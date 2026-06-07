@@ -23,7 +23,7 @@ body{
   modal
 */
 
-#recipe .row:first-child {
+#recipe .row:first-child, #edit-recipe .row:first-child {
   margin-bottom: 2rem;
   justify-content: space-between;
 
