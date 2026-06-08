@@ -7,7 +7,7 @@
             <input type="hidden" name="branch_id" id="delete_branch_id">
             
             <div class="modal-header">
-                <h2>Move to Trash?</h2>
+                <h2>Move Ingredient to Trash?</h2>
 
                 <button type="button" class="btn close-btn" onclick="document.getElementById('deleteModal').style.display='none'">
                     <span class="icon-wrapper">
@@ -18,7 +18,7 @@
 
             <div class="modal-body">
                 <div class="modal-text">
-                    <p class="text-muted">Are you sure you want to remove this item? It will be moved to the Archive for 14 days before being permanently deleted.</p>
+                    <p class="text-muted">Are you sure you want to remove this ingredient? It will be moved to the Archive for 14 days before being permanently deleted.</p>
                 </div>
             </div>
 
