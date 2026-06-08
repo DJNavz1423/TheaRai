@@ -177,6 +177,7 @@
         background: var(--hover-neutral-alpha-2);
       }
       
+      /* danger dropdown */
 
       .dropdown-red{
         color: var(--danger);
