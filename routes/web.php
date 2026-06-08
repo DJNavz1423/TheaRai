@@ -77,6 +77,9 @@ Route::middleware(['auth'])->group(function(){
         
         Route::post('/menu/{id}/branch-pricing', [MenuController::class, 'updateBranchPricing']);
 
+        Route::delete('/menu/{id}', [MenuController::class, 'destroy'])
+            ->name('menu.destroy');
+
         #tables
         Route::get('/tables', [TableController::class, 'index'])
             ->name('admin.tables');

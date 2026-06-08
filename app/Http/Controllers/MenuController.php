@@ -12,6 +12,7 @@ class MenuController extends Controller
     public function index(): View{
         $menuItems = DB::table('laravel.menu_items as mi')
             ->leftJoin('laravel.menu_categories as mc', 'mi.category_id', '=', 'mc.id')
+            ->whereNull('mi.deleted_at')
             ->select('mi.*', 'mc.name as category_name')
             ->orderBy('mi.id', 'desc')
             ->get();
@@ -110,6 +111,34 @@ class MenuController extends Controller
             DB::rollback();
             return back()->with('error', 'Error saving menu item: '. $e->getMessage());
         }
+    }
+
+    public function destroy($id){
+        $menuItem = DB::table('laravel.menu_items')
+            ->where('id', $id)
+            ->first();
+
+        if (!$menuItem) {
+            return back()->with('error', 'Menu item not found.');
+        }
+
+        DB::table('laravel.menu_items')
+            ->where('id', $id)
+            ->update([
+                'deleted_at' => now()
+            ]);
+
+        $this->logActivity(
+            'archived',
+            'menu_item',
+            $id,
+            "Moved menu item to trash: {$menuItem->name}"
+        );
+
+        return back()->with(
+            'success',
+            'Menu item moved to trash successfully!'
+        );
     }
 
     //edit modal
