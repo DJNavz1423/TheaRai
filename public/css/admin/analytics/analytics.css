@@ -10,6 +10,10 @@
   background-color: var(--tertiary-light-transparent);
 }
 
+.kpi-card:nth-child(4) .kpi-value{
+  color: var(--tertiary-dark);
+}
+
 /*
   grid
 */
@@ -32,11 +36,6 @@
 }
 
 #low-stock-section{
-  .section-header{
-    padding-bottom: 12px !important;
-    border-bottom: 2px solid var(--quaternary) !important;
-  }
-
   .stock-price{
   display: inline !important;
   color: var(--secondary) !important;
