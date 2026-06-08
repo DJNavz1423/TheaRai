@@ -199,7 +199,7 @@
 
       data{
         display: block;
-        color: var(--dark);
+        color: var(--tertiary-dark);
         font-size: 1.5rem;
         font-weight: 900;
       }
