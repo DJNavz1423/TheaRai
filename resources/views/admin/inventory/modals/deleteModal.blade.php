@@ -24,7 +24,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn" onclick="document.getElementById('deleteModal').style.display='none'">
-                    <span>No, Keep</span>
+                    <span>No, Keep ingredient</span>
                 </button>
 
                 <button type="submit" class="btn">
