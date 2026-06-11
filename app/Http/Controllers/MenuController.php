@@ -12,8 +12,13 @@ class MenuController extends Controller
     public function index(): View{
         $menuItems = DB::table('laravel.menu_items as mi')
             ->leftJoin('laravel.menu_categories as mc', 'mi.category_id', '=', 'mc.id')
+            ->leftJoin('laravel.branch_menu_items as bmi', 'mi.id', '=', 'bmi.menu_item_id')
             ->whereNull('mi.deleted_at')
-            ->select('mi.*', 'mc.name as category_name')
+            ->select('mi.*', 
+                     'mc.name as category_name',
+                     DB::raw('COUNT(CASE WHEN bmi.is_available = true THEN 1 END) as available_branch_count')
+                     )
+            ->groupBy('mi.id', 'mc.name')
             ->orderBy('mi.id', 'desc')
             ->get();
 
@@ -36,7 +41,16 @@ class MenuController extends Controller
             )
             ->get();
 
-        return view('admin.menu.menu', compact('menuItems', 'categories', 'ingredients', 'branches'));
+        $menuBranchStatus = DB::table('laravel.branch_menu_items')
+            ->select(
+                'menu_item_id',
+                'branch_id',
+                'is_available'
+            )
+            ->get()
+            ->groupBy('menu_item_id');
+
+        return view('admin.menu.menu', compact('menuItems', 'categories', 'ingredients', 'branches', 'menuBranchStatus'));
     }
 
     public function store(Request $request){

@@ -65,6 +65,7 @@
                     <th>Dish Name</th>
                     <th>Category</th>
                     <th>Selling Price</th>
+                    <th>Status</th>
                     <th>Date Created</th>
                     <th>Actions</th>
                 </tr>
@@ -72,11 +73,19 @@
 
             <tbody role="rowgroup">
                 @forelse($menuItems as $dish)
+                
+                @php
+                $branchData = $menuBranchStatus[$dish->id] ?? collect();
+                @endphp
+
                 <tr role="row" class="menu-row" 
                     data-name="{{ strtolower($dish->name) }}"
                     data-category="{{ $dish->category_id ?? 'all' }}"
                     data-price="{{ $dish->final_price }}"
-                    data-created="{{ strtotime($dish->created_at ?? now()) }}">
+                    data-created="{{ strtotime($dish->created_at ?? now()) }}"
+                    data-available-count="{{ $dish->available_branch_count }}"
+                    data-branches='@json($branchData->mapWithKeys(fn($b) => [$b->branch_id => $b->is_available]))'
+                    >
                     <td role="cell" data-cell="name">
                         <div class="d-flex item-group">
                             <span class="item-img">
@@ -94,6 +103,17 @@
                     
                     <td role="cell" data-cell="price">
                         <span class="item-data">&#8369;{{ number_format($dish->final_price, 2) }}</span>
+                    </td>
+
+                    <td role="cell" data-cell="status">
+                        <span class="item-data status-display">
+                            Avail in {{ $dish->available_branch_count }} 
+                                @if ($dish->available_branch_count == 1)
+                                    branch
+                                @else
+                                    branches
+                                @endif
+                        </span>
                     </td>
 
                     <td role="cell" data-cell="created">
