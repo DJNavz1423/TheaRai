@@ -98,7 +98,13 @@
 
                         <div class="dropdown-menu border" style="display: none;">
                             <div class="dropdown-section">
-                                <button class="dropdown-item dropdown-red btn">
+                                <button class="dropdown-item btn edit-user-btn"
+                                    data-id="{{ $user->id }}"
+                                    data-name="{{ $user->name }}"
+                                    data-email="{{ $user->email }}"
+                                    data-role="{{ $user->role }}"
+                                    data-branch="{{ $user->branch_id }}"
+                                    >
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
                                     </span>
@@ -112,7 +118,7 @@
                                     Change Password
                                 </button>
 
-                                <button class="dropdown-item btn">
+                                <button class="dropdown-item dropdown-red btn" onclick="openDeleteUserModal({{ $user->id }}, '{{ $user->name }}')">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v126q0 17-13.5 28t-31.5 8q-8-1-17-1.5t-18-.5q-20 0-40 2.5t-40 8.5v-51q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v90q-24 17-44.5 38.5T440-424v-176q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q0 29 6.5 57.5T424-168q8 17-1.5 32.5T396-120H280Zm258.5-18.5Q480-197 480-280t58.5-141.5Q597-480 680-480t141.5 58.5Q880-363 880-280t-58.5 141.5Q763-80 680-80t-141.5-58.5ZM700-288v-92q0-8-6-14t-14-6q-8 0-14 6t-6 14v91q0 8 3 15.5t9 13.5l60 60q6 6 14 6t14-6q6-6 6-14t-6-14l-60-60Z"/></svg>
                                     </span>
@@ -129,64 +135,13 @@
 </div>
 </div>
 
-<div id="addModal" class="modal" style="display: none;">
-    <div class="modal-dialog">
-        <form action="{{ url('/admin/users') }}" method="POST" class="modal-content">
-            @csrf
-            <div class="modal-header">
-                <h2>Add New User</h2>
+<!-- Modals -->
+@include('admin.peopleManagement.modals.addModal')
 
-                <button type="button" class="btn close-btn" onclick="document.getElementById('addModal').style.display='none'">
-                    <span class="icon-wrapper close-modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>
-                    </span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group mb-3">
-                    <label>Full Name</label>
-                    <input type="text" name="name" id="user-name-input" required placeholder="Juan Dela Cruz">
-                </div>
-                
-                <div class="input-group mb-3">
-                    <label>Email Address</label>
-                    <input type="email" name="email" id="user-email-input" required pattern="[a-zA-Z0-9._%+-]+@thearai\.com\.ph$" title="Must be a @thearai.com.ph email address" placeholder="juan123@thearai.com.ph">
-                </div>
+@include('admin.peopleManagement.modals.editModal')
 
-                <div class="input-group mb-3">
-                    <label>Password</label>
-                    <input type="password" name="password" required placeholder="Min. 10 characters">
-                </div>
+@include('admin.peopleManagement.modals.deleteModal')
 
-                <div class="input-group mb-3">
-                    <label>Role</label>
-                    <select name="role" id="role-select" class="unit-selector" required>
-                        <option value="staff" selected>Staff</option>
-                        <option value="admin">Admin</option>
-                    </select>
-                </div>
-                
-                <div class="input-group mb-3" id="branch-wrapper">
-                    <label>Assigned Branch</label>
-                    <select name="branch_id" id="branch-select" class="unit-selector" required>
-                        <option value="" selected disabled>Select a branch...</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                    <small class="text-muted">Staff must be assigned to a specific branch for POS access.</small>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button type="button" class="btn" onclick="document.getElementById('addModal').style.display='none'">
-                    <span>Cancel</span>
-                </button>
-                <button type="submit" class="btn">Save User</button>
-            </div>
-        </form>
-    </div>
-</div>
 @endsection
 
 @once 
@@ -264,6 +219,90 @@
                 }
             }
         });
+    </script>
+
+    <script>
+    // ==========================
+    // Edit User Modal
+    // ==========================
+
+        function toggleEditBranch() {
+
+            const role =
+                document.getElementById('edit_role').value;
+
+            const wrapper =
+                document.getElementById('edit_branch_wrapper');
+
+            const branch =
+                document.getElementById('edit_branch');
+
+            if(role === 'admin') {
+
+                wrapper.style.display = 'none';
+
+                branch.removeAttribute('required');
+
+            } else {
+
+                wrapper.style.display = 'block';
+
+                branch.setAttribute('required', 'required');
+            }
+        }
+
+        document.getElementById('edit_role')
+            ?.addEventListener('change', toggleEditBranch);
+
+        document.querySelectorAll('.edit-user-btn').forEach(button => {
+
+            button.addEventListener('click', function () {
+
+                const userId = this.dataset.id;
+
+                document.getElementById('edit_user_id').value =
+                    userId;
+
+                document.getElementById('edit_name').value =
+                    this.dataset.name;
+
+                document.getElementById('edit_email').value =
+                    this.dataset.email;
+
+                document.getElementById('edit_role').value =
+                    this.dataset.role;
+
+                document.getElementById('edit_branch').value =
+                    this.dataset.branch || '';
+
+                const form =
+                    document.getElementById('editUserForm');
+
+                form.action =
+                    `/admin/users/${userId}`;
+
+                toggleEditBranch();
+
+                document.getElementById('editUserModal')
+                    .style.display = 'flex';
+            });
+
+        });
+
+        // ==========================
+        // Delete User Modal
+        // ==========================
+
+        function openDeleteUserModal(id, name) {
+            document.getElementById('deleteUserForm').action =
+                `/admin/users/${id}`;
+
+            document.getElementById('deleteUserText').innerText =
+                `Are you sure you want to remove ${name}? User will be moved to the Archive for 14 days before being permanently deleted.`;
+
+            document.getElementById('deleteUserModal')
+                .style.display = 'flex';
+        }
     </script>
 
     @if(session('error'))

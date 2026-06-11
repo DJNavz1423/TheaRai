@@ -62,6 +62,13 @@ Route::middleware(['auth'])->group(function(){
         Route::post('/users', [UserController::class, 'store'])
         ->name('admin.users.store');
 
+        Route::put('/users/{id}', [UserController::class, 'update']);
+
+        Route::delete('/users/{id}', [UserController::class, 'destroy'])
+        ->name('users.destroy');
+
+
+        # Menu Management Routes
 
         Route::get('/menu', [MenuController::class, 'index'])
         ->name('admin.menu.index');
