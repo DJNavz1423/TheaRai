@@ -6,7 +6,7 @@ body{
 
 #sidebar{
   height: 100vh;
-  width: 260px;
+  width: 250px;
   padding: 12px 1em;
   background-color: var(--primary-deep);
   border-right: 1px solid var(--primary-border);
@@ -17,15 +17,16 @@ body{
   overflow-x: hidden;
   overflow-y: auto;
   text-wrap: nowrap;
-  scrollbar-gutter: stable;
   scrollbar-color: var(--secondary-soft) var(--primary-transparent);
 }
 #sidebar.close{
   padding: 5px;
-  width: 70px;
+  width: 60px;
 
   .nav-item, .dropdown-arrow, .logo{
     opacity: 0;
+    width: 0;
+    height: 0;
   }
 }
 
