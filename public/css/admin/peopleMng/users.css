@@ -1,12 +1,35 @@
-#addButton{
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: .3rem;
-    padding: 8px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    letter-spacing: normal;
-    font-weight: 600;
+.toggle-visibility svg{
+  fill: var(--primary-dark);
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-visibility{
+  display: flex;
+  border: none;
+  background: none;
+  position: absolute;
+  position-anchor: --modal-input;
+  align-items: center;
+  justify-content: center;
+  top: anchor(top);
+  bottom: anchor(bottom);
+  right: calc(anchor(right) + 20px);
+  transition: ease-in 250ms;
+}
+
+.toggle-visibility:hover{
+  transform: scale(1.2);
+}
+.toggle-visibility{
+  &:active{
+    transform: scale(1.4);
+
+    & span svg{
+      fill: var(--primary-light);
+    }
   }
+}

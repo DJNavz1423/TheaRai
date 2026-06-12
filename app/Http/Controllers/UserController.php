@@ -92,6 +92,42 @@ class UserController extends Controller
         );
     }
 
+    public function updatePassword(Request $request, $id) {
+        $validated = $request->validate([
+            'new_password' => [
+                'required',
+                'string',
+                'min:10',
+                'confirmed'
+            ]
+        ]);
+
+        DB::table('laravel.users')
+            ->where('id', $id)
+            ->update([
+                'password' => Hash::make(
+                    $validated['new_password']
+                ),
+                'updated_at' => now()
+            ]);
+
+        $user = DB::table('laravel.users')
+            ->where('id', $id)
+            ->first();
+
+        $this->logActivity(
+            'updated',
+            'user',
+            $id,
+            "Changed password for user: {$user->name}"
+        );
+
+        return back()->with(
+            'success',
+            'Password updated successfully.'
+        );
+    }
+
     public function destroy($id){
         $user = DB::table('laravel.users')
             ->where('id', $id)

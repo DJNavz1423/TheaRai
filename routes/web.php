@@ -67,6 +67,8 @@ Route::middleware(['auth'])->group(function(){
         Route::delete('/users/{id}', [UserController::class, 'destroy'])
         ->name('users.destroy');
 
+        Route::put('/users/{id}/password',[UserController::class, 'updatePassword']);
+
 
         # Menu Management Routes
 

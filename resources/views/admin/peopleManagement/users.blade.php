@@ -111,7 +111,9 @@
                                     Edit User Info
                                 </button>
 
-                                <button class="dropdown-item btn">
+                                <button class="dropdown-item btn manage-password-btn"
+                                    data-id="{{ $user->id }}"
+                                    data-name="{{ $user->name }}">
                                     <span class="icon-wrapper">
                                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-480ZM455-87q-134-44-214.5-166.5T160-516v-189q0-25 14.5-45t37.5-29l240-90q14-5 28-5t28 5l240 90q23 9 37.5 29t14.5 45v186q0 17-11.5 28.5T760-479q-17 0-28.5-11.5T720-519v-186l-240-90-240 90v189q0 121 68 220t172 132q16 5 23.5 20t2.5 31q-5 16-20 23.5T455-87Zm225-113h-80q-17 0-28.5-11.5T560-240q0-17 11.5-28.5T600-280h80v-80q0-17 11.5-28.5T720-400q17 0 28.5 11.5T760-360v80h80q17 0 28.5 11.5T880-240q0 17-11.5 28.5T840-200h-80v80q0 17-11.5 28.5T720-80q-17 0-28.5-11.5T680-120v-80ZM444-360h72q9 0 15.5-7.5T536-384l-19-105q20-10 31.5-29t11.5-42q0-33-23.5-56.5T480-640q-33 0-56.5 23.5T400-560q0 23 11.5 42t31.5 29l-19 105q-2 9 4.5 16.5T444-360Z"/></svg>
                                     </span>
@@ -139,6 +141,8 @@
 @include('admin.peopleManagement.modals.addModal')
 
 @include('admin.peopleManagement.modals.editModal')
+
+@include('admin.peopleManagement.modals.passwordModal')
 
 @include('admin.peopleManagement.modals.deleteModal')
 
@@ -228,14 +232,11 @@
 
         function toggleEditBranch() {
 
-            const role =
-                document.getElementById('edit_role').value;
+            const role = document.getElementById('edit_role').value;
 
-            const wrapper =
-                document.getElementById('edit_branch_wrapper');
+            const wrapper = document.getElementById('edit_branch_wrapper');
 
-            const branch =
-                document.getElementById('edit_branch');
+            const branch = document.getElementById('edit_branch');
 
             if(role === 'admin') {
 
@@ -251,8 +252,7 @@
             }
         }
 
-        document.getElementById('edit_role')
-            ?.addEventListener('change', toggleEditBranch);
+        document.getElementById('edit_role') ?.addEventListener('change', toggleEditBranch);
 
         document.querySelectorAll('.edit-user-btn').forEach(button => {
 
@@ -260,31 +260,32 @@
 
                 const userId = this.dataset.id;
 
-                document.getElementById('edit_user_id').value =
-                    userId;
+                document.getElementById('edit_user_id').value = userId;
 
-                document.getElementById('edit_name').value =
-                    this.dataset.name;
+                document.getElementById('edit_name').value = this.dataset.name;
 
-                document.getElementById('edit_email').value =
-                    this.dataset.email;
+                document.getElementById('edit_email').value = this.dataset.email;
 
-                document.getElementById('edit_role').value =
-                    this.dataset.role;
+                const roleSelect = document.getElementById('edit_role');
+                const branchSelect = document.getElementById('edit_branch');
 
-                document.getElementById('edit_branch').value =
-                    this.dataset.branch || '';
+                if (roleSelect.tomselect) {
+                    roleSelect.tomselect.setValue(this.dataset.role, true);
+                } else {
+                    roleSelect.value = this.dataset.role;
+                }
 
-                const form =
-                    document.getElementById('editUserForm');
+                if (branchSelect.tomselect) {
+                    branchSelect.tomselect.setValue(this.dataset.branch || '', true);
+                } else {
+                    branchSelect.value = this.dataset.branch || '';
+                }
 
-                form.action =
-                    `/admin/users/${userId}`;
+                document.getElementById('editUserForm').action = `/admin/users/${userId}`;
 
                 toggleEditBranch();
 
-                document.getElementById('editUserModal')
-                    .style.display = 'flex';
+                document.getElementById('editUserModal').style.display = 'flex';
             });
 
         });
@@ -298,11 +299,135 @@
                 `/admin/users/${id}`;
 
             document.getElementById('deleteUserText').innerText =
-                `Are you sure you want to remove ${name}? User will be moved to the Archive for 14 days before being permanently deleted.`;
+                `${name}?`;
 
             document.getElementById('deleteUserModal')
                 .style.display = 'flex';
         }
+    </script>
+
+    <script>
+        const newPasswordInput = document.getElementById('new-password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const passwordHint = document.getElementById('password-match-hint');
+
+        function validatePasswordMatch() {
+
+            const password = newPasswordInput.value;
+            const confirm = confirmPasswordInput.value;
+
+            if (password.length > 0 && password.length < 10) {
+                passwordHint.textContent =
+                    'Password must be at least 10 characters';
+
+                passwordHint.style.color =
+                    '#c90a1d';
+
+                return;
+            }
+
+            if (confirm.length === 0) {
+                passwordHint.textContent = '';
+                return;
+            }
+
+            if (password === confirm) {
+                passwordHint.textContent = '✓ Passwords match';
+                passwordHint.style.color = '#0d884e';
+            } else {
+                passwordHint.textContent = '✗ Passwords do not match';
+                passwordHint.style.color = '#c90a1d';
+            }
+        }
+
+        newPasswordInput.addEventListener('input', validatePasswordMatch);
+        confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+
+        function setupPasswordToggle(inputId, buttonId) {
+            const input = document.getElementById(inputId);
+            const button = document.getElementById(buttonId);
+
+            if (!input || !button) return;
+
+            const eyeOpen =
+                button.querySelector('.visibility-on');
+
+            const eyeClosed =
+                button.querySelector('.visibility-off');
+
+            button.addEventListener('click', () => {
+
+                const isPassword =
+                    input.type === 'password';
+
+                input.type =
+                    isPassword ? 'text' : 'password';
+
+                eyeOpen.classList.toggle('d-none');
+                eyeClosed.classList.toggle('d-none');
+            });
+        }
+
+        setupPasswordToggle(
+            'new-password',
+            'toggle-new-password'
+        );
+
+        setupPasswordToggle(
+            'confirm-password',
+            'toggle-confirm-password'
+        );
+
+        const managePasswordForm = document.getElementById('managePasswordForm');
+
+        if (managePasswordForm) { 
+            managePasswordForm.addEventListener('submit', function(e) {
+                if (
+                    newPasswordInput.value !==
+                    confirmPasswordInput.value
+                ) {
+                    e.preventDefault();
+
+                    passwordHint.textContent =
+                        'Passwords do not match';
+
+                    passwordHint.style.color =
+                        '#dc3545';
+
+                    confirmPasswordInput.focus();
+                }
+            });
+        }
+
+        document.querySelectorAll('.manage-password-btn').forEach(button => {
+            button.addEventListener('click', function() {
+
+                const userId = this.dataset.id;
+
+                document
+                    .getElementById('managePasswordForm')
+                    .action =
+                    `/admin/users/${userId}/password`;
+
+                newPasswordInput.value = '';
+                confirmPasswordInput.value = '';
+                passwordHint.textContent = '';
+
+                document.getElementById('modalTitle').innerText = `Change Password for ${this.dataset.name}`;
+
+                newPasswordInput.type = 'password';
+                confirmPasswordInput.type = 'password';
+
+                document.querySelectorAll('.visibility-off').forEach(el => el.classList.add('d-none'));
+
+                document.querySelectorAll('.visibility-on').forEach(el => el.classList.remove('d-none'));
+
+                document
+                    .getElementById('managePasswordModal')
+                    .style.display = 'flex';
+            });
+
+        });
     </script>
 
     @if(session('error'))
