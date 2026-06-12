@@ -13,22 +13,22 @@
             </div>
             <div class="modal-body">
                 <div class="input-group mb-3">
-                    <label>Full Name</label>
+                    <label for="user-name-input">Full Name</label>
                     <input type="text" name="name" id="user-name-input" required placeholder="Juan Dela Cruz">
                 </div>
                 
                 <div class="input-group mb-3">
-                    <label>Email Address</label>
+                    <label for="user-email-input">Email Address</label>
                     <input type="email" name="email" id="user-email-input" required pattern="[a-zA-Z0-9._%+-]+@thearai\.com\.ph$" title="Must be a @thearai.com.ph email address" placeholder="juan123@thearai.com.ph">
                 </div>
 
                 <div class="input-group mb-3">
-                    <label>Password</label>
-                    <input type="password" name="password" required placeholder="Min. 10 characters">
+                    <label for="user-password-input">Password</label>
+                    <input type="password" name="password" id="user-password-input" minlength="10" required placeholder="Min. 10 characters">
                 </div>
 
                 <div class="input-group mb-3">
-                    <label>Role</label>
+                    <label for="role-select">Role</label>
                     <select name="role" id="role-select" class="unit-selector" required>
                         <option value="staff" selected>Staff</option>
                         <option value="admin">Admin</option>
@@ -36,8 +36,8 @@
                 </div>
                 
                 <div class="input-group mb-3" id="branch-wrapper">
-                    <label>Assigned Branch</label>
-                    <select name="branch_id" id="branch-select" class="unit-selector" required>
+                    <label for="branch-select">Assigned Branch</label>
+                    <select name="branch_id" id="branch-select" class="unit-selector" placeholder="Select a branch..." required>
                         <option value="" selected disabled>Select a branch...</option>
                         @foreach($branches as $branch)
                             <option value="{{ $branch->id }}">{{ $branch->name }}</option>

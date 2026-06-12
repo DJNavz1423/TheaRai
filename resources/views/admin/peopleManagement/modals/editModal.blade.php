@@ -29,7 +29,7 @@
             <div class="modal-body">
 
                 <div class="input-group mb-3">
-                    <label>Full Name</label>
+                    <label for="edit_name">Full Name</label>
                     <input type="text"
                         name="name"
                         id="edit_name"
@@ -37,7 +37,7 @@
                 </div>
 
                 <div class="input-group mb-3">
-                    <label>Email Address</label>
+                    <label for="edit_email">Email Address</label>
                     <input type="email"
                         name="email"
                         id="edit_email"
@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="input-group mb-3">
-                    <label>Role</label>
+                    <label for="edit_role">Role</label>
 
                     <select
                         name="role"
@@ -60,12 +60,14 @@
                 </div>
 
                 <div class="input-group mb-3" id="edit_branch_wrapper">
-                    <label>Assigned Branch</label>
+                    <label for="edit_branch">Assigned Branch</label>
 
                     <select
                         name="branch_id"
                         id="edit_branch"
                         class="unit-selector"
+                        placeholder="Select a branch..."
+                        required
                     >
                         <option value="" disabled>Select a branch...</option>
 
