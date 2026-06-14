@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 class IngredientController extends Controller
 {
     public function index(): View{
-        $ingredients = DB::table('laravel.admin_global_inventory')->orderBy('updated_at', 'desc')
+        $ingredients = DB::table('laravel.admin_global_inventory')
+            ->orderBy('updated_at', 'desc')
             ->where('is_deleted', false)
             ->get();
 

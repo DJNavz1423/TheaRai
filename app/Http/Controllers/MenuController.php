@@ -29,6 +29,7 @@ class MenuController extends Controller
         $branches = DB::table('laravel.branches')->get();
 
         $ingredients = DB::table('laravel.admin_global_inventory as agi')
+            ->where('agi.is_deleted', false)
             ->select(
                 'agi.id', 
                 'agi.name', 
