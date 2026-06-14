@@ -92,14 +92,36 @@ class PosController extends Controller{
                 // 3. Fetch Recipe
                 $recipeItems = DB::table('laravel.menu_item_ingredient as pivot')
                     ->join('laravel.ingredients as ing', 'pivot.ingredient_id', '=', 'ing.id')
+                    ->select('ing.id', 
+                             'pivot.quantity_used',
+                             'pivot.unit_id',
+                             'ing.primary_unit_id',
+                             'ing.secondary_unit_id', 
+                             'ing.conversion_factor')
                     ->where('pivot.menu_item_id', $cartItem['id'])
-                    ->select('ing.id', 'pivot.quantity_used', 'ing.conversion_factor')
                     ->get();
 
                 // 4. Deduct Inventory from the SPECIFIC BRANCH
                 foreach ($recipeItems as $ingredient){
-                    $totalSUnitsUsed = $ingredient->quantity_used * $cartItem['quantity'];
-                    $primaryUnitsUsed = $totalSUnitsUsed / $ingredient->conversion_factor;
+                    $totalUsed = $ingredient->quantity_used * $cartItem['quantity'];
+
+                    if ($ingredient->unit_id == $ingredient->primary_unit_id) {
+
+                        // Recipe uses primary unit
+                        $primaryUnitsUsed = $totalUsed;
+
+                    } elseif ($ingredient->unit_id == $ingredient->secondary_unit_id) {
+
+                        // Recipe uses secondary unit
+                        $primaryUnitsUsed =
+                            $totalUsed / $ingredient->conversion_factor;
+
+                    } else {
+
+                        throw new \Exception(
+                            "Invalid recipe unit for ingredient {$ingredient->id}"
+                        );
+                    }
 
                     DB::table('laravel.branch_inventory')
                         ->where('ingredient_id', $ingredient->id)

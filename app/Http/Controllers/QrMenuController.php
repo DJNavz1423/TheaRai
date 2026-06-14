@@ -160,19 +160,83 @@ class QrMenuController extends Controller
                 $xenditData = $response->json();
                 
                 if ($xenditData['status'] === 'PAID') {
-                    // Update the database with the real payment method (GCASH or PAYMAYA)
-                    $realMethod = strtolower($xenditData['payment_channel']);
-                    
-                    DB::table('laravel.orders')
-                        ->where('id', $order->id)
-                        ->update([
-                            'payment_status' => 'paid',
-                            'payment_method' => $realMethod,
-                            'updated_at' => now()
-                        ]);
-                        
-                    // Update the local $order variable so the blade view shows the right word
-                    $order->payment_method = $realMethod;
+                    DB::beginTransaction();
+
+                    try {
+                        // Update the database with the real payment method (GCASH or PAYMAYA)
+                        $realMethod = strtolower($xenditData['payment_channel']);
+
+                        DB::table('laravel.orders')
+                            ->where('id', $order->id)
+                            ->update([
+                                'payment_status' => 'paid',
+                                'payment_method' => $realMethod,
+                                'updated_at' => now()
+                            ]);
+
+                        // Fetch all ordered items
+                        $orderItems = DB::table('laravel.order_items')
+                            ->where('order_id', $order->id)
+                            ->get();
+
+                        // Deduct inventory
+                        foreach ($orderItems as $orderItem) {
+
+                            $recipeItems = DB::table('laravel.menu_item_ingredient as pivot')
+                                ->join(
+                                    'laravel.ingredients as ing',
+                                    'pivot.ingredient_id',
+                                    '=',
+                                    'ing.id'
+                                )
+                                ->select(
+                                    'ing.id',
+                                    'pivot.quantity_used',
+                                    'pivot.unit_id',
+                                    'ing.primary_unit_id',
+                                    'ing.secondary_unit_id',
+                                    'ing.conversion_factor'
+                                )
+                                ->where('pivot.menu_item_id', $orderItem->menu_item_id)
+                                ->get();
+
+                            foreach ($recipeItems as $ingredient) {
+
+                                $totalUsed = $ingredient->quantity_used * $orderItem->quantity;
+
+                                if ( $ingredient->unit_id = $ingredient->primary_unit_id) {
+                                    $primaryUnitsUsed = $totalUsed;
+                                } 
+                                elseif ($ingredient->unit_id == $ingredient->secondary_unit_id) {
+                                    $primaryUnitsUsed =
+                                        $totalUsed / $ingredient->conversion_factor;
+                                } else {
+                                    throw new \Exception(
+                                        "Invalid recipe unit for ingredient {$ingredient->id}"
+                                    );
+                                }
+
+                                DB::table('laravel.branch_inventory')
+                                    ->where('ingredient_id', $ingredient->id)
+                                    ->where('branch_id', $order->branch_id)
+                                    ->decrement(
+                                        'stock_quantity',
+                                        $primaryUnitsUsed
+                                    );
+                            }
+                        }
+
+                        DB::commit();
+
+                        // Update local variables for blade
+                        $order->payment_method = $realMethod;
+                        $order->payment_status = 'paid';
+
+                    } catch (\Exception $e) {
+
+                        DB::rollBack();
+                        throw $e;
+                    }
                 }
             }
         }
