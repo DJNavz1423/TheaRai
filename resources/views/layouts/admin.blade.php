@@ -85,7 +85,7 @@
           <ul class="sub-menu">
             <div>
               <li class="{{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}"><a href="{{ url('/admin/inventory') }}">Stock List</a></li>
-              <li><a href="#">Categories</a></li>
+              <li class="{{ request()->routeIs('admin.inventory.categories') ? 'active' : '' }}"><a href="{{ url('/admin/categories') }}">Categories</a></li>
               <li><a href="#">Units of Measure</a></li>
             </div>
           </ul>
@@ -189,8 +189,6 @@
           </ul>
         </li>
         <!-- dropdown people management end -->
-
-        
 
           <!-- dropdown settings -->
         <li>
