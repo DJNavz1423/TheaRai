@@ -18,7 +18,11 @@
 
             <div class="modal-body">
                 <div class="modal-text">
-                    <p class="text-muted">Are you sure you want to remove this ingredient? It will be moved to the Archive for 14 days before being permanently deleted.</p>
+                    <p class="text-muted">Are you sure you want to remove this ingredient? 
+                    
+                    <br><br>
+                        
+                    It will be moved to the Archive for 14 days before being permanently deleted.</p>
                 </div>
             </div>
 

@@ -18,7 +18,11 @@
 
             <div class="modal-body">
               <div class="modal-text">
-                <p class="text-muted">Are you sure you want to remove user <span id="deleteUserText" style="font-weight: 900; color: var(--primary-dark)"></span> This account will be moved to the Archive for 14 days before being permanently deleted.</p>
+                <p class="text-muted">Are you sure you want to remove user <strong id="deleteUserText" style="font-weight: 900; color: var(--primary-dark)"></strong> 
+                 
+                <br><br>                
+                    
+                This account will be moved to the Archive for 14 days before being permanently deleted.</p>
               </div>
             </div>
 
