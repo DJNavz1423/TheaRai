@@ -4,15 +4,23 @@ use Illuminate\Support\Facades\Route; # import route class, handles url paths fo
 
 #import my authcontroller so routes know which file to use for login logic
 use App\Http\Controllers\AuthController; 
+
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\IngredientController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\MenuController;
-use App\Http\Controllers\PosController;
-use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AnalyticsController;
+
+
+use App\Http\Controllers\IngredientController;
+use App\Http\Controllers\CategoryController;
+
+use App\Http\Controllers\UserController;
+
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\TableController;
+
+use App\Http\Controllers\ArchiveController;
+use App\Http\Controllers\ExpenseController;
+
+use App\Http\Controllers\PosController;
 use App\Http\Controllers\QrMenuController;
 use App\Http\Controllers\QrOrderController;
 
@@ -37,12 +45,13 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/api/qr-orders/notifications', [QrOrderController::class, 'getNotifications'])
         ->name('qr.orders.notifications');
 
+
     Route::prefix('admin')->middleware('role:admin')->group(function(){
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.index');
 
         #inventory
         Route::get('/inventory', [IngredientController::class, 'index'])
-        ->name('admin.inventory.index');
+            ->name('admin.inventory.index');
 
         Route::post('/inventory', [IngredientController::class, 'store']);
 
@@ -53,6 +62,10 @@ Route::middleware(['auth'])->group(function(){
         Route::post('/inventory/{id}/add-stock', [IngredientController::class, 'addStock']);
         
         Route::post('/inventory/{id}/reduce-stock', [IngredientController::class, 'reduceStock']);
+
+        #categories
+        Route::get('/categories', [CategoryController::class, 'index'])
+            ->name('admin.inventory.categories');
 
 
          # User Management Routes
@@ -99,6 +112,8 @@ Route::middleware(['auth'])->group(function(){
         Route::delete('/tables/{id}', [TableController::class, 'destroy'])
             ->name('admin.menu.tables.destroy');
 
+        Route::put('/tables/{id}', [TableController::class, 'update'])
+            ->name('admin.menu.tables.update');
 
 
 
