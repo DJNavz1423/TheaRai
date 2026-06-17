@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <div class="row mb-4">
+    <div class="row mb-3">
         <h1 class="heading">Table & QR Management ({{ count($tables) }})</h1>
         <div class="row heading-btn-row">
             <button id="addButton" class="btn" type="button" onclick="document.getElementById('addModal').style.display='flex'">
@@ -50,9 +50,11 @@
                     <th>Table Number</th>
                     <th>QR Code URL</th>
                     <th>Print QR</th>
+                    <th>Date Created</th>
                     <th style="text-align: center;">Actions</th>
                 </tr>
             </thead>
+            
             <tbody role="rowgroup">
                 @forelse($tables as $table)
                 @php
@@ -69,16 +71,30 @@
                     <td role="cell">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($qrUrl) }}" alt="QR Code" style="width: 50px; height: 50px; border-radius: 4px; cursor: pointer; border: 1px solid #ccc;" onclick="window.open(this.src, '_blank')">
                     </td>
+
+                    <td data-cell="created" role="cell">{{ $table->created_at ? \Carbon\Carbon::parse($table->created_at)->format('M d, Y') : 'N/A' }}</td>
+
                     <td role="cell">
-                        <form action="{{ route('admin.menu.tables.destroy', $table->id) }}" method="POST" onsubmit="return confirm('Delete this table and deactivate its QR code?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-icon">
+                        <div class="row" style="justify-content: center; align-items: center; gap: 10px;">
+                            <button type="button" class="btn btn-icon" onclick="openEditModal(
+                                {{ $table->id }},
+                                {{ $table->branch_id }},
+                                '{{ $table->table_number }}'
+                            )">
+                                <span class="icon-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0d884e"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
+                                </span>
+                            </button>
+
+                            <button type="button" class="btn btn-icon" onclick="openDeleteModal(
+                                {{ $table->id }},
+                                '{{ $table->table_number }}'
+                            )">
                                 <span class="icon-wrapper">
                                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm200-284 76 76q11 11 28 11t28-11q11-11 11-28t-11-28l-76-76 76-76q11-11 11-28t-11-28q-11-11-28-11t-28 11l-76 76-76-76q-11-11-28-11t-28 11q-11 11-11 28t11 28l76 76-76 76q-11 11-11 28t11 28q11 11 28 11t28-11l76-76Z"/></svg>
                                 </span>
                             </button>
-                        </form>
+                        </div>
                     </td>
                 </tr>
                 @empty
@@ -91,38 +107,13 @@
     </div>
 </div>
 
-<div id="addModal" class="modal" style="display: none;">
-    <div class="modal-dialog">
-        <form action="{{ route('admin.menu.tables.store') }}" method="POST" class="modal-content">
-            @csrf
-            <div class="modal-header">
-                <h2>Add New Table</h2>
-                <button type="button" class="btn close-btn" onclick="document.getElementById('addModal').style.display='none'">
-                    <span class="icon-wrapper close-modal"><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg></span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="input-group mb-3">
-                    <label>Branch</label>
-                    <select name="branch_id" class="unit-selector" required style="width: 100%; padding: 8px;">
-                        <option value="" disabled selected>Select branch...</option>
-                        @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="input-group mb-3">
-                    <label>Table Number / Identifier</label>
-                    <input type="text" name="table_number" required placeholder="e.g., 5 or VIP-1" style="width: 100%; padding: 8px;">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
-                <button type="submit" class="btn">Generate QR Code</button>
-            </div>
-        </form>
-    </div>
-</div>
+<!-- Include Modals -->
+@include('admin.menu.tableModals.addModal')
+
+@include('admin.menu.tableModals.editModal')
+
+@include('admin.menu.tableModals.deleteModal')
+
 @endsection
 
 @once
@@ -142,6 +133,38 @@
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTableFilter.js') }}"></script>
+
+    <script>
+    function openEditModal(id, branchId, tableNumber){
+        document.getElementById('editTableForm').action =
+            "/admin/tables/" + id;
+
+        const branchSelect = document.getElementById('edit_branch_id');
+
+        if (branchSelect.tomselect) {
+            branchSelect.tomselect.setValue(branchId.toString());
+        } else {
+            branchSelect.value = branchId;
+        }
+
+        document.getElementById('edit_table_number').value = tableNumber;
+
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function openDeleteModal(id, tableNumber){
+        document.getElementById('deleteForm').action =
+            "/admin/tables/" + id;
+
+        document.getElementById('deleteTableName').textContent =
+            "Table " + tableNumber;
+
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+    </script>
+
+    
+
     @if(session('error')) <script>alert("🚨 ERROR: {{ session('error') }}");</script> @endif
     @if(session('success')) <script>alert("✅ SUCCESS: {{ session('success') }}");</script> @endif
     @endpush
