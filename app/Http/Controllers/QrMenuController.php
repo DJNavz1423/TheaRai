@@ -204,7 +204,7 @@ class QrMenuController extends Controller
 
                                 $totalUsed = $ingredient->quantity_used * $orderItem->quantity;
 
-                                if ( $ingredient->unit_id = $ingredient->primary_unit_id) {
+                                if ( $ingredient->unit_id == $ingredient->primary_unit_id) {
                                     $primaryUnitsUsed = $totalUsed;
                                 } 
                                 elseif ($ingredient->unit_id == $ingredient->secondary_unit_id) {
