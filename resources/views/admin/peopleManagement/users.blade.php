@@ -56,10 +56,12 @@
                 <th>Email</th>
                 <th>Role</th>
                 <th>Assigned Branch</th>
+                <th>Last Online</th>
                 <th>Joined Date</th>
                 <th>Actions</th>
             </tr>
         </thead>
+        
         <tbody role="rowgroup">
             @foreach($users as $user)
             <tr role="row" class="user-row"
@@ -72,17 +74,39 @@
                         <span class="item-data">{{ $user->name }}</span>
                     </div>
                 </td>
+
                 <td data-cell="email" role="cell"><span class="item-data">{{ $user->email }}</span></td>
                 <td data-cell="role" role="cell">
                     <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}">
                         {{ ucfirst($user->role) }}
                     </span>
                 </td>
+
                 <td data-cell="branch" role="cell">
                     <span class="item-data" style="color: {{ $user->role === 'admin' ? 'var(--primary)' : 'inherit' }}; font-weight: {{ $user->role === 'admin' ? '600' : 'normal' }};">
                         {{ $user->role === 'admin' ? 'All Branches (Admin)' : ($user->branch_name ?? 'Unassigned') }}
                     </span>
                 </td>
+
+                <td data-cell="online" role="cell">
+                    @if($user->last_seen_at &&
+                        \Carbon\Carbon::parse($user->last_seen_at)->gt(now()->subMinutes(2)))
+
+                        <span class="badge" style="color: var(--tertiary-dark); font-weight: 900;">
+                            Online
+                        </span>
+
+                    @elseif($user->last_seen_at)
+
+                        {{ \Carbon\Carbon::parse($user->last_seen_at)->diffForHumans() }}
+
+                    @else
+
+                        Never
+
+                    @endif
+                </td>
+
                 <td data-cell="date" role="cell">
                     <span class="item-data">
                         {{ $user->created_at ? \Carbon\Carbon::parse($user->created_at)->format('M d, Y') : '--' }}

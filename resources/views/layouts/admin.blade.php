@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -85,8 +86,7 @@
           <ul class="sub-menu">
             <div>
               <li class="{{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}"><a href="{{ url('/admin/inventory') }}">Stock List</a></li>
-              <li class="{{ request()->routeIs('admin.inventory.categories') ? 'active' : '' }}"><a href="{{ url('/admin/categories') }}">Categories</a></li>
-              <li><a href="#">Units of Measure</a></li>
+              <li class="{{ request()->routeIs('admin.inventory.categories') ? 'active' : '' }}"><a href="{{ url('/admin/inventory/categories') }}">Categories</a></li>
             </div>
           </ul>
         </li>
@@ -159,8 +159,8 @@
                   <a href="{{ url('/admin/menu') }}">Manage Menu</a>
                 </li>
 
-                <li>
-                  <a href="">Menu Categories</a>
+                <li class="{{ request()->routeIs('admin.menu.categories') ? 'active' : '' }}">
+                  <a href="{{ url('/admin/menu/categories') }}">Menu Categories</a>
                 </li>
               </div>
             </ul>
@@ -238,6 +238,19 @@
   </main>
 
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
+
+  <script>
+    setInterval(() => {
+
+        fetch('/heartbeat', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        });
+
+    }, 60000); // every 60 seconds
+  </script>
 
   @include('partials.qr_notif')
 

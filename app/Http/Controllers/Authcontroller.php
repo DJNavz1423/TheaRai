@@ -31,7 +31,12 @@ class Authcontroller extends Controller
 
         if(Auth::attempt($credentials, $remember)){ 
             $request->session()->regenerate(); 
-            $user = Auth::user(); 
+            $user = Auth::user();
+            
+            $user->update([
+                'last_seen_at' => now(),
+            ]);
+
             return match($user->role){
                 'admin' => redirect()->intended('/admin/dashboard'),
                 'staff' => redirect()->intended('/cashier/pos'),
