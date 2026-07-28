@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
+
+class Category_UnitsController extends Controller
+{
+    public function index(){
+        $categories = DB::table('laravel.ingredient_categories')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $units = DB::table('laravel.units')
+            ->get();
+
+
+        return view('admin.inventory.categories', compact('categories', 'units'));
+    }
+
+    public function store(Request $request){
+        if ($request->table === 'category') {
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:pgsql.laravel.ingredient_categories,name',
+            ]);
+
+            $categoryId = DB::table('laravel.ingredient_categories')->insertGetId([
+                'name' => $validated['name'],
+                'created_at' => now(),
+            ]);
+
+            $this->logActivity(
+                'created',
+                'ingredient_category',
+                $categoryId,
+                "Created ingredient category: {$validated['name']}"
+            );
+
+            return back()->with('success', 'Category added successfully.');
+        }
+
+        if ($request->table === 'unit') {
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:pgsql.laravel.units,name',
+                'abbreviation' => 'required|string|max:5|unique:pgsql.laravel.units,abbreviation',
+            ]);
+
+            $unitId = DB::table('laravel.units')->insertGetId([
+                'name' => $validated['name'],
+                'abbreviation' => strtoupper($validated['abbreviation']),
+                'created_at' => now(),
+            ]);
+
+            $this->logActivity(
+                'created',
+                'unit',
+                $unitId,
+                "Created unit: {$validated['name']} / ({$validated['abbreviation']})"
+            );
+
+            return back()->with('success', 'Unit added successfully.');
+        }
+
+        abort(404);
+    }
+}

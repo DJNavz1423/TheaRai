@@ -10,11 +10,12 @@ use App\Http\Controllers\AnalyticsController;
 
 
 use App\Http\Controllers\IngredientController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Category_UnitsController;
 
 use App\Http\Controllers\UserController;
 
 use App\Http\Controllers\MenuController;
+use App\Http\Controllers\MenuCategoryController;
 use App\Http\Controllers\TableController;
 
 use App\Http\Controllers\ArchiveController;
@@ -63,9 +64,9 @@ Route::middleware(['auth'])->group(function(){
         
         Route::post('/inventory/{id}/reduce-stock', [IngredientController::class, 'reduceStock']);
 
-        #categories
-        Route::get('/categories', [CategoryController::class, 'index'])
-            ->name('admin.inventory.categories');
+        Route::get('/inventory/categories', [Category_UnitsController::class, 'index'])
+        ->name('admin.inventory.categories');
+        
 
 
          # User Management Routes
@@ -101,6 +102,15 @@ Route::middleware(['auth'])->group(function(){
 
         Route::delete('/menu/{id}', [MenuController::class, 'destroy'])
             ->name('menu.destroy');
+
+        Route::get('/menu/categories', [MenuCategoryController::class, 'index'])
+        ->name('admin.menu.categories');
+
+        Route::post('/menu/categories_units', [Category_UnitsController::class, 'store'])
+        ->name('admin.menu.categories_units.store');
+
+
+
 
         #tables
         Route::get('/tables', [TableController::class, 'index'])
@@ -151,9 +161,6 @@ Route::middleware(['auth'])->group(function(){
     });
 
 
-
-
-
     
     Route::prefix('cashier')->group(function(){
         Route::get('/pos', [PosController::class, 'index'])
@@ -190,3 +197,14 @@ Route::middleware(['auth'])->group(function(){
 
     Route::get('/qr-menu/success', [QrMenuController::class, 'success']);
 
+    
+
+Route::post('/heartbeat', function () {
+
+    auth()->user()->update([
+        'last_seen_at' => now(),
+    ]);
+
+    return response()->noContent();
+
+})->middleware('auth');
