@@ -41,12 +41,19 @@ class TableController extends Controller
             return back()->with('error', 'This table number already exists in that branch!');
         }
 
-        DB::table('laravel.tables')->insert([
+        $tableId = DB::table('laravel.tables')->insertGetId([
             'branch_id' => $validated['branch_id'],
             'table_number' => $validated['table_number'],
             'created_at' => now(),
             'updated_at' => now()
         ]);
+
+        $this->logActivity(
+            'created',
+            'table',
+            $tableId,
+            "Created table: {$validated['table_number']}"
+        );
 
         return back()->with('success', 'Table created successfully!');
     }
@@ -74,6 +81,13 @@ class TableController extends Controller
                 'table_number' => $validated['table_number'],
                 'updated_at' => now()
             ]);
+
+        $this->logActivity(
+            'updated',
+            'table',
+            $id,
+            "Updated table: {$validated['table_number']}"
+        );
 
         return back()->with('success', 'Table updated successfully!');
     }
