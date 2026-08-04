@@ -6,8 +6,37 @@
   <div class="container">
     <div class="row mb-3">
       <h1 class="heading">Ingredient Categories and Units</h1>
+
+      <div class="row heading-btn-row">
+        <div class="dropdown-wrapper pos-relative">
+          <button id="addButton" class="btn" type="button" onclick="toggleDropdown(this)">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+            </span>
+            <span>Add New Category/Unit</span>
+          </button>
+
+          <div id="headDropdown" class="dropdown-menu border" style="display: none;">
+            <div class="dropdown-section">
+              <button type="button" class="dropdown-item btn" onclick="openModal('addCategoryModal')">
+              <span class="icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+              </span>
+              Add New Category
+            </button>
+
+            <button type="button" class="dropdown-item btn" onclick="openModal('addUnitModal')">
+              <span class="icon-wrapper">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+              </span>
+              Add New Unit
+            </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    </div>
+  </div>
 
     <div class="container main-content flex-row gap-4">
       <div class="row flex-column flex-1">
@@ -63,7 +92,7 @@
                           <span>Add Category</span>
                         </button>
                         
-                        <button type="button" class="btn dropdown-item">
+                        <button type="button" class="btn dropdown-item" onclick="openCategoryEditModal({{ $category->id }}, '{{ $category->name }}')">
                           <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0d884e"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
                           </span>
@@ -146,7 +175,7 @@
                             <span>Add Unit</span>
                           </button>
 
-                          <button type="button" class="btn dropdown-item">
+                          <button type="button" class="btn dropdown-item" onclick="openUnitEditModal({{ $unit->id }}, '{{ $unit->name }}', '{{ $unit->abbreviation }}')">
                             <span class="icon-wrapper">
                               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0d884e"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
                             </span>
@@ -176,7 +205,8 @@
 @include('admin.inventory.categoryModals.addModal')
 @include('admin.inventory.unitModal.addModal')
 
-
+@include('admin.inventory.categoryModals.editModal')
+@include('admin.inventory.unitModal.editModal')
 
 @endsection
 
@@ -189,6 +219,7 @@
   <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/inventory/category_unit.css') }}">
   @endpush
 @endonce
 
@@ -196,7 +227,40 @@
   @push('scripts')
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
-  <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTableFilter.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTableFilter.js') }}"></script>
+
+  <script>
+    function openModal(id){
+      document.getElementById(id).style.display = 'flex';
+      document.getElementById('headDropdown').style.display = 'none';
+      }
+
+    function closeModal(id){
+    document.getElementById(id).style.display = 'none';
+    }
+
+    function openCategoryEditModal(id, name) {
+
+    document.getElementById('editCategoryForm').action =
+        "/admin/menu/categories_units/" + id;
+
+    document.getElementById('editCategoryName').value = name;
+
+    document.getElementById('editCategoryModal').style.display = "flex";
+}
+
+function openUnitEditModal(id, name, abbreviation) {
+
+    document.getElementById('editUnitForm').action =
+        "/admin/menu/categories_units/" + id;
+
+    document.getElementById('editUnitName').value = name;
+
+    document.getElementById('editUnitAbbreviation').value = abbreviation;
+
+    document.getElementById('editUnitModal').style.display = "flex";
+}
+  </script>
   @endpush
 @endonce

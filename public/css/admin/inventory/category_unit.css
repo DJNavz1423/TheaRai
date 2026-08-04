@@ -1,0 +1,5 @@
+.filters{
+  .ts-wrapper:last-child{
+    margin-left: 0 !important;
+  }
+}

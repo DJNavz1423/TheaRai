@@ -104,12 +104,13 @@ Route::middleware(['auth'])->group(function(){
             ->name('menu.destroy');
 
         Route::get('/menu/categories', [MenuCategoryController::class, 'index'])
-        ->name('admin.menu.categories');
+            ->name('admin.menu.categories');
 
         Route::post('/menu/categories_units', [Category_UnitsController::class, 'store'])
-        ->name('admin.menu.categories_units.store');
+            ->name('admin.menu.categories_units.store');
 
-
+        Route::put('/menu/categories_units/{id}', [Category_UnitsController::class, 'update'])
+            ->name('admin.menu.categories_units.update');
 
 
         #tables

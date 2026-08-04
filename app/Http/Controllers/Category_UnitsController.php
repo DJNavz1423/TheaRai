@@ -67,4 +67,54 @@ class Category_UnitsController extends Controller
 
         abort(404);
     }
+
+    public function update(Request $request, $id){
+        if ($request->table == 'category') {
+
+            $validated = $request->validate([
+                'name' => 'required|unique:pgsql.laravel.ingredient_categories,name,' . $id,
+            ]);
+
+            DB::table('laravel.ingredient_categories')
+                ->where('id', $id)
+                ->update([
+                    'name' => $validated['name'],
+                ]);
+
+            $this->logActivity(
+                'updated',
+                'ingredient_category',
+                $id,
+                "Updated ingredient category: {$validated['name']}"
+            );
+
+            return back()->with('success', 'Category updated.');
+        }
+
+        if ($request->table == 'unit') {
+
+            $validated = $request->validate([
+                'name' => 'required|unique:pgsql.laravel.units,name,' . $id,
+                'abbreviation' => 'required|unique:pgsql.laravel.units,abbreviation,' . $id,
+            ]);
+
+            DB::table('laravel.units')
+                ->where('id', $id)
+                ->update([
+                    'name' => $validated['name'],
+                    'abbreviation' => strtoupper($validated['abbreviation']),
+                ]);
+
+            $this->logActivity(
+                'updated',
+                'unit',
+                $id,
+                "Updated unit: {$validated['name']} / (" . strtoupper($validated['abbreviation']) . ")"
+            );
+
+            return back()->with('success', 'Unit updated.');
+        }
+
+        abort(404);
+    }
 }

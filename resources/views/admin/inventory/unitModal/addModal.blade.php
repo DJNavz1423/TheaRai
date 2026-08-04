@@ -28,7 +28,7 @@
                     <div class="input-group">
                         <label>Abbreviation</label>
 
-                    <input type="text" name="abbreviation" placeholder="e.g. kg" maxlength="5" required>
+                    <input type="text" name="abbreviation" placeholder="e.g. KG" maxlength="5" required>
                     </div>
                 </div>
             </div>
