@@ -26,6 +26,28 @@ class ArchiveController extends Controller
             )
             ->get();
 
+        $trashedCategories = DB::table('laravel.ingredient_categories')
+            ->whereNotNull('deleted_at')
+            ->select(
+                'id',
+                'name',
+                DB::raw("'Ingredient Category' as type"),
+                'deleted_at',
+                DB::raw("'ingredient_categories' as table_name")
+            )
+            ->get();
+
+        $trashedUnits = DB::table('laravel.units')
+            ->whereNotNull('deleted_at')
+            ->select(
+                'id',
+                DB::raw("CONCAT(name, ' (', abbreviation, ')') as name"),
+                DB::raw("'Unit' as type"),
+                'deleted_at',
+                DB::raw("'units' as table_name")
+            )
+            ->get();
+
         $trashedMenuItems = DB::table('laravel.menu_items')
             ->whereNotNull('deleted_at')
             ->select('id', 'name', DB::raw("'Menu Item' as type"), 'deleted_at', DB::raw("'menu_items' as table_name"))
@@ -49,6 +71,8 @@ class ArchiveController extends Controller
             
         $archives = $trashedIngredients
             ->merge($trashedBranchInventory)
+            ->merge($trashedCategories)
+            ->merge($trashedUnits)
             ->merge($trashedMenuItems)
             ->merge($trashedUsers)
             ->merge($trashedTables)
@@ -61,7 +85,8 @@ class ArchiveController extends Controller
         $table = $request->input('table_name');
         $id = $request->input('id');
 
-        $allowedTables = ['ingredients', 'branch_inventory', 'menu_items', 'users', 'tables'];
+        $allowedTables = ['ingredients', 'ingredient_categories',
+    'units', 'branch_inventory', 'menu_items', 'users', 'tables'];
 
         if(!in_array($table, $allowedTables)){
             return back()->with('error', 'Invalid table reference!');      
@@ -86,7 +111,7 @@ class ArchiveController extends Controller
 
         $updateData = ['deleted_at' => null];
 
-        if ($table !== 'branch_inventory') {
+        if (!in_array($table, ['branch_inventory', 'ingredient_categories', 'units'])) {
             $updateData['updated_at'] = now();
         }
 
@@ -96,6 +121,8 @@ class ArchiveController extends Controller
 
         $modules = [
             'ingredients' => 'ingredient',
+            'ingredient_categories' => 'ingredient_category',
+            'units'       => 'unit',
             'menu_items'  => 'menu_item',
             'users'       => 'user',
             'tables'      => 'table'

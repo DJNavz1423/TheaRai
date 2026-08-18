@@ -11,9 +11,12 @@ class Category_UnitsController extends Controller
     public function index(){
         $categories = DB::table('laravel.ingredient_categories')
             ->orderBy('created_at', 'desc')
+            ->whereNull('deleted_at')
             ->get();
 
         $units = DB::table('laravel.units')
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'desc')
             ->get();
 
 
@@ -113,6 +116,68 @@ class Category_UnitsController extends Controller
             );
 
             return back()->with('success', 'Unit updated.');
+        }
+
+        abort(404);
+    }
+
+    public function destroy(Request $request, $id){
+        if ($request->table === 'category') {
+
+            $category = DB::table('laravel.ingredient_categories')
+                ->where('id', $id)
+                ->first();
+
+            if (!$category) {
+                return back()->with('error', 'Category not found.');
+            }
+
+            DB::table('laravel.ingredient_categories')
+                ->where('id', $id)
+                ->update([
+                    'deleted_at' => now()
+                ]);
+
+            $this->logActivity(
+                'archived',
+                'ingredient_category',
+                $id,
+                "Moved ingredient category to trash: {$category->name}"
+            );
+
+            return back()->with(
+                'success',
+                'Category moved to trash successfully.'
+            );
+        }
+
+        if ($request->table === 'unit') {
+
+            $unit = DB::table('laravel.units')
+                ->where('id', $id)
+                ->first();
+
+            if (!$unit) {
+                return back()->with('error', 'Unit not found.');
+            }
+
+            DB::table('laravel.units')
+                ->where('id', $id)
+                ->update([
+                    'deleted_at' => now()
+                ]);
+
+            $this->logActivity(
+                'archived',
+                'unit',
+                $id,
+                "Moved unit to trash: {$unit->name} ({$unit->abbreviation})"
+            );
+
+            return back()->with(
+                'success',
+                'Unit moved to trash successfully.'
+            );
         }
 
         abort(404);

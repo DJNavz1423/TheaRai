@@ -59,7 +59,7 @@
       </div>
 
       <div class="table-container border">
-        <table role="table">
+        <table role="table" id="categoryTable">
           <thead>
             <tr>
               <th>Category Name</th>
@@ -70,7 +70,9 @@
 
           <tbody role="rowgroup">
             @foreach($categories as $category)
-              <tr role="row" class="table-row">
+              <tr role="row" class="category-row"
+              data-name="{{ strtolower($category->name) }}"
+              data-created="{{ strtotime($category->created_at ?? now()) }}">
                 <td role="cell">{{ $category->name }}</td>
 
                 <td role="cell">{{ $category->created_at ? \Carbon\Carbon::parse($category->created_at)->format('F j, Y') : 'N/A' }}</td>
@@ -99,7 +101,7 @@
                           Edit
                         </button>
 
-                        <button type="button" class="btn dropdown-item dropdown-red">
+                        <button type="button" class="btn dropdown-item dropdown-red"  onclick="openCategoryDeleteModal( {{ $category->id }}, '{{ $category->name }}')">
                           <span class="icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm200-284 76 76q11 11 28 11t28-11q11-11 11-28t-11-28l-76-76 76-76q11-11 11-28t-11-28q-11-11-28-11t-28 11l-76 76-76-76q-11-11-28-11t-28 11q-11 11-11 28t11 28l76 76-76 76q-11 11-11 28t11 28q11 11 28 11t28-11l76-76Z"/></svg>
                           </span>
@@ -139,7 +141,7 @@
         </div>
 
         <div class="table-container border">
-          <table role="table">
+          <table role="table" id="unitTable">
             <thead>
               <tr>
                 <th>Unit Name</th>
@@ -151,7 +153,10 @@
 
             <tbody role="rowgroup">
               @foreach($units as $unit)
-                <tr role="row" class="table-row">
+                <tr role="row" class="unit-row"
+                data-name="{{ strtolower($unit->name) }}"
+                data-abbreviation="{{ strtolower($unit->abbreviation) }}"
+                data-created="{{ strtotime($unit->created_at ?? now()) }}">
                   <td role="cell">{{ $unit->name }}</td>
 
                   <td role="cell">{{ $unit->abbreviation }}</td>
@@ -182,7 +187,7 @@
                             Edit
                           </button>
 
-                          <button type="button" class="btn dropdown-item dropdown-red">
+                          <button type="button" class="btn dropdown-item dropdown-red" onclick="openUnitDeleteModal( {{ $unit->id }},'{{ $unit->name }}')">
                             <span class="icon-wrapper">
                               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm200-284 76 76q11 11 28 11t28-11q11-11 11-28t-11-28l-76-76 76-76q11-11 11-28t-11-28q-11-11-28-11t-28 11l-76 76-76-76q-11-11-28-11t-28 11q-11 11-11 28t11 28l76 76-76 76q-11 11-11 28t11 28q11 11 28 11t28-11l76-76Z"/></svg>
                             </span>
@@ -208,6 +213,9 @@
 @include('admin.inventory.categoryModals.editModal')
 @include('admin.inventory.unitModal.editModal')
 
+@include('admin.inventory.categoryModals.deleteModal')
+@include('admin.inventory.unitModal.deleteModal')
+
 @endsection
 
 @once
@@ -228,7 +236,7 @@
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
-  <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTableFilter.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsCategoryUnitFilter.js') }}"></script>
 
   <script>
     function openModal(id){
@@ -261,6 +269,30 @@ function openUnitEditModal(id, name, abbreviation) {
 
     document.getElementById('editUnitModal').style.display = "flex";
 }
+  </script>
+
+  <script>
+      function openCategoryDeleteModal(id, name) {
+          document.getElementById('deleteCategoryForm').action =
+              "/admin/menu/categories_units/" + id;
+
+          document.getElementById('deleteCategoryName').innerText =
+              name;
+
+          document.getElementById('deleteCategoryModal').style.display =
+              'flex';
+      }
+
+      function openUnitDeleteModal(id, name) {
+          document.getElementById('deleteUnitForm').action =
+              "/admin/menu/categories_units/" + id;
+
+          document.getElementById('deleteUnitName').innerText =
+              name;
+
+          document.getElementById('deleteUnitModal').style.display =
+              'flex';
+      }
   </script>
   @endpush
 @endonce

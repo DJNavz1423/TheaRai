@@ -112,6 +112,9 @@ Route::middleware(['auth'])->group(function(){
         Route::put('/menu/categories_units/{id}', [Category_UnitsController::class, 'update'])
             ->name('admin.menu.categories_units.update');
 
+        Route::delete('/menu/categories_units/{id}', [Category_UnitsController::class, 'destroy'])
+            ->name('admin.menu.categories_units.destroy');
+
 
         #tables
         Route::get('/tables', [TableController::class, 'index'])
