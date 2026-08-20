@@ -251,7 +251,7 @@
     function openCategoryEditModal(id, name) {
 
     document.getElementById('editCategoryForm').action =
-        "/admin/menu/categories_units/" + id;
+        "/admin/inventory/categories_units/" + id;
 
     document.getElementById('editCategoryName').value = name;
 
@@ -261,7 +261,7 @@
 function openUnitEditModal(id, name, abbreviation) {
 
     document.getElementById('editUnitForm').action =
-        "/admin/menu/categories_units/" + id;
+        "/admin/inventory/categories_units/" + id;
 
     document.getElementById('editUnitName').value = name;
 
@@ -274,7 +274,7 @@ function openUnitEditModal(id, name, abbreviation) {
   <script>
       function openCategoryDeleteModal(id, name) {
           document.getElementById('deleteCategoryForm').action =
-              "/admin/menu/categories_units/" + id;
+              "/admin/inventory/categories_units/" + id;
 
           document.getElementById('deleteCategoryName').innerText =
               name;
@@ -285,7 +285,7 @@ function openUnitEditModal(id, name, abbreviation) {
 
       function openUnitDeleteModal(id, name) {
           document.getElementById('deleteUnitForm').action =
-              "/admin/menu/categories_units/" + id;
+              "/admin/inventory/categories_units/" + id;
 
           document.getElementById('deleteUnitName').innerText =
               name;
