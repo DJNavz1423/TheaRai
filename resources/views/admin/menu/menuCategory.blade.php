@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <div class="container table-container border mb-5">
+    <div class="container table-container border">
       <table role="table">
         <thead>
           <tr role="row">
@@ -48,18 +48,20 @@
 
         <tbody role="rowgroup">
           @foreach ($categories as $category)
-          <tr role="row">
+          <tr role="row" class="menu-category-row"
+          data-name="{{ strtolower($category->name) }}"
+          data-created="{{ strtotime($category->created_at ?? now()) }}">
             <td role="cell">{{ $category->name }}</td>
             <td role="cell">{{ $category->created_at ? \Carbon\Carbon::parse($category->created_at)->format('M d, Y') : '--'}}</td>
             <td role="cell">
               <div class="row" style="justify-content: center; align-items: center; gap: 10px;">
-                <button type="button" class="btn btn-icon">
+                <button type="button" class="btn btn-icon" onclick="openEditModal({{ $category->id }}, '{{ $category->name }}')">
                   <span class="icon-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0d884e"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
                   </span>
                 </button>
 
-                <button type="button" class="btn btn-icon">
+                <button type="button" class="btn btn-icon" onclick="openDeleteModal({{ $category->id }}, '{{ addslashes($category->name) }}')">
                   <span class="icon-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm200-284 76 76q11 11 28 11t28-11q11-11 11-28t-11-28l-76-76 76-76q11-11 11-28t-11-28q-11-11-28-11t-28 11l-76 76-76-76q-11-11-28-11t-28 11q-11 11-11 28t11 28l76 76-76 76q-11 11-11 28t11 28q11 11 28 11t28-11l76-76Z"/></svg>
                   </span>
@@ -73,6 +75,11 @@
       </table>
     </div>
   </div>
+
+  <!-- Modals -->
+  @include('admin.menu.menuCategory_modals.addModal')
+  @include('admin.menu.menuCategory_modals.editModal')
+  @include('admin.menu.menuCategory_modals.deleteModal')
 @endsection
 
 @once
@@ -91,6 +98,32 @@
   @push('scripts')
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
-  <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTableFilter.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsMenuCategoryFilter.js') }}"></script>
+
+  <script>
+    function openEditModal(id, name) {
+
+        document.getElementById('editMenuCategoryForm').action =
+            "/admin/menu/categories/" + id;
+
+        document.getElementById('editMenuCategoryName').value =
+            name;
+
+        document.getElementById('editModal').style.display = 'flex';
+    }
+</script>
+
+<script>
+    function openDeleteModal(id, name) {
+
+        document.getElementById('deleteForm').action =
+            "/admin/menu/categories/" + id;
+
+        document.getElementById('deleteCategoryName').innerText =
+            name;
+
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+</script>
   @endpush
 @endonce

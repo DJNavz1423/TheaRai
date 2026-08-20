@@ -64,8 +64,17 @@ Route::middleware(['auth'])->group(function(){
         
         Route::post('/inventory/{id}/reduce-stock', [IngredientController::class, 'reduceStock']);
 
-        Route::get('/inventory/categories', [Category_UnitsController::class, 'index'])
-        ->name('admin.inventory.categories');
+        Route::get('/inventory/categories_units', [Category_UnitsController::class, 'index'])
+            ->name('admin.inventory.categories_units');
+
+        Route::post('/inventory/categories_units', [Category_UnitsController::class, 'store'])
+            ->name('admin.inventory.categories_units.store');
+
+        Route::put('/inventory/categories_units/{id}', [Category_UnitsController::class, 'update'])
+            ->name('admin.inventory.categories_units.update');
+
+        Route::delete('/inventory/categories_units/{id}', [Category_UnitsController::class, 'destroy'])
+            ->name('admin.inventory.categories_units.destroy');
         
 
 
@@ -106,14 +115,14 @@ Route::middleware(['auth'])->group(function(){
         Route::get('/menu/categories', [MenuCategoryController::class, 'index'])
             ->name('admin.menu.categories');
 
-        Route::post('/menu/categories_units', [Category_UnitsController::class, 'store'])
-            ->name('admin.menu.categories_units.store');
+        Route::post('/menu/categories', [MenuCategoryController::class, 'store'])
+            ->name('admin.menu.categories.store');
 
-        Route::put('/menu/categories_units/{id}', [Category_UnitsController::class, 'update'])
-            ->name('admin.menu.categories_units.update');
+        Route::put('/menu/categories/{id}', [MenuCategoryController::class, 'update'])
+            ->name('admin.menu.categories.update');
 
-        Route::delete('/menu/categories_units/{id}', [Category_UnitsController::class, 'destroy'])
-            ->name('admin.menu.categories_units.destroy');
+        Route::delete('/menu/categories/{id}', [MenuCategoryController::class, 'destroy'])
+            ->name('admin.menu.categories.destroy');
 
 
         #tables
