@@ -33,6 +33,10 @@ class UserController extends Controller
                 'unique:pgsql.laravel.users,email', 
                 'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com\.ph$/i'
             ], 
+            'phone_number' => [
+                'nullable',
+                'digits:11',
+            ],
             'password' => 'required|min:10',
             'role' => 'required|in:admin,staff',
             'branch_id' => 'exclude_if:role,admin|required|exists:pgsql.laravel.branches,id'
@@ -43,6 +47,7 @@ class UserController extends Controller
         $userId = DB::table('laravel.users')->insertGetId([
             'name' => $validated['name'],
             'email' => strtolower($validated['email']),
+            'phone_number' => $validated['phone_number'] ?? null,
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
             'branch_id' => $validated['role'] === 'admin' ? null : $validated['branch_id'],
@@ -65,11 +70,15 @@ class UserController extends Controller
                 'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com\.ph$/i',
                 'unique:pgsql.laravel.users,email,' . $id,
             ],
-
+            'phone_number' => [
+                'nullable',
+                'digits:11',
+            ],
             'role' => 'required|in:admin,staff',
-
             'branch_id' =>
                 'exclude_if:role,admin|required|exists:pgsql.laravel.branches,id',
+        ], [
+            'email.regex' => 'The email must end with a valid @thearai.com.ph domain.'
         ]);
 
         DB::table('laravel.users')
@@ -77,6 +86,7 @@ class UserController extends Controller
             ->update([
                 'name' => $validated['name'],
                 'email' => strtolower($validated['email']),
+                'phone_number' => $validated['phone_number'] ?? null,
                 'role' => $validated['role'],
                 'branch_id' => $validated['role'] === 'admin'
                     ? null

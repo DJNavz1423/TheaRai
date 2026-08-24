@@ -46,6 +46,22 @@
                 </div>
 
                 <div class="input-group mb-3">
+                    <label for="edit_phone">Phone Number</label>
+
+                    <input
+                        type="text"
+                        name="phone_number"
+                        id="edit_phone"
+                        maxlength="11"
+                        minlength="11"
+                        inputmode="numeric"
+                        pattern="[0-9]{11}"
+                        placeholder="Optional: 09XXXXXXXXX"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)"
+                    >
+                </div>
+
+                <div class="input-group mb-3">
                     <label for="edit_role">Role</label>
 
                     <select

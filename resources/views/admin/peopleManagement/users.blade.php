@@ -55,6 +55,7 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Contact No.</th>
                 <th>Assigned Branch</th>
                 <th>Last Online</th>
                 <th>Joined Date</th>
@@ -75,11 +76,22 @@
                     </div>
                 </td>
 
-                <td data-cell="email" role="cell"><span class="item-data">{{ $user->email }}</span></td>
+                <td data-cell="email" role="cell">
+                    <span class="item-data">{{ $user->email }}</span>
+                </td>
+
                 <td data-cell="role" role="cell">
                     <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}">
                         {{ ucfirst($user->role) }}
                     </span>
+                </td>
+
+                <td data-cell="contact" role="cell">
+                    @if(empty($user->phone_number))
+                        --
+                    @else
+                        <span class="item-data">{{ $user->phone_number }}</span>
+                    @endif
                 </td>
 
                 <td data-cell="branch" role="cell">
@@ -112,6 +124,7 @@
                         {{ $user->created_at ? \Carbon\Carbon::parse($user->created_at)->format('M d, Y') : '--' }}
                     </span>
                 </td>
+                
                 <td data-cell="actions" role="cell">
                     <div class="dropdown-wrapper">
                             <button type="button" class="more-actions" onclick="toggleDropdown(this)">
@@ -126,6 +139,7 @@
                                     data-id="{{ $user->id }}"
                                     data-name="{{ $user->name }}"
                                     data-email="{{ $user->email }}"
+                                    data-phone="{{ $user->phone_number ?? '' }}"
                                     data-role="{{ $user->role }}"
                                     data-branch="{{ $user->branch_id }}"
                                     >
@@ -161,7 +175,8 @@
 </div>
 </div>
 
-<!-- Modals -->
+{{-- Modals --}}
+
 @include('admin.peopleManagement.modals.addModal')
 
 @include('admin.peopleManagement.modals.editModal')
@@ -289,6 +304,8 @@
                 document.getElementById('edit_name').value = this.dataset.name;
 
                 document.getElementById('edit_email').value = this.dataset.email;
+
+                document.getElementById('edit_phone').value = this.dataset.phone || '';
 
                 const roleSelect = document.getElementById('edit_role');
                 const branchSelect = document.getElementById('edit_branch');

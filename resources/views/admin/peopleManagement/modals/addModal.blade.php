@@ -23,6 +23,24 @@
                 </div>
 
                 <div class="input-group mb-3">
+                    <label for="user-phone-input">Phone Number</label>
+                    <input
+                        type="text"
+                        name="phone_number"
+                        id="user-phone-input"
+                        maxlength="11"
+                        minlength="11"
+                        inputmode="numeric"
+                        pattern="[0-9]{11}"
+                        placeholder="Optional: 09XXXXXXXXX"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)"
+                    >
+                    <small class="text-muted">
+                        Optional
+                    </small>
+                </div>
+
+                <div class="input-group mb-3">
                     <label for="user-password-input">Password</label>
                     <input type="password" name="password" id="user-password-input" minlength="10" required placeholder="Min. 10 characters">
                 </div>
