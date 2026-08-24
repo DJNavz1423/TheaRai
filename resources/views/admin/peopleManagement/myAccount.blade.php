@@ -9,7 +9,7 @@
     </div>
 
     <div class="modal-dialog">
-      <form id="accountForm" action="{{ route('my.account.update') }}" method="POST" class="modal-content">
+      <form id="accountForm" action="{{ route('my.account.update') }}" method="POST" class="modal-content" autocomplete="off">
         @csrf
         @method('PUT')
 
@@ -33,40 +33,18 @@
           </div>
 
           {{-- Email --}}
-          <div class="input-group mb-3">
-            <label for="account_email">Email Address</label>
+            <div class="input-group mb-3">
+                <label for="account_email">Email Address</label>
 
-            <div class="row" style="gap: 0;">
                 <input
-                    type="text"
+                    type="email"
                     id="account_email"
-                    value="{{ str_replace('@thearai.com.ph', '', $user->email) }}"
+                    name="email"
+                    value="{{ $user->email }}"
                     required
-                    style="flex: 1;"
+                    maxlength="255"
                 >
-
-                <span
-                    style="
-                        display: flex;
-                        align-items: center;
-                        padding: 0 12px;
-                        background: var(--secondary-light);
-                        border: 1px solid var(--border);
-                        border-left: none;
-                        white-space: nowrap;
-                    "
-                >
-                    @thearai.com.ph
-                </span>
             </div>
-
-            <input
-                type="hidden"
-                name="email"
-                id="account_full_email"
-                value="{{ $user->email }}"
-            >
-          </div>
 
           {{-- Phone --}}
           <div class="input-group mb-3">
@@ -82,7 +60,6 @@
                 inputmode="numeric"
                 pattern="[0-9]{11}"
                 placeholder="Enter your phone number"
-                oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11)"
             >
           </div>
 
@@ -131,98 +108,212 @@
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const nameInput =
-        document.getElementById('account_name');
+    document.addEventListener('DOMContentLoaded', function () {
 
-    const emailInput =
-        document.getElementById('account_email');
+        const form =
+            document.getElementById('accountForm');
 
-    const fullEmailInput =
-        document.getElementById('account_full_email');
+        const nameInput =
+            document.getElementById('account_name');
 
-    const phoneInput =
-        document.getElementById('account_phone');
+        const emailInput =
+            document.getElementById('account_email');
 
-    const updateButton =
-        document.getElementById('updateAccountButton');
+        const phoneInput =
+            document.getElementById('account_phone');
 
-    // Original values from database
-    const originalName =
-        @json($user->name);
+        const joinedInput =
+            document.getElementById('account_joined');
 
-    const originalEmail =
-        @json($user->email);
+        const updateButton =
+            document.getElementById('updateAccountButton');
 
-    const originalPhone =
-        @json($user->phone_number ?? '');
+        const originalName =
+            @json($user->name);
 
-    function updateEmailValue() {
+        const originalEmail =
+            @json($user->email);
 
-        const emailName =
-            emailInput.value.trim();
+        const originalPhone =
+            @json($user->phone_number ?? '');
 
-        fullEmailInput.value =
-            emailName + '@thearai.com.ph';
-    }
+        /*
+        * Keep the original joined date in the browser only for display.
+        * It is NOT submitted to the server.
+        */
+        const originalJoinedDate =
+            @json(
+                $user->created_at
+                    ? \Carbon\Carbon::parse($user->created_at)->format('F j, Y')
+                    : '--'
+            );
 
-    function checkForChanges() {
+        function enforceEmailDomain() {
 
-        updateEmailValue();
+            const domain = '@thearai.com.ph';
 
-        const currentName =
-            nameInput.value.trim();
+            let value = emailInput.value;
 
-        const currentEmail =
-            fullEmailInput.value.trim().toLowerCase();
+            /*
+            * Remove anything after the first @.
+            * This means the user can never change the domain.
+            */
+            const atPosition = value.indexOf('@');
 
-        const currentPhone =
-            phoneInput.value.trim();
+            if (atPosition !== -1) {
+                value = value.substring(0, atPosition);
+            }
 
-        const changed =
-            currentName !== originalName ||
-            currentEmail !== originalEmail.toLowerCase() ||
-            currentPhone !== originalPhone;
+            /*
+            * Only allow characters valid before the @.
+            */
+            value = value.replace(
+                /[^a-zA-Z0-9._%+-]/g,
+                ''
+            );
 
-        updateButton.disabled = !changed;
-    }
-
-    nameInput.addEventListener(
-        'input',
-        checkForChanges
-    );
-
-    emailInput.addEventListener(
-        'input',
-        function () {
-
-            // Only allow valid characters for the
-            // part before @thearai.com.ph
-            this.value =
-                this.value.replace(
-                    /[^a-zA-Z0-9._%+-]/g,
-                    ''
-                );
-
-            checkForChanges();
+            emailInput.value =
+                value + domain;
         }
-    );
 
-    phoneInput.addEventListener(
-        'input',
-        function () {
+        function checkForChanges() {
 
-            this.value =
-                this.value
-                    .replace(/[^0-9]/g, '')
-                    .slice(0, 11);
+            enforceEmailDomain();
 
-            checkForChanges();
+            const currentName =
+                nameInput.value.trim();
+
+            const currentEmail =
+                emailInput.value.trim().toLowerCase();
+
+            const currentPhone =
+                phoneInput.value.trim();
+
+            const changed =
+                currentName !== originalName ||
+                currentEmail !== originalEmail.toLowerCase() ||
+                currentPhone !== originalPhone;
+
+            updateButton.disabled =
+                !changed;
         }
-    );
 
-    checkForChanges();
-  });
+        /*
+        * Name
+        */
+        nameInput.addEventListener(
+            'input',
+            checkForChanges
+        );
+
+        /*
+        * Email
+        */
+        emailInput.addEventListener(
+            'input',
+            function () {
+                enforceEmailDomain();
+                checkForChanges();
+            }
+        );
+
+        emailInput.addEventListener(
+            'keydown',
+            function (event) {
+
+                const domain =
+                    '@thearai.com.ph';
+
+                const cursorPosition =
+                    this.selectionStart;
+
+                /*
+                * Prevent Backspace/Delete from removing
+                * the domain.
+                */
+                if (
+                    cursorPosition > this.value.indexOf('@') ||
+                    (
+                        cursorPosition === this.value.indexOf('@') &&
+                        (
+                            event.key === 'Delete' ||
+                            event.key === 'Backspace'
+                        )
+                    )
+                ) {
+                    event.preventDefault();
+
+                    /*
+                    * Put cursor before the @.
+                    */
+                    const atPosition =
+                        this.value.indexOf('@');
+
+                    if (atPosition !== -1) {
+                        this.setSelectionRange(
+                            atPosition,
+                            atPosition
+                        );
+                    }
+
+                    return;
+                }
+
+                /*
+                * Prevent typing another @.
+                */
+                if (event.key === '@') {
+                    event.preventDefault();
+                }
+            }
+        );
+
+        /*
+        * Phone
+        */
+        phoneInput.addEventListener(
+            'input',
+            function () {
+
+                this.value =
+                    this.value
+                        .replace(/[^0-9]/g, '')
+                        .slice(0, 11);
+
+                checkForChanges();
+            }
+        );
+
+        /*
+        * Joined date:
+        * Always restore the original display value.
+        *
+        * More importantly, it is NOT named "created_at",
+        * therefore it is never submitted to the controller.
+        */
+        joinedInput.addEventListener(
+            'input',
+            function () {
+                this.value =
+                    originalJoinedDate;
+            }
+        );
+
+        /*
+        * Extra protection:
+        * Before submitting, force the joined-date display back
+        * to its original value.
+        */
+        form.addEventListener(
+            'submit',
+            function () {
+                joinedInput.value =
+                    originalJoinedDate;
+            }
+        );
+
+        checkForChanges();
+    });
 </script>
 
     @if(session('error'))

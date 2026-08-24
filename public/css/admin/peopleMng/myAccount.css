@@ -4,15 +4,44 @@
 
 .modal-content{
   align-items: normal;
-  padding: 2rem;
   gap: 0;
+  background-color: var(--primary-deep);
+  color: var(--light-pure);
+}
+
+.modal-header{
+  padding: 1rem;
+  h2{
+    color: var(--light-pure);
+  }
+}
+
+.modal-body{
+  padding: 0 1rem 0 1rem;
+  >.input-group{
+    gap: 0.5rem;
+  }
+  input{
+    color: var(--light-pure);
+    border: 1px solid var(--secondary-lighter);
+  }
+  input::placeholder{
+    color: var(--secondary-light);
+  }
+  input:focus{
+    border-color: var(--quaternary) !important;
+    color: var(--quaternary);
+  }
 }
 
 .modal-footer{
+  padding: 1rem;
   >button:first-child{
     color: var(--light-pure);
-    background-color: var(--tertiary-light);
+    background-color: var(--quaternary-darker);
     border: 0;
+    border-radius: 8px;
+    border-top-left-radius: 0;
 
     &:disabled,
     &[disabled] {
