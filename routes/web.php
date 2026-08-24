@@ -13,6 +13,7 @@ use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\Category_UnitsController;
 
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserAccountController;
 
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MenuCategoryController;
@@ -92,6 +93,15 @@ Route::middleware(['auth'])->group(function(){
 
         Route::put('/users/{id}/password',[UserController::class, 'updatePassword']);
 
+            # User Account Routes
+            Route::get('/my-account', [UserAccountController::class, 'index'])
+                ->name('admin.settings.myAccount');
+
+            Route::put('/my-account', [UserAccountController::class, 'update'])
+                ->name('my.account.update');
+
+
+
 
         # Menu Management Routes
 
@@ -147,9 +157,15 @@ Route::middleware(['auth'])->group(function(){
         Route::post('/expenses/regular', [ExpenseController::class, 'storeRegular']);
         Route::post('/expenses/restock', [ExpenseController::class, 'storeRestock']);
 
+        Route::put('/expenses/{id}', [ExpenseController::class, 'update'])
+            ->name('admin.expenses.update');
+
+        Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy'])
+            ->name('admin.expenses.destroy');
+
         #archive
         Route::get('/archive', [ArchiveController::class, 'index'])
-            ->name('admin.archive');
+            ->name('admin.settings.archive');
 
         Route::post('/archive/restore', [ArchiveController::class, 'restore']);
         Route::delete('/archive/force-delete', [ArchiveController::class, 'forceDelete']);
