@@ -45,6 +45,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 2rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--secondary-soft);
 
   .close-btn{
     padding: 4px;
