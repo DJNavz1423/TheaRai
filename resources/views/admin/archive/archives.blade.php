@@ -22,8 +22,13 @@
           <select id="filter-type" class="ts-filter">
               <option value="all" selected>All Types</option>
               <option value="ingredient">Ingredients</option>
+              <option value="ingredient category">Ingredient Category</option>
+              <option value="unit">Measurement Unit</option>
               <option value="menu item">Menu Items</option>
+              <option value="menu category">Menu Category</option>
+              <option value="table">Tables</option>
               <option value="user">Users</option>
+              <option value="expense">Expenses</option>
           </select>
 
           <select id="sort-items" class="ts-filter">
@@ -51,22 +56,29 @@
           @forelse($archives as $item)
           <tr role="row" class ="archive-row"
               data-name="{{ strtolower($item->name) }}"
-              data-type="{{ strtolower($item->type) }}"
+              data-type="{{ strtolower($item->filter_type) }}"
               data-created="{{ strtotime($item->deleted_at) }}">
-            <td role="cell"><span class="item-data">{{ $item->name }}</span></td>
-            <td role="cell"><span class="badge">{{ $item->type }}</span></td>
+            <td role="cell">
+              <span class="item-data">{{ $item->name }}</span>
+            </td>
+
+            <td role="cell">
+              <span class="badge">{{ $item->type }}</span>
+            </td>
+
             <td role="cell">
               <span class="item-data text-danger">{{ \Carbon\Carbon::parse($item->deleted_at)->diffForHumans() }}</span>
             </td>
+
             <td role="cell">
               <div class="action-btns">
-                <button type="button" class="btn btn-icon restore-btn" onclick="openRestoreModal({{ $item->id }}, '{{ $item->table_name }}', '{{ addslashes($item->name) }}')">
+                <button type="button" class="btn btn-icon restore-btn" onclick="openRestoreModal({{ $item->id }}, '{{ $item->table_name }}', '{{ $item->name }}')">
                   <span class="icon-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#29ad82"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm160-366v126q0 17 11.5 28.5T480-320q17 0 28.5-11.5T520-360v-126l36 35q11 11 27.5 11t28.5-12q11-11 11-28t-11-28L508-612q-12-12-28-12t-28 12L348-508q-11 11-11.5 27.5T348-452q11 11 27.5 11.5T404-451l36-35Z"/></svg>
                   </span>
                 </button>
 
-                <button type="button" class="btn btn-icon delete-btn" onclick="openForceDeleteModal({{ $item->id }}, '{{ $item->table_name }}', '{{ addslashes($item->name) }}')">
+                <button type="button" class="btn btn-icon delete-btn" onclick="openForceDeleteModal({{ $item->id }}, '{{ $item->table_name }}', '{{ $item->name }}')">
                   <span class="icon-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm200-284 76 76q11 11 28 11t28-11q11-11 11-28t-11-28l-76-76 76-76q11-11 11-28t-11-28q-11-11-28-11t-28 11l-76 76-76-76q-11-11-28-11t-28 11q-11 11-11 28t11 28l76 76-76 76q-11 11-11 28t11 28q11 11 28 11t28-11l76-76Z"/></svg>
                   </span>

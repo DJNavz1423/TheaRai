@@ -9,18 +9,28 @@ use Illuminate\View\View;
 class ArchiveController extends Controller
 {
     public function index(): View{
+
         $trashedIngredients = DB::table('laravel.ingredients')
             ->whereNotNull('deleted_at')
-            ->select('id', 'name', DB::raw("'Ingredient' as type"), 'deleted_at', DB::raw("'ingredients' as table_name"))
+            ->select(
+                'id',
+                'name',
+                DB::raw("'Ingredient' as type"),
+                DB::raw("'ingredient' as filter_type"),
+                'deleted_at',
+                DB::raw("'ingredients' as table_name")
+            )
             ->get();
 
         $trashedBranchInventory = DB::table('laravel.branch_inventory as bi')
             ->join('laravel.ingredients as i', 'bi.ingredient_id', '=', 'i.id')
+            ->join('laravel.branches as b', 'bi.branch_id', '=', 'b.id')
             ->whereNotNull('bi.deleted_at')
             ->select(
                 'bi.id',
-                'i.name as name', 
-                DB::raw("'Branch Ingredients' as type"),
+                'i.name as name',
+                DB::raw("CONCAT(b.name, ' Ingredient') as type"),
+                DB::raw("'ingredient' as filter_type"),
                 'bi.deleted_at',
                 DB::raw("'branch_inventory' as table_name")
             )
@@ -32,6 +42,7 @@ class ArchiveController extends Controller
                 'id',
                 'name',
                 DB::raw("'Ingredient Category' as type"),
+                DB::raw("'ingredient category' as filter_type"),
                 'deleted_at',
                 DB::raw("'ingredient_categories' as table_name")
             )
@@ -43,17 +54,19 @@ class ArchiveController extends Controller
                 'id',
                 DB::raw("CONCAT(name, ' (', abbreviation, ')') as name"),
                 DB::raw("'Unit' as type"),
+                DB::raw("'unit' as filter_type"),
                 'deleted_at',
                 DB::raw("'units' as table_name")
             )
             ->get();
-        
+
         $trashedMenuCategories = DB::table('laravel.menu_categories')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
                 'name',
                 DB::raw("'Menu Category' as type"),
+                DB::raw("'menu category' as filter_type"),
                 'deleted_at',
                 DB::raw("'menu_categories' as table_name")
             )
@@ -61,25 +74,52 @@ class ArchiveController extends Controller
 
         $trashedMenuItems = DB::table('laravel.menu_items')
             ->whereNotNull('deleted_at')
-            ->select('id', 'name', DB::raw("'Menu Item' as type"), 'deleted_at', DB::raw("'menu_items' as table_name"))
+            ->select(
+                'id',
+                'name',
+                DB::raw("'Menu Item' as type"),
+                DB::raw("'menu item' as filter_type"),
+                'deleted_at',
+                DB::raw("'menu_items' as table_name")
+            )
             ->get();
 
         $trashedUsers = DB::table('laravel.users')
             ->whereNotNull('deleted_at')
-            ->select('id', 'name', DB::raw("'User' as type"), 'deleted_at', DB::raw("'users' as table_name"))
+            ->select(
+                'id',
+                'name',
+                DB::raw("'User' as type"),
+                DB::raw("'user' as filter_type"),
+                'deleted_at',
+                DB::raw("'users' as table_name")
+            )
             ->get();
-        
-         $trashedTables = DB::table('laravel.tables')
+
+        $trashedTables = DB::table('laravel.tables')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
                 DB::raw("CONCAT('Table ', table_number) as name"),
                 DB::raw("'Table' as type"),
+                DB::raw("'table' as filter_type"),
                 'deleted_at',
                 DB::raw("'tables' as table_name")
             )
             ->get();
-            
+
+        $trashedExpenses = DB::table('laravel.expenses')
+            ->whereNotNull('deleted_at')
+            ->select(
+                'id',
+                'description as name',
+                DB::raw("'Expense' as type"),
+                DB::raw("'expense' as filter_type"),
+                'deleted_at',
+                DB::raw("'expenses' as table_name")
+            )
+            ->get();
+
         $archives = $trashedIngredients
             ->merge($trashedBranchInventory)
             ->merge($trashedCategories)
@@ -88,6 +128,7 @@ class ArchiveController extends Controller
             ->merge($trashedMenuItems)
             ->merge($trashedUsers)
             ->merge($trashedTables)
+            ->merge($trashedExpenses)
             ->sortByDesc('deleted_at');
 
         return view('admin.archive.archives', compact('archives'));
@@ -98,7 +139,7 @@ class ArchiveController extends Controller
         $id = $request->input('id');
 
         $allowedTables = ['ingredients', 'ingredient_categories',
-    'units', 'menu_categories', 'branch_inventory', 'menu_items', 'users', 'tables'];
+    'units', 'menu_categories', 'branch_inventory', 'menu_items', 'users', 'tables', 'expenses'];
 
         if(!in_array($table, $allowedTables)){
             return back()->with('error', 'Invalid table reference!');      
@@ -109,12 +150,20 @@ class ArchiveController extends Controller
                 ->join('laravel.ingredients as i', 'bi.ingredient_id', '=', 'i.id')
                 ->where('bi.id', $id)
                 ->value('i.name');
+
         } else if($table === 'tables'){
             $number = DB::table('laravel.tables')
                 ->where('id', $id)
                 ->value('table_number');
 
             $itemName = 'Table ' . $number;
+
+        } else if($table === 'expenses') {
+
+        $itemName = DB::table('laravel.expenses')
+            ->where('id', $id)
+            ->value('description');
+            
         } else {
             $itemName = DB::table('laravel.' . $table)
             ->where('id', $id)
@@ -139,7 +188,8 @@ class ArchiveController extends Controller
             'branch_inventory' => 'branch_inventory',
             'menu_items'  => 'menu_item',
             'users'       => 'user',
-            'tables'      => 'table'
+            'tables'      => 'table',
+            'expenses' => 'expense'
         ];
 
         $module = $modules[$table] ?? 'system';
@@ -154,7 +204,7 @@ class ArchiveController extends Controller
         $table = $request->input('table_name');
         $id = $request->input('id');
 
-        $allowedTables = ['ingredients', 'branch_inventory', 'menu_items', 'menu_categories', 'ingredient_categories', 'units', 'users', 'tables'];
+        $allowedTables = ['ingredients', 'branch_inventory', 'menu_items', 'menu_categories', 'ingredient_categories', 'units', 'users', 'tables', 'expenses'];
 
         if (!in_array($table, $allowedTables)) {
             return back()->with('error', 'Invalid table reference.');
@@ -186,7 +236,8 @@ class ArchiveController extends Controller
             'ingredient_categories' => 'ingredient_category',
             'units'       => 'unit',
             'users'       => 'user',
-            'tables'      => 'table'
+            'tables'      => 'table',
+            'expenses' => 'expense'
         ];
         
         $module = $modules[$table] ?? 'system';
