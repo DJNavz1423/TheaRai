@@ -47,33 +47,35 @@ class DashboardController extends Controller
         ];
 
         $expensesData = (object) [
-            'monthly_total' => DB::table('laravel.expenses')
+            'monthly_total' => DB::table('laravel.cash_transactions')
+                ->where('transaction_type', 'expense')
                 ->where('fund_source', 'cash_in_hand')
                 ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                ->sum('total_amount'),
+                ->sum('amount'),
         ];
 
         $totalMoneyIn = DB::table('laravel.orders')
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
-        $totalMoneyOut = DB::table('laravel.expenses')
+        $totalMoneyOut = DB::table('laravel.cash_transactions')
+            ->where('transaction_type', 'expense')
             ->where('fund_source', 'cash_in_hand')
-            ->sum('total_amount');
+            ->sum('amount');
 
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
         $recentTransactions = DB::table('laravel.orders')
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->orderBy('created_at', 'desc')
-            ->limit(6)
+            ->limit(7)
             ->get();
 
         $activityLogs = DB::table('laravel.activity_logs')
             ->select('created_at', 'action', 'model_type', 'description')
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->orderBy('created_at', 'desc')
-            ->limit(6)
+            ->limit(7)
             ->get();
 
         $recentActivities = $activityLogs;

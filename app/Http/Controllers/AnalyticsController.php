@@ -69,9 +69,10 @@ class AnalyticsController extends Controller
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
-        $totalMoneyOut = DB::table('laravel.expenses')
-            ->where('fund_source', 'cash_in_hand')
-            ->sum('total_amount');
+        $totalMoneyOut = DB::table('laravel.cash_transactions')
+                ->where('transaction_type', 'expense')
+                ->where('fund_source', 'cash_in_hand')
+                ->sum('amount');
 
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
