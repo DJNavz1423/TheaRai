@@ -1,6 +1,6 @@
 <div id="addUnitModal" class="modal" style="display:none;">
     <div class="modal-dialog">
-        <form action="{{ route('admin.menu.categories_units.store') }}" method="POST">
+        <form action="{{ route('admin.inventory.categories_units.store') }}" method="POST">
             @csrf
 
             <input type="hidden" name="table" value="unit">

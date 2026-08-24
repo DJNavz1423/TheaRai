@@ -1,6 +1,6 @@
 <div id="addCategoryModal" class="modal" style="display:none;">
     <div class="modal-dialog">
-         <form action="{{ route('admin.menu.categories_units.store') }}" method="POST" class="modal-content">
+         <form action="{{ route('admin.inventory.categories_units.store') }}" method="POST" class="modal-content">
             @csrf
 
             <input type="hidden" name="table" value="category">
