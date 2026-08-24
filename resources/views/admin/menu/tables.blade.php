@@ -107,7 +107,7 @@
     </div>
 </div>
 
-<!-- Include Modals -->
+{{-- Include Modals --}}
 @include('admin.menu.tableModals.addModal')
 
 @include('admin.menu.tableModals.editModal')

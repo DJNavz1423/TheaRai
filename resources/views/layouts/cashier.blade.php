@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- css links -->
+  {{-- css links --}}
   <link rel="icon" href="{{ asset('img/logos/TheaRaiLogo_Secondary.ico') }}" type="image/x-icon">
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
@@ -24,7 +24,7 @@
   <aside id="sidebar">
     <nav>
       <ul>
-        <!-- logo -->
+        {{-- logo --}}
         <li>
           <span class="logo d-flex">
             <img src="{{ asset('img/logos/TheaRaiLogo_Secondary.webp') }}" alt="TheaRai Logo">
@@ -35,7 +35,7 @@
           </button>
         </li>
 
-        <!-- Navigation tabs -->
+        {{-- Navigation tabs --}}
 
         <li class="{{ request()->routeIs('cashier.pos') ? 'active' : '' }}">
           <a href="{{ url('/cashier/pos') }}">
@@ -57,7 +57,7 @@
           <span class="qr-notif-badge">0</span>
         </li>
 
-        <!-- dropdown sales -->
+        {{-- dropdown sales --}}
         <li>
           <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn">
             <span class="icon-wrapper">
@@ -78,9 +78,9 @@
             </div>
           </ul>
         </li>
-          <!-- end of sales -->
+          {{-- end of sales --}}
 
-          <!-- dropdown settings -->
+          {{-- dropdown settings --}}
         <li>
            <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn">
             <span class="icon-wrapper">
@@ -102,7 +102,8 @@
             </div>
           </ul>
         </li>
-          <!-- end of settings -->
+        
+        {{-- end of settings --}}
 
         <li>
           <form action="{{ url('/logout') }}" method="POST">

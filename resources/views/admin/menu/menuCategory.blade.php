@@ -52,7 +52,9 @@
           data-name="{{ strtolower($category->name) }}"
           data-created="{{ strtotime($category->created_at ?? now()) }}">
             <td role="cell">{{ $category->name }}</td>
+            
             <td role="cell">{{ $category->created_at ? \Carbon\Carbon::parse($category->created_at)->format('M d, Y') : '--'}}</td>
+
             <td role="cell">
               <div class="row" style="justify-content: center; align-items: center; gap: 10px;">
                 <button type="button" class="btn btn-icon" onclick="openEditModal({{ $category->id }}, '{{ $category->name }}')">
