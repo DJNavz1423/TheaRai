@@ -12,6 +12,7 @@ class ExpenseController extends Controller
         $expenses = DB::table('laravel.expenses')
             ->leftJoin('laravel.branches', 'expenses.branch_id', '=', 'branches.id')
             ->select('expenses.*', 'branches.name as branch_name')
+            ->whereNull('expenses.deleted_at')
             ->orderBy('expenses.created_at', 'desc')
             ->get();
 
@@ -35,10 +36,11 @@ class ExpenseController extends Controller
                 ->where('payment_method', 'cash')
                 ->sum('total_amount');
 
-            $totalSystemCashSpent = DB::table('laravel.expenses')
+            $totalSystemCashSpent = DB::table('laravel.cash_transactions')
                 ->where('branch_id', $branch->id)
+                ->where('transaction_type', 'expense')
                 ->where('fund_source', 'cash_in_hand')
-                ->sum('total_amount');
+                ->sum('amount');
 
             $branch->available_cash = $totalSystemCashIn - $totalSystemCashSpent;
         }
@@ -61,13 +63,53 @@ class ExpenseController extends Controller
             }
         }
 
-        $validated['created_at'] = now();
+        DB::beginTransaction();
 
-        $expenseId = DB::table('laravel.expenses')->insertGetId($validated);
+        try {
 
-        $this->logActivity('created', 'expense', $expenseId, "Added regular expense for Branch {$validated['branch_id']}: {$validated['description']}");
+            $expenseId = DB::table('laravel.expenses')->insertGetId([
+                'branch_id' => $validated['branch_id'],
+                'total_amount' => $validated['total_amount'],
+                'description' => $validated['description'],
+                'expense_type' => $validated['expense_type'],
+                'fund_source' => $validated['fund_source'],
+                'created_at' => now(),
+            ]);
 
-        return back()->with('success', 'Expense added successfully!');
+            // Permanent financial history
+            DB::table('laravel.cash_transactions')->insert([
+                'branch_id' => $validated['branch_id'],
+                'expense_id' => $expenseId,
+                'transaction_type' => 'expense',
+                'fund_source' => $validated['fund_source'],
+                'amount' => $validated['total_amount'],
+                'description' => $validated['description'],
+                'created_at' => now(),
+            ]);
+
+            $this->logActivity(
+                'created',
+                'expense',
+                $expenseId,
+                "Added regular expense for Branch {$validated['branch_id']}: {$validated['description']}"
+            );
+
+            DB::commit();
+
+            return back()->with(
+                'success',
+                'Expense added successfully!'
+            );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Something went wrong: ' . $e->getMessage()
+            );
+        }
     }
 
     public function storeRestock(Request $request){
@@ -105,6 +147,17 @@ class ExpenseController extends Controller
                 'created_at' => now()
             ]);
 
+            // Permanent financial history
+            DB::table('laravel.cash_transactions')->insert([
+                'branch_id' => $branchId,
+                'expense_id' => $expenseId,
+                'transaction_type' => 'expense',
+                'fund_source' => $fundSource,
+                'amount' => $totalExpense,
+                'description' => $description,
+                'created_at' => now(),
+            ]);
+
             foreach($request->items as $item){
 
                 $branchInventory = DB::table('laravel.branch_inventory')
@@ -118,7 +171,7 @@ class ExpenseController extends Controller
 
                 if ($branchInventory) {
 
-                    // 🔥 WAC CALCULATION
+                    // WAC CALCULATION
                     $currentTotalValue = $branchInventory->stock_quantity * $branchInventory->purchase_price;
                     $newTotalValue = $currentTotalValue + $totalCost;
                     $newTotalStock = $branchInventory->stock_quantity + $qty;
@@ -164,13 +217,135 @@ class ExpenseController extends Controller
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
-        $totalSystemCashSpent = DB::table('laravel.expenses')
+        $totalSystemCashSpent = DB::table('laravel.cash_transactions')
             ->where('branch_id', $branchId)
+            ->where('transaction_type', 'expense')
             ->where('fund_source', 'cash_in_hand')
-            ->sum('total_amount');
+            ->sum('amount');
 
         $availableSystemCash = $totalSystemCashIn - $totalSystemCashSpent;
 
         return $availableSystemCash >= $requiredAmount;
+    }
+
+    public function update(Request $request, $id){
+        $validated = $request->validate([
+            'branch_id' => 'required|integer|exists:pgsql.laravel.branches,id',
+            'total_amount' => 'required|numeric|min:0.01',
+            'description' => 'required|string|max:1000',
+            'expense_type' => 'required|string',
+            'fund_source' => 'required|string',
+        ]);
+
+        $expense = DB::table('laravel.expenses')
+            ->where('id', $id)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (!$expense) {
+            return back()->with('error', 'Expense not found.');
+        }
+
+        if ($validated['fund_source'] === 'cash_in_hand') {
+
+            $totalSystemCashIn = DB::table('laravel.orders')
+                ->where('branch_id', $validated['branch_id'])
+                ->where('payment_method', 'cash')
+                ->sum('total_amount');
+
+            $totalSystemCashSpent = DB::table('laravel.cash_transactions')
+                ->where('branch_id', $validated['branch_id'])
+                ->where('transaction_type', 'expense')
+                ->where('fund_source', 'cash_in_hand')
+                ->where('expense_id', '!=', $id)
+                ->sum('amount');
+
+            $availableSystemCash = $totalSystemCashIn - $totalSystemCashSpent;
+
+            if ($availableSystemCash < $validated['total_amount']) {
+                return back()->with(
+                    'error',
+                    'Insufficient System Cash at this specific branch!'
+                );
+            }
+        }   
+
+        DB::beginTransaction();
+
+        try {
+
+        DB::table('laravel.expenses')
+            ->where('id', $id)
+            ->update([
+                'branch_id' => $validated['branch_id'],
+                'total_amount' => $validated['total_amount'],
+                'description' => $validated['description'],
+                'expense_type' => $validated['expense_type'],
+                'fund_source' => $validated['fund_source'],
+                'updated_at' => now(),
+            ]);
+
+        // Update the permanent financial record too
+        DB::table('laravel.cash_transactions')
+            ->where('expense_id', $id)
+            ->update([
+                'branch_id' => $validated['branch_id'],
+                'fund_source' => $validated['fund_source'],
+                'amount' => $validated['total_amount'],
+                'description' => $validated['description'],
+            ]);
+
+        $this->logActivity(
+            'updated',
+            'expense',
+            $id,
+            "Updated expense: {$validated['description']}"
+        );
+
+        DB::commit();
+
+        return back()->with(
+            'success',
+            'Expense updated successfully!'
+        );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Something went wrong: ' . $e->getMessage()
+            );
+        }
+    }
+
+    public function destroy($id){
+        $expense = DB::table('laravel.expenses')
+            ->where('id', $id)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (!$expense) {
+            return back()->with('error', 'Expense not found.');
+        }
+
+        DB::table('laravel.expenses')
+            ->where('id', $id)
+            ->update([
+                'deleted_at' => now(),
+            ]);
+
+        $this->logActivity(
+            'archived',
+            'expense',
+            $id,
+            "Moved expense to trash: {$expense->description}"
+        );
+
+        return back()->with(
+            'success',
+            'Expense moved to trash successfully!'
+        );
     }
 }

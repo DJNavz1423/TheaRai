@@ -89,6 +89,7 @@
             <th>Source</th>
             <th>Description</th>
             <th>Amount</th>
+            <th style="text-align: center;">Actions</th>
           </tr>
         </thead>
 
@@ -102,11 +103,31 @@
             data-desc="{{ strtolower($expense->description) }}"
             data-created="{{ strtotime($expense->created_at) }}">
             <td role="cell" data-cell="date">{{ \Carbon\Carbon::parse($expense->created_at)->format('M d, Y') }}</td>
+
             <td role="cell" data-cell="branch"><span style="font-weight: 500; color: var(--primary);">{{ $expense->branch_name ?? 'Global' }}</span></td>
+
             <td role="cell" data-cell="type"><span>{{ ucfirst(str_replace('_', ' ', $expense->expense_type)) }}</span></td>
+
             <td role="cell" data-cell="source"><span>{{ ucfirst(str_replace('_', ' ', $expense->fund_source)) }}</span></td>
             <td role="cell" data-cell="description"><span>{{ $expense->description }}</span></td>
+
             <td role="cell" data-cell="amount" class="format-peso" value="{{ $expense->total_amount }}">{{ number_format($expense->total_amount, 2) }}</td>
+
+            <td role="cell" data-cell="actions">
+              <div class="row" style="justify-content: center; align-items: center; gap: 10px;">
+                <button type="button" class="btn btn-icon"  onclick="openExpenseEditModal( {{ $expense->id }}, {{ $expense->branch_id ?? 'null' }}, '{{ $expense->expense_type }}', '{{ $expense->fund_source }}', '{{ $expense->description }}', {{ $expense->total_amount }})">
+                  <span class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#0d884e"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
+                  </span>
+                </button>
+
+                <button type="button" class="btn btn-icon" onclick="openExpenseDeleteModal( {{ $expense->id }}, '{{ $expense->description }}')">
+                  <span class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm200-284 76 76q11 11 28 11t28-11q11-11 11-28t-11-28l-76-76 76-76q11-11 11-28t-11-28q-11-11-28-11t-28 11l-76 76-76-76q-11-11-28-11t-28 11q-11 11-11 28t11 28l76 76-76 76q-11 11-11 28t11 28q11 11 28 11t28-11l76-76Z"/></svg>
+                  </span>
+                </button>
+              </div>
+            </td>
           </tr>
           @empty
                 <tr>
@@ -118,156 +139,10 @@
     </div>
   </div>
 
-  <div id="regularExpenseModal" class="modal" style="display: none;">
-    <div class="modal-dialog">
-      <form action="{{ url('/admin/expenses/regular') }}" method="POST" class="modal-content">
-        @csrf
-        <input type="hidden" name="expense_type" value="regular">
-        <input type="hidden" name="fund_source" value="cash_in_hand">
-
-        <div class="modal-header">
-          <h2>Add Regular Expense</h2>
-          <button type="button" class="btn close-btn" onclick="closeModal('regularExpenseModal')">
-            <span class="icon-wrapper close-modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>
-          </span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="row">
-            <div class="input-group">
-              <label for="reg-branch">Target Branch</label>
-              <select name="branch_id" id="reg-branch" class="unit-selector" required>
-                <option value="" disabled selected>Select Branch...</option>
-                @foreach($branches as $branch)
-                    <option value="{{ $branch->id }}" data-cash="{{ $branch->available_cash }}">{{ $branch->name }}</option>
-                @endforeach
-              </select>
-            </div>
-
-            <div class="input-group">
-              <label for="reg-amount">Amount</label>
-              <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" id="reg-amount" name="total_amount" step="0.01" required placeholder="Enter amount...">
-              <span class="icon-wrapper unit-abbr" id="reg-cash-display">/₱0.00</span>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="input-group">
-              <label for="reg-desc">Description</label>
-              <textarea name="description" id="reg-desc" required placeholder="e.g., Electric Bill, Rent, Repair, etc."></textarea>
-            </div>
-          </div>
-
-          <div class="row">
-            <small class="text-muted">Note: This amount will be deducted directly from the selected branch's system cash.</small>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-            <button type="submit" class="btn">Save Expense</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-
-
-
-  <div id="restockModal" class="modal" style="display: none;">
-    <div class="modal-dialog">
-      <form action="{{ url('/admin/expenses/restock') }}" method="POST" class="modal-content">
-        @csrf
-        <input type="hidden" name="expense_type" value="restock">
-
-        <div class="modal-header">
-          <h2>Restock Ingredients</h2>
-          
-          <button type="button" class="btn close-btn" onclick="closeModal('restockModal')">
-            <span class="icon-wrapper close-modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-424 284-228q-11 11-28 11t-28-11q-11-11-11-28t11-28l196-196-196-196q-11-11-11-28t11-28q11-11 28-11t28 11l196 196 196-196q11-11 28-11t28 11q11 11 11 28t-11 28L536-480l196 196q11 11 11 28t-11 28q-11 11-28 11t-28-11L480-424Z"/></svg>
-            </span>
-          </button>
-        </div>
-
-        <div class="modal-body">
-          <div class="row">
-            <div class="input-group">
-              <label for="restock-branch">Target Branch (Where is stock going?)</label>
-              <select name="branch_id" id="restock-branch" class="unit-selector" required>
-                <option value="" disabled selected>Select Branch...</option>
-                @foreach($branches as $branch)
-                    <option value="{{ $branch->id }}" data-cash="{{ $branch->available_cash }}">{{ $branch->name }}</option>
-                @endforeach
-              </select>
-            </div>
-            
-            <div class="input-group">
-              <label for="fund-source">Payment Source</label>
-              <select name="fund_source" id="fund-source" class="unit-selector" required>
-                <option value="external_cash">External Cash</option>
-                <option value="cash_in_hand">System Cash (Deducted from Branch)</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="row">
-            <div class="input-group">
-              <label for="restock-desc">Batch Note (Optional)</label>
-              <input name="description" id="restock-desc" placeholder="e.g., Weekly Market Run">
-            </div>
-          </div>
-
-          <div class="container table-container modal-table border">
-            <table>
-              <thead>
-                <tr class="border-b">
-                  <th class="border-r">S.N</th>
-                  <th class="border-r">Ingredient Name</th>
-                  <th class="border-r">Qty Purchased</th>
-                  <th class="border-r">Unit Cost</th>
-                  <th>Total Line Cost</th>
-                </tr>
-              </thead>
-
-              <tbody id="restock-list"></tbody>
-
-              <tfoot class="border-t">
-                <tr>
-                  <td colspan="3" class="border-r">
-                    <button type="button" id="addRestockRowBtn" class="btn">
-                      <span class="icon-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
-                      </span>
-                      <span>Add Item</span>
-                    </button>
-                  </td>
-
-                  <td><span>Grand Total</span></td>
-                  <td>
-                    <div class="row">
-                      <span id="restock-grand-total" class="format-peso">0</span>
-                      <input type="hidden" name="total_amount" id="hidden-grand-total">
-                      <span class="icon-wrapper unit-abbr" id="restock-cash-display" style="display:none;">/₱0.00</span>
-                    </div>
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn" onclick="document.getElementById('restockModal').style.display='none'">
-                    <span>Cancel</span>
-          </button>
-
-          <button class="btn" type="submit">Process Restock</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Modals -->
+   @include('admin.expenses.expensesModals.addModal')
+   @include('admin.expenses.expensesModals.editModal')
+   @include('admin.expenses.expensesModals.deleteModal')
 @endsection
 
 @once
@@ -533,7 +408,72 @@ function updateRestockCashDisplay() {
 
 restockBranch.addEventListener('change', updateRestockCashDisplay);
 fundSource.addEventListener('change', updateRestockCashDisplay);
-        </script>
+</script>
+
+<script>
+    function openExpenseEditModal(
+        id,
+        branchId,
+        expenseType,
+        fundSource,
+        description,
+        amount
+    ) {
+
+        document.getElementById('editExpenseForm').action =
+            "/admin/expenses/" + id;
+
+        const branchSelect =
+            document.getElementById('edit-expense-branch');
+
+        const typeSelect =
+            document.getElementById('edit-expense-type');
+
+        const sourceSelect =
+            document.getElementById('edit-fund-source');
+
+        if (branchSelect.tomselect) {
+            branchSelect.tomselect.setValue(
+                branchId ? branchId.toString() : ''
+            );
+        } else {
+            branchSelect.value = branchId || '';
+        }
+
+        if (typeSelect.tomselect) {
+            typeSelect.tomselect.setValue(expenseType);
+        } else {
+            typeSelect.value = expenseType;
+        }
+
+        if (sourceSelect.tomselect) {
+            sourceSelect.tomselect.setValue(fundSource);
+        } else {
+            sourceSelect.value = fundSource;
+        }
+
+        document.getElementById('edit-expense-description').value =
+            description;
+
+        document.getElementById('edit-expense-amount').value =
+            parseFloat(amount).toFixed(2);
+
+        document.getElementById('editExpenseModal').style.display =
+            'flex';
+    }
+
+    function openExpenseDeleteModal(id, description) {
+
+      document.getElementById('deleteExpenseForm').action =
+          "/admin/expenses/" + id;
+
+      document.getElementById('deleteExpenseDescription').innerText =
+          description;
+
+      document.getElementById('deleteExpenseModal').style.display =
+          'flex';
+  }
+</script>
 
   @if(session('error'))
       <script>alert("🚨 ERROR: {{ session('error') }}");</script>
