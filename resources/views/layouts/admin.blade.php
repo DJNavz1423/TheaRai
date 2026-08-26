@@ -207,9 +207,15 @@
           <ul class="sub-menu">
             <div>
               <li><a href="#">General</a></li>
+
               <li class="{{ request()->is('admin/my-account') ? 'active' : '' }}">
                 <a href="{{ url('/admin/my-account') }}">My Account</a>
               </li>
+
+              <li class="{{ request()->is('admin/activity-logs') ? 'active' : '' }}">
+                <a href="{{ url('/admin/activity-logs') }}">Activity Logs</a>
+              </li>
+
               <li class="{{ request()->is('admin/archive') ? 'active' : '' }}">
                 <a href="{{ url('/admin/archive') }}">Archives</a>
               </li>
@@ -240,6 +246,7 @@
   </main>
 
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
+  <script type="text/javascript" src="{{ asset('js/script.js') }}" defer></script>
 
   <script>
     setInterval(() => {
