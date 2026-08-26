@@ -4,6 +4,6 @@
 
     @once
         @push('scripts')
-            <script type="text/javascript" src="{{ asset('js/loader.js') }}"></script>
+            <script type="text/javascript" src="{{ asset('js/loader.js') }}" defer></script>
         @endpush
     @endonce

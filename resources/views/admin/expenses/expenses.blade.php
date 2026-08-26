@@ -159,11 +159,11 @@
 
 @once
     @push('scripts')
-        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}"></script>
-        <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsExpensesFilter.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
+        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
+        <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsExpensesFilter.js') }}" defer></script>
         
         <script>
           // modal

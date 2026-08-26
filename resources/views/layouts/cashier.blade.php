@@ -158,7 +158,7 @@
   </main>
 
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
-  <script type="text/javascript" src="{{ asset('js/utils/liveClock.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/utils/liveClock.js') }}" defer></script>
 
   @include('partials.qr_notif')
 

@@ -84,7 +84,7 @@
 
     <a href="{{ url('/qr-menu?branch='.$order->branch_id.'&table='.$order->table_id) }}" class="btn">Go to menus</a>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js" defer></script>
     
     <script>
 async function downloadReceipt() {
