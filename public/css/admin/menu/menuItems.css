@@ -2,23 +2,6 @@ body{
   overflow: hidden;
 }
 
-.heading-btn-row .btn:first-child{
-  padding: 8px;
-  background: none;
-  border-radius: 8px;
-  border: 1.5px solid var(--secondary-soft);
-
-  svg{
-    fill: var(--secondary-light);
-  }
-  transition: 200ms ease;
-}
-.heading-btn-row .btn:first-child:hover{
-  svg{
-    fill: var(--secondary);
-  }
-}
-
 /*
   modal
 */
