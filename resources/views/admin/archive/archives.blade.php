@@ -29,6 +29,7 @@
               <option value="table">Tables</option>
               <option value="user">Users</option>
               <option value="expense">Expenses</option>
+              <option value="activity log">Activity Logs</option>
           </select>
 
           <select id="sort-items" class="ts-filter">
