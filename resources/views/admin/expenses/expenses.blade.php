@@ -5,7 +5,7 @@
 @section('content')
   <div class="container">
     <div class="row mb-3">
-      <h1 class="heading">Expenses & Restocks</h1>
+      <h1 class="heading">Expenses & Restocks ({{ count($expenses) }})</h1>
 
       <div class="row heading-btn-row">
         <div class="dropdown-wrapper pos-relative">
