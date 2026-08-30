@@ -72,6 +72,11 @@
                     >
                         <option value="staff">Staff</option>
                         <option value="admin">Admin</option>
+
+                        @if(in_array(auth()->user()->role, ['dev', 'owner']))
+                        <option value="dev">Developer</option>
+                        <option value="owner">Owner</option>
+                        @endif
                     </select>
                 </div>
 

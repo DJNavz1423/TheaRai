@@ -10,7 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class PosController extends Controller{
     private function getActiveBranchId() {
         $user = auth()->user();
-        if ($user->role === 'admin') {
+        if(in_array($user->role, ['admin', 'dev', 'owner'])) {
             return session('active_pos_branch_id');
         }
         return $user->branch_id;
@@ -20,12 +20,16 @@ class PosController extends Controller{
         $user = auth()->user();
         $activeBranchId = $this->getActiveBranchId();
 
-        if ($user->role === 'admin' && !$activeBranchId) {
+        if (in_array($user->role, ['admin', 'dev', 'owner']) && !$activeBranchId) {
             return redirect('/admin/pos/select-branch');
         }
 
-        $layout = $user->role === 'admin' ? 'layouts.admin' : 'layouts.cashier';
-        $activeBranch = DB::table('laravel.branches')->where('id', $activeBranchId)->first();
+        $layout = in_array($user->role, ['admin', 'dev', 'owner']) ? 'layouts.admin' : 'layouts.cashier';
+
+        $activeBranch = DB::table('laravel.branches')
+            ->where('id', $activeBranchId)
+            ->first();
+
         $categories = DB::table('laravel.menu_categories')->get();
         
         $menuItems = DB::table('laravel.branch_menu_items as bmi')
@@ -169,6 +173,7 @@ class PosController extends Controller{
             ->update(['is_available' => $newStatus]);
 
         $statusText = $newStatus ? 'Available' : 'Unavailable';
+        
         $this->logActivity('updated', 'menu_item', $id, "Cashier marked item ID {$id} as {$statusText} at Branch {$activeBranchId}");
 
         return response()->json([

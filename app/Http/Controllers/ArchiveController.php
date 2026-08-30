@@ -120,6 +120,19 @@ class ArchiveController extends Controller
             )
             ->get();
 
+        $trashedActivityLogs = DB::table('laravel.activity_logs')
+            ->leftJoin('laravel.users', 'activity_logs.user_id', '=', 'users.id')
+            ->whereNotNull('activity_logs.deleted_at')
+            ->select(
+                'activity_logs.id',
+                DB::raw("COALESCE(activity_logs.description, 'Activity Log') as name"),
+                DB::raw("'Activity Log' as type"),
+                DB::raw("'activity log' as filter_type"),
+                'activity_logs.deleted_at',
+                DB::raw("'activity_logs' as table_name")
+            )
+            ->get();
+
         $archives = $trashedIngredients
             ->merge($trashedBranchInventory)
             ->merge($trashedCategories)
@@ -129,6 +142,7 @@ class ArchiveController extends Controller
             ->merge($trashedUsers)
             ->merge($trashedTables)
             ->merge($trashedExpenses)
+            ->merge($trashedActivityLogs)
             ->sortByDesc('deleted_at');
 
         return view('admin.archive.archives', compact('archives'));
@@ -139,7 +153,7 @@ class ArchiveController extends Controller
         $id = $request->input('id');
 
         $allowedTables = ['ingredients', 'ingredient_categories',
-    'units', 'menu_categories', 'branch_inventory', 'menu_items', 'users', 'tables', 'expenses'];
+    'units', 'menu_categories', 'branch_inventory', 'menu_items', 'users', 'tables', 'expenses', 'activity_logs'];
 
         if(!in_array($table, $allowedTables)){
             return back()->with('error', 'Invalid table reference!');      
@@ -164,6 +178,11 @@ class ArchiveController extends Controller
             ->where('id', $id)
             ->value('description');
             
+        } else if($table === 'activity_logs') {
+            $itemName = DB::table('laravel.activity_logs')
+                ->where('id', $id)
+                ->value('description');
+
         } else {
             $itemName = DB::table('laravel.' . $table)
             ->where('id', $id)
@@ -172,7 +191,7 @@ class ArchiveController extends Controller
 
         $updateData = ['deleted_at' => null];
 
-        if (!in_array($table, ['branch_inventory', 'ingredient_categories', 'units', 'menu_categories'])) {
+        if (!in_array($table, ['branch_inventory', 'ingredient_categories', 'units', 'menu_categories', 'activity_logs'])) {
             $updateData['updated_at'] = now();
         }
 
@@ -189,7 +208,8 @@ class ArchiveController extends Controller
             'menu_items'  => 'menu_item',
             'users'       => 'user',
             'tables'      => 'table',
-            'expenses' => 'expense'
+            'expenses' => 'expense',
+            'activity_logs' => 'activity_log'
         ];
 
         $module = $modules[$table] ?? 'system';
@@ -204,7 +224,7 @@ class ArchiveController extends Controller
         $table = $request->input('table_name');
         $id = $request->input('id');
 
-        $allowedTables = ['ingredients', 'branch_inventory', 'menu_items', 'menu_categories', 'ingredient_categories', 'units', 'users', 'tables', 'expenses'];
+        $allowedTables = ['ingredients', 'branch_inventory', 'menu_items', 'menu_categories', 'ingredient_categories', 'units', 'users', 'tables', 'expenses', 'activity_logs'];
 
         if (!in_array($table, $allowedTables)) {
             return back()->with('error', 'Invalid table reference.');
@@ -237,7 +257,8 @@ class ArchiveController extends Controller
             'units'       => 'unit',
             'users'       => 'user',
             'tables'      => 'table',
-            'expenses' => 'expense'
+            'expenses' => 'expense',
+            'activity_logs' => 'activity_log'
         ];
         
         $module = $modules[$table] ?? 'system';

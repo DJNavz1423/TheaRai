@@ -9,7 +9,7 @@ class QrOrderController extends Controller
 {
     private function getActiveBranchId() {
         $user = auth()->user();
-        if ($user->role === 'admin') {
+        if (in_array($user->role, ['admin', 'dev', 'owner'])) {
             return session('active_pos_branch_id');
         }
         return $user->branch_id;
@@ -20,11 +20,13 @@ class QrOrderController extends Controller
         $user = auth()->user();
         $branchId = $this->getActiveBranchId();
 
-        if ($user->role === 'admin' && !$branchId) {
+        if (in_array($user->role, ['admin', 'dev', 'owner']) && !$branchId) {
             return redirect('/admin/pos/select-branch');
         }
 
-        $activeBranch = DB::table('laravel.branches')->where('id', $branchId)->first();
+        $activeBranch = DB::table('laravel.branches')
+            ->where('id', $branchId)
+            ->first();
 
         $qrOrders = DB::table('laravel.orders')
             ->join('laravel.tables', 'orders.table_id', '=', 'tables.id')

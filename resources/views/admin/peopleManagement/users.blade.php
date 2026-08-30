@@ -31,6 +31,11 @@
                 <option value="all" selected>All Roles</option>
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
+
+                @if(in_array(auth()->user()->role, ['dev', 'owner']))
+                <option value="dev">Developer</option>
+                <option value="owner">Owner</option>
+                @endif
             </select>
 
             <select id="filter-branch" class="ts-filter">
@@ -81,8 +86,23 @@
                 </td>
 
                 <td data-cell="role" role="cell">
-                    <span class="badge {{ $user->role == 'admin' ? 'bg-primary' : 'bg-secondary' }}">
-                        {{ ucfirst($user->role) }}
+                    @if($user->role === 'dev')
+                        <span class="badge bg-primary">
+                            Developer
+                        </span>
+                        @elseif($user->role === 'owner')
+                        <span class="badge bg-primary">
+                            Owner
+                        </span>
+                         @elseif($user->role === 'admin')
+                        <span class="badge bg-primary">
+                            Admin
+                        </span>
+                        @else
+                        <span class="badge bg-secondary">
+                            Staff
+                        </span>
+                    @endif
                     </span>
                 </td>
 
@@ -95,8 +115,8 @@
                 </td>
 
                 <td data-cell="branch" role="cell">
-                    <span class="item-data" style="color: {{ $user->role === 'admin' ? 'var(--primary)' : 'inherit' }}; font-weight: {{ $user->role === 'admin' ? '600' : 'normal' }};">
-                        {{ $user->role === 'admin' ? 'All Branches (Admin)' : ($user->branch_name ?? 'Unassigned') }}
+                    <span class="item-data" style="color: {{ $user->role === 'admin' || $user->role === 'dev' || $user->role === 'owner' ? 'var(--primary)' : 'inherit' }}; font-weight: {{ $user->role === 'admin' || $user->role === 'dev' || $user->role === 'owner' ? '600' : 'normal' }};">
+                        {{ $user->role === 'admin' || $user->role === 'dev' || $user->role === 'owner' ? 'All Branches (' . ucfirst($user->role) . ')' : ($user->branch_name ?? 'Unassigned') }}
                     </span>
                 </td>
 
@@ -213,7 +233,7 @@
             const branchWrapper = document.getElementById('branch-wrapper');
             const branchSelect = document.getElementById('branch-select');
             
-            if (this.value === 'admin') {
+            if (this.value === 'admin' || this.value === 'dev' || this.value === 'owner') {
                 // Admins don't need a branch
                 branchWrapper.style.display = 'none';
                 branchSelect.removeAttribute('required');
@@ -277,7 +297,7 @@
 
             const branch = document.getElementById('edit_branch');
 
-            if(role === 'admin') {
+            if(role === 'admin' || role === 'dev' || role === 'owner') {
 
                 wrapper.style.display = 'none';
 

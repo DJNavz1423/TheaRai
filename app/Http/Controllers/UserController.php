@@ -10,12 +10,19 @@ class UserController extends Controller
 {
     public function index(){
         $currentUserId = auth()->id();
+        $currentUserRole = auth()->user()->role;
 
-        $users = DB::table('laravel.users')
+        $usersQuery = DB::table('laravel.users')
             ->leftJoin('laravel.branches', 'users.branch_id', '=', 'branches.id')
             ->select('users.*', 'branches.name as branch_name')
             ->where('users.id', '!=', $currentUserId)
-            ->whereNull('users.deleted_at')
+            ->whereNull('users.deleted_at');
+        
+        if (!in_array($currentUserRole, ['dev', 'owner'])) {
+            $usersQuery->whereNotIn('users.role', ['dev', 'owner']);
+        }
+
+        $users = $usersQuery
             ->orderBy('users.created_at', 'desc')
             ->get();
             
@@ -25,6 +32,9 @@ class UserController extends Controller
     }
 
     public function store(Request $request){
+
+        $currentUserRole = auth()->user()->role;
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => [
@@ -38,11 +48,21 @@ class UserController extends Controller
                 'digits:11',
             ],
             'password' => 'required|min:10',
-            'role' => 'required|in:admin,staff',
-            'branch_id' => 'exclude_if:role,admin|required|exists:pgsql.laravel.branches,id'
+            'role' => 'required|string|in:admin,staff,dev,owner',
+            'branch_id' => ['nullable', 'integer', 'exists:pgsql.laravel.branches,id'],
         ], [
-            'email.regex' => 'The email must end with a valid @thearai.com.ph domain.'
+            'email.regex' => 'The email must end with a valid @thearai.com.ph domain.',
+            'phone_number.digits' => 'The phone number must be exactly 11 digits.',
         ]);
+
+        if (in_array($validated['role'], ['dev', 'owner']) && !in_array($currentUserRole, ['dev', 'owner'])) {
+            return back()->with(
+                'error',
+                'You are not authorized to create this type of account.'
+            );
+        }
+
+        $branchId = in_array($validated['role'], ['admin', 'dev', 'owner']) ? null : $validated['branch_id'];
 
         $userId = DB::table('laravel.users')->insertGetId([
             'name' => $validated['name'],
@@ -50,17 +70,49 @@ class UserController extends Controller
             'phone_number' => $validated['phone_number'] ?? null,
             'password' => Hash::make($validated['password']),
             'role' => $validated['role'],
-            'branch_id' => $validated['role'] === 'admin' ? null : $validated['branch_id'],
+            'branch_id' => $branchId,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        $this->logActivity('created', 'user', $userId, "Registered new user: {$validated['name']}");
+        $this->logActivity('created', 'user', $userId, "Registered new user: {$validated['name']} ({$validated['role']})");
 
         return redirect()->back()->with('success', 'User added successfully!');
     }
 
     public function update(Request $request, $id) {
+        $currentUserRole = auth()->user()->role;
+
+        if (in_array($currentUserRole, ['dev', 'owner'])) {
+
+            $allowedRoles = 'admin,staff,dev,owner';
+
+        } else {
+
+            $allowedRoles = 'admin,staff';
+        }
+
+        $targetUser = DB::table('laravel.users')
+            ->where('id', $id)
+            ->first();
+
+        if (!$targetUser) {
+            return back()->with(
+                'error',
+                'User not found.'
+            );
+        }
+
+        if (
+            in_array($targetUser->role, ['dev', 'owner']) &&
+            !in_array($currentUserRole, ['dev', 'owner'])
+        ) {
+            return back()->with(
+                'error',
+                'You are not authorized to modify this account.'
+            );
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
 
@@ -74,9 +126,12 @@ class UserController extends Controller
                 'nullable',
                 'digits:11',
             ],
-            'role' => 'required|in:admin,staff',
+            'role' => 'required|in:' . $allowedRoles,
             'branch_id' =>
-                'exclude_if:role,admin|required|exists:pgsql.laravel.branches,id',
+                'exclude_if:role,admin'
+                . '|exclude_if:role,dev'
+                . '|exclude_if:role,owner'
+                . '|required|exists:pgsql.laravel.branches,id',
         ], [
             'email.regex' => 'The email must end with a valid @thearai.com.ph domain.'
         ]);
@@ -88,9 +143,7 @@ class UserController extends Controller
                 'email' => strtolower($validated['email']),
                 'phone_number' => $validated['phone_number'] ?? null,
                 'role' => $validated['role'],
-                'branch_id' => $validated['role'] === 'admin'
-                    ? null
-                    : $validated['branch_id'],
+                'branch_id' => in_array($validated['role'],['admin', 'dev', 'owner']) ? null : $validated['branch_id'],
                 'updated_at' => now(),
             ]);
 
@@ -112,6 +165,27 @@ class UserController extends Controller
             ]
         ]);
 
+         $user = DB::table('laravel.users')
+            ->where('id', $id)
+            ->first();
+
+        if (!$user) {
+            return back()->with(
+                'error',
+                'User not found.'
+            );
+        }
+
+        if (
+            in_array($user->role, ['dev', 'owner']) &&
+            !in_array(auth()->user()->role, ['dev', 'owner'])
+        ) {
+            return back()->with(
+                'error',
+                'You are not authorized to modify this account.'
+            );
+        }
+
         DB::table('laravel.users')
             ->where('id', $id)
             ->update([
@@ -120,10 +194,6 @@ class UserController extends Controller
                 ),
                 'updated_at' => now()
             ]);
-
-        $user = DB::table('laravel.users')
-            ->where('id', $id)
-            ->first();
 
         $this->logActivity(
             'updated',
@@ -145,6 +215,16 @@ class UserController extends Controller
 
         if (!$user) {
             return back()->with('error', 'User not found.');
+        }
+
+        if (
+            in_array($user->role, ['dev', 'owner']) &&
+            !in_array(auth()->user()->role, ['dev', 'owner'])
+        ) {
+            return back()->with(
+                'error',
+                'You are not authorized to remove this account.'
+            );
         }
 
         DB::table('laravel.users')
