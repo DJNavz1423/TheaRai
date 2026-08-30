@@ -208,8 +208,8 @@
             <div>
               <li><a href="#">General</a></li>
 
-              <li class="{{ request()->is('admin/my-account') ? 'active' : '' }}">
-                <a href="{{ url('/admin/my-account') }}">My Account</a>
+              <li class="{{ request()->is('/my-account') ? 'active' : '' }}">
+                <a href="{{ url('/my-account') }}">My Account</a>
               </li>
 
               <li class="{{ request()->is('admin/activity-logs') ? 'active' : '' }}">

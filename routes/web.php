@@ -19,6 +19,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MenuCategoryController;
 use App\Http\Controllers\TableController;
 
+use App\Http\Controllers\ActivityLogsController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\ExpenseController;
 
@@ -48,7 +49,7 @@ Route::middleware(['auth'])->group(function(){
         ->name('qr.orders.notifications');
 
 
-    Route::prefix('admin')->middleware('role:admin')->group(function(){
+    Route::prefix('admin')->middleware('role:admin|dev|owner')->group(function(){
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.index');
 
         #inventory
@@ -81,35 +82,25 @@ Route::middleware(['auth'])->group(function(){
 
          # User Management Routes
         Route::get('/users', [UserController::class, 'index'])
-        ->name('admin.peopleManagement.users');
+            ->name('admin.peopleManagement.users');
 
         Route::post('/users', [UserController::class, 'store'])
-        ->name('admin.users.store');
+            ->name('admin.users.store');
 
         Route::put('/users/{id}', [UserController::class, 'update']);
 
         Route::delete('/users/{id}', [UserController::class, 'destroy'])
-        ->name('users.destroy');
+            ->name('admin.users.destroy');
 
         Route::put('/users/{id}/password',[UserController::class, 'updatePassword']);
-
-            # User Account Routes
-            Route::get('/my-account', [UserAccountController::class, 'index'])
-                ->name('admin.settings.myAccount');
-
-            Route::put('/my-account', [UserAccountController::class, 'update'])
-                ->name('my.account.update');
-
-
-
 
         # Menu Management Routes
 
         Route::get('/menu', [MenuController::class, 'index'])
-        ->name('admin.menu.index');
+            ->name('admin.menu.index');
 
         Route::post('/menu', [MenuController::class, 'store'])
-        ->name('admin.menu.store');
+            ->name('admin.menu.store');
 
         Route::get('/menu/{id}/edit', [MenuController::class, 'edit']);
 
@@ -148,8 +139,6 @@ Route::middleware(['auth'])->group(function(){
         Route::put('/tables/{id}', [TableController::class, 'update'])
             ->name('admin.menu.tables.update');
 
-
-
         #expense
         Route::get('/expenses', [ExpenseController::class, 'index'])
             ->name('admin.expenses');
@@ -162,6 +151,16 @@ Route::middleware(['auth'])->group(function(){
 
         Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy'])
             ->name('admin.expenses.destroy');
+
+        #activity log
+        Route::get('/activity-logs', [ActivityLogsController::class, 'index'])
+            ->name('admin.settings.logs');
+
+        Route::put('/activity-logs/{id}', [ActivityLogsController::class, 'update'])
+            ->name('admin.settings.logs.update');
+
+        Route::delete('/activity-logs/{id}', [ActivityLogsController::class, 'destroy'])
+            ->name('admin.settings.logs.destroy');
 
         #archive
         Route::get('/archive', [ArchiveController::class, 'index'])
@@ -177,7 +176,7 @@ Route::middleware(['auth'])->group(function(){
 
         #POS
         Route::get('/pos/select-branch', [PosController::class, 'selectBranch'])
-            ->name('admin.pos.select');
+            ->name('admin.pos.select'); 
 
         Route::get('/pos/set-branch/{id}', [PosController::class, 'setBranch'])
             ->name('admin.pos.set');
@@ -193,15 +192,15 @@ Route::middleware(['auth'])->group(function(){
     
     Route::prefix('cashier')->group(function(){
         Route::get('/pos', [PosController::class, 'index'])
-            ->middleware('role:admin|staff')
+            ->middleware('role:admin|dev|owner|staff')
             ->name('cashier.pos');
 
         Route::post('/pos/order', [PosController::class, 'processOrder'])
-            ->middleware('role:admin|staff')
+            ->middleware('role:admin|dev|owner|staff')
             ->name('cashier.pos.order');
 
         Route::post('/pos/{id}/toggle-availability', [PosController::class, 'toggleAvailability'])
-            ->middleware('role:admin|staff')
+            ->middleware('role:admin|dev|owner|staff')
             ->name('cashier.pos.toggleAvailability');
 
         Route::get('/pos/receipt/{id}', [PosController::class, 'printReceipt'])
@@ -225,6 +224,13 @@ Route::middleware(['auth'])->group(function(){
         ->name('qr.checkout');
 
     Route::get('/qr-menu/success', [QrMenuController::class, 'success']);
+
+# User Account Routes
+    Route::get('/my-account', [UserAccountController::class, 'index'])
+        ->name('settings.myAccount');
+
+    Route::put('/my-account', [UserAccountController::class, 'update'])
+        ->name('settings.myAccount.update');
 
     
 

@@ -9,7 +9,7 @@
     </div>
 
     <div class="modal-dialog">
-      <form id="accountForm" action="{{ route('my.account.update') }}" method="POST" class="modal-content" autocomplete="off">
+      <form id="accountForm" action="{{ route('settings.myAccount.update') }}" method="POST" class="modal-content" autocomplete="off">
         @csrf
         @method('PUT')
 
@@ -324,7 +324,8 @@
     );
 
     preventEmptyInput(
-        document.getElementById('account_email')
+        document.getElementById('account_email'),
+        true
     );
 
 });
