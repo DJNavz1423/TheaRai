@@ -248,18 +248,84 @@
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/script.js') }}" defer></script>
 
+  <script src="{{ asset('js/offline/offlineDB.js') }}" defer></script>
+  <script src="{{ asset('js/offline/offlineAuth.js') }}" defer></script>
+  <script src="{{ asset('js/offline/password.js') }}" defer></script>
+  <script src="{{ asset('js/offline/registerOfflineUser.js') }}" defer></script>
+
   <script>
-    setInterval(() => {
+    (function () {async function sendHeartbeat() {
 
-        fetch('/heartbeat', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            }
-        });
+      /*
+      * Do not attempt heartbeat while offline.
+      */
+      if (!navigator.onLine) {
+        return;
+      }
 
-    }, 60000); // every 60 seconds
-  </script>
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+      if (!csrfToken) {
+          return;
+      }
+
+      try {
+        const response = await fetch('/heartbeat', {
+          method: 'POST', headers: {
+            'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json'
+            }});
+
+                if (!response.ok) { 
+                  console.warn('Heartbeat failed:', response.status);
+                }
+
+      } catch (error) {
+
+        /*
+        * Network failure is expected when the
+        * device is offline. Do not treat it as
+        * an application error.
+        */
+
+          console.log('Heartbeat skipped: device is offline.');
+        }
+    }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Online heartbeat
+        |--------------------------------------------------------------------------
+        */
+
+        setInterval(
+            sendHeartbeat,
+            60000
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Immediately send when connection returns
+        |--------------------------------------------------------------------------
+        */
+
+        window.addEventListener(
+            'online',
+            sendHeartbeat
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Optional initial heartbeat
+        |--------------------------------------------------------------------------
+        */
+
+        sendHeartbeat();
+
+    })();
+</script>
 
   @include('partials.qr_notif')
 

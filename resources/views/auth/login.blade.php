@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- css links -->
      <link rel="icon" href="{{ asset('img/logos/TheaRaiLogo_Secondary.ico') }}" type="image/x-icon">
@@ -86,6 +87,205 @@
 
     <script type="text/javascript" src="{{ asset('js/login/visibility-toggle.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/login/remember-user.js') }}" defer></script>
+    
+    <script src="{{ asset('js/offline/offlineDB.js') }}" defer></script>
+    <script src="{{ asset('js/offline/offlineAuth.js') }}" defer></script>
+    <script src="{{ asset('js/offline/password.js') }}" defer></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const loginForm =
+                document.querySelector('form[action="/login"]');
+
+            const emailInput =
+                document.getElementById('email');
+
+            const passwordInput =
+                document.getElementById('password');
+
+            if (!loginForm) {
+                return;
+            }
+
+
+            loginForm.addEventListener('submit', async function (event) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | NORMAL ONLINE LOGIN
+                |--------------------------------------------------------------------------
+                */
+
+                if (navigator.onLine) {
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | OFFLINE LOGIN
+                |--------------------------------------------------------------------------
+                */
+
+                event.preventDefault();
+
+
+                const email =
+                    emailInput.value
+                        .trim()
+                        .toLowerCase();
+
+                const password =
+                    passwordInput.value;
+
+
+                if (!email || !password) {
+
+                    alert(
+                        'Enter your email and password.'
+                    );
+
+                    return;
+                }
+
+
+                if (!window.indexedDB) {
+
+                    alert(
+                        'Offline login is not supported by this browser.'
+                    );
+
+                    return;
+                }
+
+
+                try {
+
+                    const user =
+                        await OfflineAuth.getUser(email);
+
+
+                    if (!user) {
+
+                        alert(
+                            'This account has not been registered for offline login yet.'
+                        );
+
+                        return;
+                    }
+
+
+                    const valid =
+                        await verifyPassword(
+                            password,
+                            user.salt,
+                            user.password_hash
+                        );
+
+
+                    if (!valid) {
+
+                        alert(
+                            'Invalid credentials.'
+                        );
+
+                        return;
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | LOCAL OFFLINE SESSION
+                    |--------------------------------------------------------------------------
+                    */
+
+                    sessionStorage.setItem(
+                        'offline_auth',
+                        JSON.stringify({
+
+                            authenticated: true,
+
+                            id: user.id,
+
+                            name: user.name,
+
+                            email: user.email,
+
+                            role: user.role,
+
+                            offline: true
+
+                        })
+                    );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ROLE REDIRECT
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        user.role === 'admin' ||
+                        user.role === 'dev' ||
+                        user.role === 'owner'
+                    ) {
+
+                        window.location.href =
+                            '/admin/pos/select-branch';
+
+                        return;
+                    }
+
+
+                    if (user.role === 'staff') {
+
+                        window.location.href =
+                            '/cashier/pos';
+
+                        return;
+                    }
+
+
+                    alert(
+                        'Unsupported user role.'
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        'Offline login error:',
+                        error
+                    );
+
+                    alert(
+                        'Unable to perform offline login.'
+                    );
+                }
+
+            });
+
+        });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+
+            window.addEventListener('load', function () {
+
+                navigator.serviceWorker.register('/sw.js')
+                .then(() => {
+                    console.log('TheaRai Service Worker registered.');
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+            });
+
+        }
+    </script>
 
     @stack('scripts')
 </body>

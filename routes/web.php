@@ -243,3 +243,26 @@ Route::post('/heartbeat', function () {
     return response()->noContent();
 
 })->middleware('auth');
+
+
+################## indexeddb routes for offline pos functionality ##################
+Route::post('/offline/register', function () {
+
+    if (!auth()->check()) {
+        return response()->json([
+            'success' => false
+        ], 401);
+    }
+
+    $user = auth()->user();
+
+    return response()->json([
+        'success' => true,
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => strtolower($user->email),
+            'role' => $user->role,
+        ]
+    ]);
+})->middleware('auth');
