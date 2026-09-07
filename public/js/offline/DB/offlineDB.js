@@ -1,12 +1,13 @@
 const OfflineDB = (() => {
 
     const DB_NAME = 'thearai_offline';
-    const DB_VERSION = 2;
+    const DB_VERSION = 3;
 
     const STORES = {
         users: 'users',
         branches: 'branches',
         menuItems: 'menu_items',
+        categories: 'menu_categories',
         orders: 'offline_orders'
     };
 
@@ -38,6 +39,13 @@ const OfflineDB = (() => {
                 if (!db.objectStoreNames.contains(STORES.menuItems)) {
                     db.createObjectStore(
                         STORES.menuItems,
+                        { keyPath: 'id' }
+                    );
+                }
+
+                if (!db.objectStoreNames.contains(STORES.categories)) {
+                    db.createObjectStore(
+                        STORES.categories,
                         { keyPath: 'id' }
                     );
                 }

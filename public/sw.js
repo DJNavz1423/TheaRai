@@ -1,21 +1,141 @@
-const CACHE_NAME = 'thearai-v6';
+const CACHE_NAME = 'thearai-v12';
+
+
+/*
+|--------------------------------------------------------------------------
+| FILES REQUIRED BY THE OFFLINE APPLICATION
+|--------------------------------------------------------------------------
+*/
 
 const STATIC_FILES = [
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTML
+    |--------------------------------------------------------------------------
+    */
+
     '/login',
+    '/offline-select-branch',
+    '/offline-pos',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GLOBAL CSS
+    |--------------------------------------------------------------------------
+    */
 
     '/css/style.css',
     '/css/loader.css',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGIN CSS
+    |--------------------------------------------------------------------------
+    */
+
     '/css/login/login-style.css',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGIN JS
+    |--------------------------------------------------------------------------
+    */
 
     '/js/login/visibility-toggle.js',
     '/js/login/remember-user.js',
 
-    '/js/offline/offlineAuth.js',
-    '/js/offline/password.js',
-    '/js/offline/registerOfflineUser.js',
-    '/js/offline/offlineDB.js'
+
+    /*
+    |--------------------------------------------------------------------------
+    | OFFLINE DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    '/js/offline/DB/offlineDB.js',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | OFFLINE AUTH
+    |--------------------------------------------------------------------------
+    */
+
+    '/js/offline/auth/offlineAuth.js',
+    '/js/offline/auth/password.js',
+    '/js/offline/auth/registerOfflineUser.js',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | OFFLINE LAYOUT
+    |--------------------------------------------------------------------------
+    */
+
+    '/js/offline/layout/offlineLayout.js',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN/CASHIER LAYOUT
+    |--------------------------------------------------------------------------
+    */
+
+    '/css/admin/sidebar.css',
+    '/css/cashier/sidebar.css',
+    '/css/cashier/header.css',
+    '/css/pos/qrNotifBadge.css',
+
+    '/js/dashboard/sidebarToggles.js',
+    '/js/script.js',
+    '/js/utils/liveClock.js',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | OFFLINE POS CSS
+    |--------------------------------------------------------------------------
+    */
+
+    '/css/admin/pos/selectBranch.css',
+    '/css/admin/sectionHeading.css',
+    '/css/pos/pos.css',
+    '/css/admin/tableControls.css',
+    '/css/admin/filters.css',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | OFFLINE POS JS
+    |--------------------------------------------------------------------------
+    */
+
+    '/js/offline/pos/offlineBranchSelect.js',
+    '/js/offline/pos/offlinePOS.js',
+    '/js/offline/pos/cachePOSdata.js'
 ];
 
+
+/*
+|--------------------------------------------------------------------------
+| OFFLINE HTML PAGES
+|--------------------------------------------------------------------------
+*/
+
+const OFFLINE_PAGES = [
+    '/offline-select-branch',
+    '/offline-pos'
+];
+
+
+/*
+|--------------------------------------------------------------------------
+| INSTALL
+|--------------------------------------------------------------------------
+*/
 
 self.addEventListener('install', event => {
 
@@ -28,12 +148,36 @@ self.addEventListener('install', event => {
 
                     try {
 
-                        await cache.add(file);
+                        const response =
+                            await fetch(file);
+
+                        if (!response.ok) {
+
+                            console.warn(
+                                'FAILED TO CACHE:',
+                                file,
+                                response.status
+                            );
+
+                            continue;
+                        }
+
+
+                        await cache.put(
+                            file,
+                            response
+                        );
+
+
+                        console.log(
+                            'CACHED:',
+                            file
+                        );
 
                     } catch (error) {
 
-                        console.warn(
-                            'Failed to cache:',
+                        console.error(
+                            'CACHE ERROR:',
                             file,
                             error
                         );
@@ -42,61 +186,68 @@ self.addEventListener('install', event => {
             })
     );
 
+
     self.skipWaiting();
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| ACTIVATE
+|--------------------------------------------------------------------------
+*/
 
 self.addEventListener('activate', event => {
 
     event.waitUntil(
 
-        caches.keys().then(keys => {
+        caches.keys()
+            .then(keys => {
 
-            return Promise.all(
+                return Promise.all(
 
-                keys
-                    .filter(key => key !== CACHE_NAME)
-                    .map(key => caches.delete(key))
-            );
+                    keys
+                        .filter(
+                            key =>
+                                key !== CACHE_NAME
+                        )
+                        .map(
+                            key =>
+                                caches.delete(key)
+                        )
+                );
 
-        }).then(() => {
+            })
+            .then(() => {
 
-            return self.clients.claim();
-        })
+                return self.clients.claim();
+
+            })
     );
 });
 
 
 /*
 |--------------------------------------------------------------------------
-| FETCH HANDLER
+| FETCH
 |--------------------------------------------------------------------------
-|
-| Replace your OLD fetch handler with everything below.
-|
 */
 
 self.addEventListener('fetch', event => {
 
-    const request = event.request;
+    const request =
+        event.request;
+
 
     /*
     |--------------------------------------------------------------------------
-    | Only handle GET requests
+    | Only handle GET
     |--------------------------------------------------------------------------
-    |
-    | POST/PUT/DELETE requests such as:
-    |
-    | /login
-    | /heartbeat
-    | /admin/inventory
-    | /cashier/pos/order
-    |
-    | are allowed to go directly to the server.
-    |
     */
 
-    if (request.method !== 'GET') {
+    if (
+        request.method !== 'GET'
+    ) {
         return;
     }
 
@@ -107,7 +258,20 @@ self.addEventListener('fetch', event => {
 
     /*
     |--------------------------------------------------------------------------
-    | LOGIN PAGE
+    | Don't intercept external resources
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        url.origin !== self.location.origin
+    ) {
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGIN
     |--------------------------------------------------------------------------
     */
 
@@ -121,7 +285,7 @@ self.addEventListener('fetch', event => {
             (async () => {
 
                 /*
-                * Try network first.
+                * Network first while server is available.
                 */
 
                 try {
@@ -129,10 +293,6 @@ self.addEventListener('fetch', event => {
                     const response =
                         await fetch(request);
 
-
-                    /*
-                    * Only cache successful responses.
-                    */
 
                     if (response.ok) {
 
@@ -154,14 +314,14 @@ self.addEventListener('fetch', event => {
                 } catch (error) {
 
                     console.log(
-                        'Login network request failed.'
+                        'Login network unavailable.'
                     );
+
                 }
 
 
                 /*
-                * Network failed.
-                * Use cached login page.
+                * Server unavailable.
                 */
 
                 const cached =
@@ -175,50 +335,13 @@ self.addEventListener('fetch', event => {
                 }
 
 
-                /*
-                * Nothing cached.
-                */
-
                 return new Response(
-
-                    `
-                    <!DOCTYPE html>
-
-                    <html>
-
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta
-                            name="viewport"
-                            content="width=device-width, initial-scale=1.0"
-                        >
-                        <title>
-                            TheaRai Eatery
-                        </title>
-                    </head>
-
-                    <body>
-
-                        <h2>
-                            Offline login unavailable
-                        </h2>
-
-                        <p>
-                            Please open the login page once
-                            while connected to the internet.
-                        </p>
-
-                    </body>
-
-                    </html>
-                    `,
-
+                    'Offline login page is not available.',
                     {
                         status: 503,
-
                         headers: {
                             'Content-Type':
-                                'text/html; charset=UTF-8'
+                                'text/plain'
                         }
                     }
                 );
@@ -226,36 +349,47 @@ self.addEventListener('fetch', event => {
             })()
         );
 
-
         return;
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | ALL OTHER PAGE NAVIGATION
+    | OFFLINE POS PAGES
     |--------------------------------------------------------------------------
-    |
-    | Example:
-    |
-    | /admin/dashboard
-    | /admin/inventory
-    | /admin/menu
-    | /admin/expenses
-    | /cashier/pos
-    |
     */
 
-    if (request.mode === 'navigate') {
+    if (
+        request.mode === 'navigate' &&
+        OFFLINE_PAGES.includes(
+            url.pathname
+        )
+    ) {
 
         event.respondWith(
 
             (async () => {
 
                 /*
-                |--------------------------------------------------------------------------
-                | 1. Try network first
-                |--------------------------------------------------------------------------
+                * CACHE FIRST.
+                *
+                * These pages are specifically designed
+                * for offline use.
+                */
+
+                const cached =
+                    await caches.match(request) ||
+                    await caches.match(url.pathname);
+
+
+                if (cached) {
+                    return cached;
+                }
+
+
+                /*
+                * Not cached yet.
+                * Try server.
                 */
 
                 try {
@@ -272,11 +406,6 @@ self.addEventListener('fetch', event => {
                             );
 
 
-                        /*
-                        * Save successful page for
-                        * future offline use.
-                        */
-
                         await cache.put(
                             request,
                             response.clone()
@@ -289,91 +418,19 @@ self.addEventListener('fetch', event => {
                 } catch (error) {
 
                     console.log(
-                        'Navigation network unavailable.'
-                    );
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | 2. Network failed -> use cached page
-                |--------------------------------------------------------------------------
-                */
-
-                const cached =
-                    await caches.match(
-                        request
+                        'Offline page unavailable.'
                     );
 
-
-                if (cached) {
-                    return cached;
                 }
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | 3. Page wasn't cached
-                |--------------------------------------------------------------------------
-                |
-                | As a final fallback show login.
-                |
-                */
-
-                const login =
-                    await caches.match(
-                        '/login'
-                    );
-
-
-                if (login) {
-                    return login;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | 4. Nothing available
-                |--------------------------------------------------------------------------
-                */
 
                 return new Response(
-
-                    `
-                    <!DOCTYPE html>
-
-                    <html>
-
-                    <head>
-                        <meta charset="UTF-8">
-
-                        <title>
-                            TheaRai Eatery
-                        </title>
-                    </head>
-
-                    <body>
-
-                        <h2>
-                            This page is not available offline.
-                        </h2>
-
-                        <p>
-                            Open this page once while online
-                            so it can be cached.
-                        </p>
-
-                    </body>
-
-                    </html>
-                    `,
-
+                    'This offline page has not been cached yet.',
                     {
                         status: 503,
-
                         headers: {
                             'Content-Type':
-                                'text/html; charset=UTF-8'
+                                'text/plain'
                         }
                     }
                 );
@@ -381,93 +438,36 @@ self.addEventListener('fetch', event => {
             })()
         );
 
-
         return;
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | OTHER GET REQUESTS
-    |--------------------------------------------------------------------------
-    |
-    | CSS
-    | JS
-    | images
-    | fonts
-    | GET API requests
-    |
-    */
+    // Never serve cached Laravel navigations: stale online layouts caused the
+    // online and offline sessions to interfere with each other.
+    if (request.mode === 'navigate') {
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    // Cache only static assets. API responses and other dynamic GET requests
+    // must always use the network.
+    const isStaticAsset = ['style', 'script', 'image', 'font'].includes(
+        request.destination
+    );
+
+    if (!isStaticAsset) {
+        return;
+    }
 
     event.respondWith(
+        fetch(request).then(response => {
+            if (response.ok && response.type === 'basic') {
+                const clone = response.clone();
+                caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+            }
 
-        caches.match(request)
-
-            .then(cachedResponse => {
-
-                /*
-                * Return cached resource immediately.
-                */
-
-                if (cachedResponse) {
-                    return cachedResponse;
-                }
-
-
-                /*
-                * Otherwise try the network.
-                */
-
-                return fetch(request)
-
-                    .then(response => {
-
-                        /*
-                        * Cache successful responses.
-                        */
-
-                        if (response.ok) {
-
-                            const cachePromise =
-                                caches.open(
-                                    CACHE_NAME
-                                )
-                                .then(cache => {
-
-                                    return cache.put(
-                                        request,
-                                        response.clone()
-                                    );
-
-                                });
-
-
-                            event.waitUntil(
-                                cachePromise
-                            );
-                        }
-
-
-                        return response;
-
-                    })
-
-                    .catch(() => {
-
-                        /*
-                        * Nothing available.
-                        */
-
-                        return new Response(
-                            '',
-                            {
-                                status: 503
-                            }
-                        );
-
-                    });
-
-            })
+            return response;
+        }).catch(() => caches.match(request))
     );
 
 });

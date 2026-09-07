@@ -70,9 +70,16 @@ document.addEventListener(
 
 
             if (existingUser) {
+                await OfflineAuth.saveUser({
+                    ...existingUser,
+                    id: data.user.id,
+                    name: data.user.name,
+                    role: data.user.role,
+                    branch_id: data.user.branch_id
+                });
 
                 console.log(
-                    'Offline login already enabled for:',
+                    'Offline login details updated for:',
                     email
                 );
 
@@ -144,6 +151,9 @@ document.addEventListener(
 
                 role:
                     data.user.role,
+
+                branch_id:
+                    data.user.branch_id,
 
                 salt:
                     salt,
