@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
@@ -164,10 +165,10 @@
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/utils/liveClock.js') }}" defer></script>
 
-  <script src="{{ asset('js/offline/offlineDB.js') }}" defer></script>
-  <script src="{{ asset('js/offline/offlineAuth.js') }}" defer></script>
-  <script src="{{ asset('js/offline/password.js') }}" defer></script>
-  <script src="{{ asset('js/offline/registerOfflineUser.js') }}" defer></script>
+  <script src="{{ asset('js/offline/DB/offlineDB.js') }}" defer></script>
+  <script src="{{ asset('js/offline/auth/offlineAuth.js') }}" defer></script>
+  <script src="{{ asset('js/offline/auth/password.js') }}" defer></script>
+  <script src="{{ asset('js/offline/auth/registerOfflineUser.js') }}" defer></script>
 
   @include('partials.qr_notif')
 
