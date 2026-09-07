@@ -50,7 +50,7 @@ class PosController extends Controller{
         return view('pos.pos', compact('categories', 'menuItems', 'layout', 'activeBranch'));
     }
 
-    public function processOrder(Request $request){
+    public function processOrder(Request $request, ?int $branchId = null){
         $request->validate([
             'cart' => 'required|array',
             'cart.*.id' => 'required|integer|exists:pgsql.laravel.menu_items,id',
@@ -62,7 +62,7 @@ class PosController extends Controller{
             'reference_number' => 'nullable|string|max:255',
         ]);
 
-        $activeBranchId = $this->getActiveBranchId();
+        $activeBranchId = $branchId ?? $this->getActiveBranchId();
 
         try{
             DB::beginTransaction();
@@ -217,5 +217,107 @@ class PosController extends Controller{
         
         // Redirect back to the POS dashboard
         return redirect('/cashier/pos'); 
+    }
+
+
+    
+    //offline data
+    public function offlineData(){
+        $branches = DB::table('laravel.branches')
+            ->orderBy('name')
+            ->get();
+
+        $categories = DB::table('laravel.menu_categories')
+            ->get();
+
+        $menuItems = DB::table('laravel.branch_menu_items as bmi')
+            ->join(
+                'laravel.menu_items as mi',
+                'bmi.menu_item_id',
+                '=',
+                'mi.id'
+            )
+            ->select(
+                'mi.id',
+                'mi.name',
+                'mi.category_id',
+                'mi.img_url',
+                'mi.created_at',
+                'bmi.branch_id',
+                'bmi.is_available',
+                DB::raw(
+                    'COALESCE(
+                        bmi.branch_price,
+                        mi.final_price
+                    ) as final_price'
+                )
+            )
+            ->where(
+                DB::raw(
+                    'COALESCE(
+                        bmi.branch_price,
+                        mi.final_price
+                    )'
+                ),
+                '>',
+                0
+            )
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'branches' => $branches,
+            'categories' => $categories,
+            'menu_items' => $menuItems,
+        ]);
+    }
+
+    public function syncOfflineOrders(Request $request)
+    {
+        $orders = $request->validate([
+            'orders' => 'required|array',
+            'orders.*.local_id' => 'required|string|max:100',
+            'orders.*.branch_id' => 'required|integer',
+            'orders.*.total_amount' => 'required|numeric|min:0',
+            'orders.*.cash_tendered' => 'required|numeric|min:0',
+            'orders.*.payment_method' => 'required|string|in:cash,digital',
+            'orders.*.reference_number' => 'nullable|string|max:255',
+            'orders.*.items' => 'required|array|min:1',
+            'orders.*.items.*.menu_item_id' => 'required|integer',
+            'orders.*.items.*.quantity' => 'required|integer|min:1',
+            'orders.*.items.*.price_at_time' => 'required|numeric|min:0',
+            'orders.*.items.*.subtotal' => 'required|numeric|min:0',
+        ])['orders'];
+
+        $results = [];
+
+        foreach ($orders as $order) {
+            try {
+                $response = $this->processOrder(new Request([
+                    'cart' => array_map(fn ($item) => [
+                        'id' => $item['menu_item_id'],
+                        'quantity' => $item['quantity'],
+                        'price' => $item['price_at_time'],
+                    ], $order['items']),
+                    'total_amount' => $order['total_amount'],
+                    'cash_tendered' => $order['cash_tendered'],
+                    'payment_method' => $order['payment_method'],
+                    'reference_number' => $order['reference_number'] ?? null,
+                ]), (int) $order['branch_id']);
+
+                $results[] = [
+                    'local_id' => $order['local_id'],
+                    'success' => $response->getStatusCode() < 400,
+                ];
+            } catch (\Throwable $error) {
+                $results[] = [
+                    'local_id' => $order['local_id'],
+                    'success' => false,
+                    'error' => $error->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json(['success' => true, 'results' => $results]);
     }
 }

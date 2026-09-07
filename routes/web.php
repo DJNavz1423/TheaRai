@@ -263,6 +263,24 @@ Route::post('/offline/register', function () {
             'name' => $user->name,
             'email' => strtolower($user->email),
             'role' => $user->role,
+            'branch_id' => $user->branch_id,
         ]
     ]);
 })->middleware('auth');
+
+### OFFLINE POS ROUTES ##
+Route::get('/offline-select-branch', function () {
+    return view('admin.pos.offline-select-branch');
+})  ->name('offline.selectBranch');
+
+Route::get('/offline/data',
+    [PosController::class, 'offlineData']
+)   ->name('offline.data');
+
+Route::post('/offline/orders/sync', [PosController::class, 'syncOfflineOrders'])
+    ->middleware('auth')
+    ->name('offline.orders.sync');
+
+Route::get('/offline-pos', function () {
+    return view('pos.offline');
+}) ->name('offline.pos');
