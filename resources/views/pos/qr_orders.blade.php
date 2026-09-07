@@ -1,4 +1,4 @@
-@extends(auth()->user()->role === 'admin' ? 'layouts.admin' : 'layouts.cashier')
+@extends(auth()->user()->role === 'admin' || auth()->user()->role === 'dev' || auth()->user()->role === 'owner' ? 'layouts.admin' : 'layouts.cashier')
 @section('title', 'QR Orders')
 
 @section('content')

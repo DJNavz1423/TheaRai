@@ -7,7 +7,8 @@
     <div class="row table-controls border-b">
         <div class="searchbox">
             <span class="icon-wrapper">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                <path d="M380-320q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l224 224q11 11 11 28t-11 28q-11 11-28 11t-28-11L532-372q-30 24-69 38t-83 14Zm0-80q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></svg>
             </span>
 
             <input type="text" id="menuSearch" class="border searchBar" placeholder="Search products...">
@@ -101,7 +102,16 @@
             </button>
         </div>
 
-        <div id="in-cart-preview" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--light-pure); z-index: 10; flex-direction: column;">
+        <div id="in-cart-preview" style="display: none; 
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        background: var(--light-pure); 
+        z-index: 10; 
+        flex-direction: column;">
+        
         <div class="cart-header border-b">
             <h2>
                 <span class="icon-wrapper">
@@ -170,15 +180,17 @@
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
-         <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
     @endpush
 @endonce
 
 @once
     @push('scripts')
-     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
-     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
-     <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
+
+
         <script>
             const menuItems = @json($menuItems);
             let cart = [];
