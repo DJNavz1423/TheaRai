@@ -6,9 +6,11 @@
   background: var(--primary); 
   color: var(--light-pure) !important; 
   border-radius: 50%; 
+  border-color: none;
   padding: 2px 6px; 
   font-size: 12px; 
   font-weight: bold;
+  line-height: normal;
 }
 
 .sub-menu .qr-notif-badge{
