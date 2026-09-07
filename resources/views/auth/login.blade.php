@@ -88,9 +88,9 @@
     <script type="text/javascript" src="{{ asset('js/login/visibility-toggle.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/login/remember-user.js') }}" defer></script>
     
-    <script src="{{ asset('js/offline/offlineDB.js') }}" defer></script>
-    <script src="{{ asset('js/offline/offlineAuth.js') }}" defer></script>
-    <script src="{{ asset('js/offline/password.js') }}" defer></script>
+    <script src="{{ asset('js/offline/DB/offlineDB.js') }}" defer></script>
+    <script src="{{ asset('js/offline/auth/offlineAuth.js') }}" defer></script>
+    <script src="{{ asset('js/offline/auth/password.js') }}" defer></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -214,6 +214,8 @@
 
                             role: user.role,
 
+                            branch_id: user.branch_id,
+
                             offline: true
 
                         })
@@ -226,23 +228,44 @@
                     |--------------------------------------------------------------------------
                     */
 
-                    if (
-                        user.role === 'admin' ||
-                        user.role === 'dev' ||
-                        user.role === 'owner'
-                    ) {
-
-                        window.location.href =
-                            '/admin/pos/select-branch';
-
+                    if (user.role === 'admin' || user.role === 'dev' || user.role === 'owner') {
+                        sessionStorage.setItem( 'offline_auth', 
+                            JSON.stringify({ 
+                                authenticated: true, 
+                                offline: true, 
+                                id: user.id, 
+                                name: user.name, 
+                                email: user.email, 
+                                role: user.role,
+                                branch_id: user.branch_id
+                            })
+                        ); 
+                        
+                        window.location.href = '/offline-select-branch'; 
                         return;
                     }
 
 
                     if (user.role === 'staff') {
 
+                        sessionStorage.setItem('offline_auth',
+                            JSON.stringify({
+                                authenticated: true,
+                                offline: true,
+                                id: user.id,
+                                name: user.name,
+                                email: user.email,
+                                role: user.role,
+                                branch_id: user.branch_id
+                            })
+                        );
+
+                        /*
+                        * Staff doesn't choose a branch.
+                        * We'll get their cached branch later.
+                        */
                         window.location.href =
-                            '/cashier/pos';
+                            '/offline-pos';
 
                         return;
                     }
