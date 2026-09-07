@@ -10,7 +10,11 @@ class UserAccountController extends Controller
     public function index(){
         $user = auth()->user();   
 
-        return view('admin.peopleManagement.myAccount', compact('user'));
+        $layout = in_array($user->role, ['admin', 'dev', 'owner'])
+        ? 'layouts.admin'
+        : 'layouts.cashier';
+
+        return view('admin.peopleManagement.myAccount', compact('user', 'layout'));
     }
 
      public function update(Request $request){
