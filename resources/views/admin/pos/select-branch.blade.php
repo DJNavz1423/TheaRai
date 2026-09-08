@@ -31,3 +31,43 @@
     <link rel="stylesheet" href="{{ asset('css/admin/sectionHeading.css') }}">
     @endpush
 @endonce
+
+@once
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded',async function () {
+            if (!navigator.onLine) {
+                return;
+            }
+
+            try {
+
+                const branches =
+                    @json($branches);
+
+                for (const branch of branches) {
+
+                    await OfflineDB.put(
+                        OfflineDB.STORES.branches,
+                        branch
+                    );
+
+                }
+
+                console.log(
+                    'Branches cached for offline POS.'
+                );
+
+            } catch (error) {
+
+                console.error(
+                    'Branch caching failed:',
+                    error
+                );
+
+            }
+
+        });
+    </script>
+    @endpush
+@endonce
