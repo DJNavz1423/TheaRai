@@ -108,8 +108,33 @@
                 return;
             }
 
+            async function isLaravelAvailable() {
+                if (!navigator.onLine) {
+                    return false;
+                }
+
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 2500);
+
+                try {
+                    const response = await fetch('/up', {
+                        cache: 'no-store',
+                        signal: controller.signal,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    return response.ok;
+                } catch (error) {
+                    return false;
+                } finally {
+                    clearTimeout(timeout);
+                }
+            }
 
             loginForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
 
                 /*
                 |--------------------------------------------------------------------------
@@ -117,7 +142,11 @@
                 |--------------------------------------------------------------------------
                 */
 
-                if (navigator.onLine) {
+                const serverAvailable =
+                    await isLaravelAvailable();
+
+                if (serverAvailable) {
+                    HTMLFormElement.prototype.submit.call(loginForm);
                     return;
                 }
 
@@ -127,9 +156,6 @@
                 | OFFLINE LOGIN
                 |--------------------------------------------------------------------------
                 */
-
-                event.preventDefault();
-
 
                 const email =
                     emailInput.value

@@ -87,86 +87,65 @@ document.addEventListener(
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | Ask user to enable offline login.
-            |--------------------------------------------------------------------------
-            */
+            const registerButton = document.createElement('button');
+            registerButton.type = 'button';
+            registerButton.textContent = 'Enable offline login';
+            registerButton.style.cssText = [
+                'position: fixed',
+                'right: 1rem',
+                'bottom: 1rem',
+                'z-index: 1000',
+                'padding: .75rem 1rem',
+                'border: 0',
+                'border-radius: .35rem',
+                'background: #a90d13',
+                'color: #fff',
+                'cursor: pointer'
+            ].join(';');
 
-            const enableOffline =
-                confirm(
+            registerButton.addEventListener('click', async function () {
+                const enableOffline = confirm(
                     'Enable offline login for this account?'
                 );
 
+                if (!enableOffline) {
+                    return;
+                }
 
-            if (!enableOffline) {
-                return;
-            }
-
-
-            const password =
-                prompt(
+                const password = prompt(
                     'Enter your password to enable offline login:'
                 );
 
+                if (!password) {
+                    return;
+                }
 
-            if (!password) {
-                return;
-            }
+                registerButton.disabled = true;
+                registerButton.textContent = 'Saving offline login...';
 
+                try {
+                    const salt = crypto.randomUUID();
+                    const passwordHash = await createPasswordHash(password, salt);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Hash password locally.
-            |--------------------------------------------------------------------------
-            */
+                    await OfflineAuth.saveUser({
+                        id: data.user.id,
+                        name: data.user.name,
+                        email,
+                        role: data.user.role,
+                        branch_id: data.user.branch_id,
+                        salt,
+                        password_hash: passwordHash
+                    });
 
-            const salt =
-                crypto.randomUUID();
-
-
-            const passwordHash =
-                await createPasswordHash(
-                    password,
-                    salt
-                );
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Store offline account.
-            |--------------------------------------------------------------------------
-            */
-
-            await OfflineAuth.saveUser({
-
-                id:
-                    data.user.id,
-
-                name:
-                    data.user.name,
-
-                email:
-                    email,
-
-                role:
-                    data.user.role,
-
-                branch_id:
-                    data.user.branch_id,
-
-                salt:
-                    salt,
-
-                password_hash:
-                    passwordHash
-
+                    registerButton.remove();
+                } catch (error) {
+                    console.error('Offline registration failed:', error);
+                    registerButton.disabled = false;
+                    registerButton.textContent = 'Enable offline login';
+                }
             });
 
-
-            alert(
-                'Offline login has been enabled for this account.'
-            );
+            document.body.appendChild(registerButton);
 
 
         } catch (error) {
