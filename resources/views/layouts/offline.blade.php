@@ -84,10 +84,28 @@
   <script type="text/javascript" src="{{ asset('js/offline/DB/offlineDB.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/offline/auth/offlineAuth.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/offline/auth/password.js') }}" defer></script>
-  <script type="text/javascript" src="{{ asset('js/offline/pos/syncOfflineOrders.js') }}" defer></script>
   
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/script.js') }}" defer></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const logoutForm = document
+        .getElementById('logout-btn')
+        ?.closest('form');
+
+      if (!logoutForm) {
+        return;
+      }
+
+      logoutForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        sessionStorage.removeItem('offline_auth');
+        localStorage.removeItem('offline_active_branch_id');
+        window.location.href = '/login';
+      });
+    });
+  </script>
 
   @stack('scripts')
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thearai-v13';
+const CACHE_NAME = 'thearai-v15';
 
 
 /*
@@ -67,16 +67,7 @@ const STATIC_FILES = [
     '/js/offline/auth/offlineAuth.js',
     '/js/offline/auth/password.js',
     '/js/offline/auth/registerOfflineUser.js',
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | OFFLINE LAYOUT
-    |--------------------------------------------------------------------------
-    */
-
-    '/js/offline/layout/offlineLayout.js',
-
+    '/js/offline/pos/syncOfflineOrders.js',
 
     /*
     |--------------------------------------------------------------------------
@@ -115,7 +106,7 @@ const STATIC_FILES = [
 
     '/js/offline/pos/offlineBranchSelect.js',
     '/js/offline/pos/offlinePOS.js',
-    '/js/offline/pos/cachePOSdata.js'
+    '/js/offline/pos/cachePOSData.js'
 ];
 
 

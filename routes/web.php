@@ -282,5 +282,5 @@ Route::post('/offline/orders/sync', [PosController::class, 'syncOfflineOrders'])
     ->name('offline.orders.sync');
 
 Route::get('/offline-pos', function () {
-    return view('pos.offline');
+    return view('pos.offline-pos');
 }) ->name('offline.pos');
