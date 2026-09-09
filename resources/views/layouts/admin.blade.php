@@ -63,7 +63,7 @@
               </li>
 
               <li class="{{ request()->routeIs('cashier.pos') ? 'active' : '' }}">
-                <a href="{{ url('/cashier/pos') }}" target="_blank">Quick POS</a>
+                <a href="{{ url('/cashier/pos') }}">P.O.S</a>
               </li>
             </div>
           </ul>
