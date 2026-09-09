@@ -3,11 +3,10 @@
 @section('title', 'Select POS Branch')
 
 @section('content')
-
 <div class="container">
     <div class="mb-4">
         <h1 class="heading">Select Active Branch</h1>
-        <p class="text-muted">Select the branch you are operating in offline mode.</p>
+        <p class="text-muted" style="margin-bottom: 8px;">Select the branch you are operating in offline mode.</p>
         <p id="offlineUserInfo" class="text-muted"></p>
     </div>
 
