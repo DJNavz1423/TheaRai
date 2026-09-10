@@ -217,6 +217,14 @@
   <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
+
+  <style>
+    .table-controls .filters {
+    .ts-wrapper:last-child {
+        width: 195px !important;
+      }
+    }
+  </style>
   @endpush
 @endonce
 

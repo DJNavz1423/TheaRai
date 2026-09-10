@@ -67,7 +67,24 @@ class PosController extends Controller{
         try{
             DB::beginTransaction();
 
-            $receiptNo = 'REC-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+            $receiptNo = $request->input('receipt_no')
+                ?: 'REC-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+
+            $existingOrder = DB::table('laravel.orders')
+                ->where('receipt_no', $receiptNo)
+                ->first();
+
+            if ($existingOrder) {
+                DB::rollBack();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Order was already synchronized.',
+                    'order_id' => $existingOrder->id,
+                    'receipt' => $receiptNo,
+                ]);
+            }
+
             $changeAmount = $request->cash_tendered - $request->total_amount;
 
             // 1. Insert Order WITH the branch_id
@@ -278,6 +295,7 @@ class PosController extends Controller{
             'orders' => 'required|array',
             'orders.*.local_id' => 'required|string|max:100',
             'orders.*.branch_id' => 'required|integer',
+            'orders.*.receipt_no' => 'required|string|max:100',
             'orders.*.total_amount' => 'required|numeric|min:0',
             'orders.*.cash_tendered' => 'required|numeric|min:0',
             'orders.*.payment_method' => 'required|string|in:cash,digital',
@@ -300,6 +318,7 @@ class PosController extends Controller{
                         'price' => $item['price_at_time'],
                     ], $order['items']),
                     'total_amount' => $order['total_amount'],
+                    'receipt_no' => $order['receipt_no'],
                     'cash_tendered' => $order['cash_tendered'],
                     'payment_method' => $order['payment_method'],
                     'reference_number' => $order['reference_number'] ?? null,

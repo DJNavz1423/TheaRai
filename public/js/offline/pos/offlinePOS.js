@@ -289,41 +289,41 @@ document.addEventListener(
         });
 
 
-        const allCategories =
-            categoryMap.keys();
+        const cachedCategories =
+            await OfflineDB.getAll(
+                OfflineDB.STORES.categories
+            );
 
+        const categoryOptions =
+            cachedCategories
+                .filter(category =>
+                    categoryMap.has(String(category.id))
+                )
+                .sort((a, b) =>
+                    String(a.name).localeCompare(String(b.name))
+                )
+                .map(category => ({
+                    value: String(category.id),
+                    text: String(category.name)
+                }));
 
         categorySelect.innerHTML =
-            `<option value="all">All Categories</option>`;
+            '<option value="all">All Categories</option>';
 
+        categoryOptions.forEach(option => {
+            const element = document.createElement('option');
+            element.value = option.value;
+            element.textContent = option.text;
+            categorySelect.appendChild(element);
+        });
 
-        const categoryNames = {};
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Populate categories from cached menu data
-        |--------------------------------------------------------------------------
-        */
-
-        try {
-
-            const response =
-                await fetch(
-                    '/admin/menu/categories'
-                );
-
-            if (response.ok) {
-
-                /*
-                * Normally unavailable offline.
-                * This exists only when network returns.
-                */
-
-            }
-
-        } catch (error) {
-            // Offline: ignore.
+        if (categorySelect.tomselect) {
+            categorySelect.tomselect.clearOptions();
+            categorySelect.tomselect.addOption([
+                { value: 'all', text: 'All Categories' },
+                ...categoryOptions
+            ]);
+            categorySelect.tomselect.refreshOptions(false);
         }
 
 
@@ -728,7 +728,9 @@ document.addEventListener(
                         class="remove-btn"
                         data-id="${item.id}"
                     >
-                        ×
+                        <span class="icon-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
+                                </span>
                     </button>
 
                 `;

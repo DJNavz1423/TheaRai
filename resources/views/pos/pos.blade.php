@@ -189,6 +189,8 @@
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/offline/DB/offlineDB.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/offline/pos/cachePOSData.js') }}" defer></script>
 
 
         <script>
