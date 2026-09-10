@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thearai-v15';
+const CACHE_NAME = 'thearai-v17';
 
 
 /*
@@ -361,28 +361,6 @@ self.addEventListener('fetch', event => {
 
             (async () => {
 
-                /*
-                * CACHE FIRST.
-                *
-                * These pages are specifically designed
-                * for offline use.
-                */
-
-                const cached =
-                    await caches.match(request) ||
-                    await caches.match(url.pathname);
-
-
-                if (cached) {
-                    return cached;
-                }
-
-
-                /*
-                * Not cached yet.
-                * Try server.
-                */
-
                 try {
 
                     const response =
@@ -412,6 +390,14 @@ self.addEventListener('fetch', event => {
                         'Offline page unavailable.'
                     );
 
+                }
+
+                const cached =
+                    await caches.match(request) ||
+                    await caches.match(url.pathname);
+
+                if (cached) {
+                    return cached;
                 }
 
 

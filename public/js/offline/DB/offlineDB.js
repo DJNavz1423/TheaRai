@@ -1,7 +1,7 @@
 const OfflineDB = (() => {
 
     const DB_NAME = 'thearai_offline';
-    const DB_VERSION = 3;
+    const DB_VERSION = 4;
 
     const STORES = {
         users: 'users',
@@ -22,6 +22,13 @@ const OfflineDB = (() => {
 
                 const db = event.target.result;
 
+                if (
+                    event.oldVersion < 4 &&
+                    db.objectStoreNames.contains(STORES.menuItems)
+                ) {
+                    db.deleteObjectStore(STORES.menuItems);
+                }
+
                 if (!db.objectStoreNames.contains(STORES.users)) {
                     db.createObjectStore(
                         STORES.users,
@@ -39,7 +46,7 @@ const OfflineDB = (() => {
                 if (!db.objectStoreNames.contains(STORES.menuItems)) {
                     db.createObjectStore(
                         STORES.menuItems,
-                        { keyPath: 'id' }
+                        { keyPath: 'offline_key' }
                     );
                 }
 

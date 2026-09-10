@@ -51,7 +51,13 @@ document.addEventListener(
             */
 
             for (const item of data.menu_items) {
-                await OfflineDB.put(OfflineDB.STORES.menuItems, item);
+                await OfflineDB.put(
+                    OfflineDB.STORES.menuItems,
+                    {
+                        ...item,
+                        offline_key: `${item.branch_id}:${item.id}`
+                    }
+                );
             }
             
             /*
