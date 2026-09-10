@@ -169,6 +169,7 @@
   <script src="{{ asset('js/offline/auth/offlineAuth.js') }}" defer></script>
   <script src="{{ asset('js/offline/auth/password.js') }}" defer></script>
   <script src="{{ asset('js/offline/auth/registerOfflineUser.js') }}" defer></script>
+  <script src="{{ asset('js/offline/pos/syncOfflineOrders.js') }}" defer></script>
 
   @include('partials.qr_notif')
 

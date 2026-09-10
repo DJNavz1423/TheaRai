@@ -253,6 +253,7 @@
   <script type="text/javascript" src="{{ asset('js/offline/auth/offlineAuth.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/offline/auth/password.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/offline/auth/registerOfflineUser.js') }}" defer></script>
+  <script type="text/javascript" src="{{ asset('js/offline/pos/syncOfflineOrders.js') }}" defer></script>
 
   <script>
     (function () {async function sendHeartbeat() {
