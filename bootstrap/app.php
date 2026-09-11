@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'last.seen' => \App\Http\Middleware\UpdateLastSeen::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'offline/orders/sync',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

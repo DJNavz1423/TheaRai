@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route; # import route class, handles url paths for website
+use Illuminate\Support\Facades\Crypt;
 
 #import my authcontroller so routes know which file to use for login logic
 use App\Http\Controllers\AuthController; 
@@ -264,6 +265,10 @@ Route::post('/offline/register', function () {
             'email' => strtolower($user->email),
             'role' => $user->role,
             'branch_id' => $user->branch_id,
+            'sync_token' => Crypt::encryptString(json_encode([
+                'user_id' => $user->id,
+                'role' => $user->role,
+            ])),
         ]
     ]);
 })->middleware('auth');
@@ -278,7 +283,6 @@ Route::get('/offline/data',
 )   ->name('offline.data');
 
 Route::post('/offline/orders/sync', [PosController::class, 'syncOfflineOrders'])
-    ->middleware('auth')
     ->name('offline.orders.sync');
 
 Route::get('/offline-pos', function () {

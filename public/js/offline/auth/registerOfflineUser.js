@@ -75,7 +75,8 @@ document.addEventListener(
                     id: data.user.id,
                     name: data.user.name,
                     role: data.user.role,
-                    branch_id: data.user.branch_id
+                    branch_id: data.user.branch_id,
+                    sync_token: data.user.sync_token
                 });
 
                 console.log(
@@ -93,7 +94,7 @@ document.addEventListener(
             registerButton.style.cssText = [
                 'position: fixed',
                 'right: 1rem',
-                'bottom: 1rem',
+                'top: 1rem',
                 'z-index: 1000',
                 'padding: .75rem 1rem',
                 'border: 0',
@@ -133,6 +134,7 @@ document.addEventListener(
                         email,
                         role: data.user.role,
                         branch_id: data.user.branch_id,
+                        sync_token: data.user.sync_token,
                         salt,
                         password_hash: passwordHash
                     });

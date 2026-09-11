@@ -242,6 +242,8 @@
 
                             branch_id: user.branch_id,
 
+                            sync_token: user.sync_token,
+
                             offline: true
 
                         })
@@ -264,6 +266,7 @@
                                 email: user.email, 
                                 role: user.role,
                                 branch_id: user.branch_id
+                                ,sync_token: user.sync_token
                             })
                         ); 
                         
@@ -283,6 +286,7 @@
                                 email: user.email,
                                 role: user.role,
                                 branch_id: user.branch_id
+                                ,sync_token: user.sync_token
                             })
                         );
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thearai-v17';
+const CACHE_NAME = 'thearai-v21';
 
 
 /*
@@ -94,6 +94,7 @@ const STATIC_FILES = [
     '/css/admin/pos/selectBranch.css',
     '/css/admin/sectionHeading.css',
     '/css/pos/pos.css',
+    '/css/pos/receiptPreview.css',
     '/css/admin/tableControls.css',
     '/css/admin/filters.css',
 
@@ -444,7 +445,14 @@ self.addEventListener('fetch', event => {
             }
 
             return response;
-        }).catch(() => caches.match(request))
+        }).catch(async () => {
+            const cached = await caches.match(request);
+
+            return cached || new Response('', {
+                status: 503,
+                statusText: 'Offline asset unavailable'
+            });
+        })
     );
 
 });
