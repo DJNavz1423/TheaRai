@@ -247,7 +247,6 @@
   </main>
 
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
-  <script type="text/javascript" src="{{ asset('js/script.js') }}" defer></script>
 
   <script type="text/javascript" src="{{ asset('js/offline/DB/offlineDB.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/offline/auth/offlineAuth.js') }}" defer></script>
