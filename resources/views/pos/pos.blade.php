@@ -102,15 +102,7 @@
             </button>
         </div>
 
-        <div id="in-cart-preview" style="display: none; 
-        position: absolute; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%; 
-        background: var(--light-pure); 
-        z-index: 10; 
-        flex-direction: column;">
+        <div class="receipt-preview" id="in-cart-preview">
         
         <div class="cart-header border-b">
             <h2>
@@ -121,41 +113,42 @@
             </h2>
         </div>
 
-        <div style="flex: 1; overflow-y: auto; padding: 1.5rem; font-family: monospace; font-size: 14px; background: #fff;">
-            <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px;">
-                <strong style="font-size: 16px; font-weight: 900; color: var(--secondary-deep);">{{ $activeBranch->name }}</strong><br>
+        <div class="receipt-wrapper">
+            <div class="receipt-header">
+                <strong style="font-size: 16px; font-weight: 900; color: var(--secondary-deep);">{{ $activeBranch->name }}</strong>
+                <br>
                 <small>{{ $activeBranch->address ?? 'Davao City' }}<br>Tel: 0912 345 6789</small>
             </div>
             
-            <div style="margin-bottom: 10px; font-size: 12px;">
+            <div class="receipt-details">
                 Date: <span id="preview-date"></span><br>
                 Payment: <span id="preview-payment-method"></span>
             </div>
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 13px;">
+            <table class="receipt-items">
                 <thead>
-                    <tr style="border-bottom: 1px dashed #ccc;">
-                        <th style="text-align: left; padding: 4px 0; font-weight: 900; color: var(--secondary-deep);">Qty</th>
-                        <th style="text-align: left; padding: 4px 0; font-weight: 900; color: var(--secondary-deep);">Item</th>
-                        <th style="text-align: right; padding: 4px 0; font-weight: 900; color: var(--secondary-deep);">Amount</th>
+                    <tr>
+                        <th>Qty</th>
+                        <th>Item</th>
+                        <th>Amount</th>
                     </tr>
                 </thead>
-                <tbody id="preview-items">
-                    </tbody>
+
+                <tbody id="preview-items"></tbody>
             </table>
 
-            <table style="width: 100%; font-size: 13px;">
+            <table class="receipt-due">
                 <tr>
                     <td><strong style="font-weight: 900; color: var(--secondary-deep);">Total Due:</strong></td>
-                    <td style="text-align: right; font-weight: 900; color: var(--secondary-deep);" id="preview-total"></td>
+                    <td style="font-weight: 900; color: var(--secondary-deep);" class="preview-total" id="preview-total"></td>
                 </tr>
                 <tr>
                     <td>Cash Tendered:</td>
-                    <td style="text-align: right;" id="preview-tendered"></td>
+                    <td id="preview-tendered"></td>
                 </tr>
                 <tr>
                     <td>Change:</td>
-                    <td style="text-align: right;" id="preview-change"></td>
+                    <td id="preview-change"></td>
                 </tr>
             </table>
         </div>
@@ -181,6 +174,7 @@
         <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
         <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/pos/receiptPreview.css') }}">
     @endpush
 @endonce
 
@@ -189,7 +183,6 @@
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
-    <script type="text/javascript" src="{{ asset('js/offline/DB/offlineDB.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/offline/pos/cachePOSData.js') }}" defer></script>
 
 
@@ -490,9 +483,9 @@
                 cart.forEach(item => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td style="vertical-align: top; padding: 2px 0;">${item.quantity}x</td>
-                        <td style="vertical-align: top; padding: 2px 0; padding-right: 10px;">${item.name}</td>
-                        <td style="text-align: right; vertical-align: top; padding: 2px 0;">${window.formatPeso.format(item.price * item.quantity)}</td>
+                        <td>${item.quantity}x</td>
+                        <td>${item.name}</td>
+                        <td>${window.formatPeso.format(item.price * item.quantity)}</td>
                     `;
                     itemsContainer.appendChild(row);
                 });

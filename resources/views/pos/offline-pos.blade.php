@@ -3,6 +3,8 @@
 @section('title', 'POS')
 
 @section('content')
+  <div id="offlineSyncStatus" role="status" aria-live="polite" hidden style="position:fixed;top:1rem;right:1rem;z-index:1000;padding:.75rem 1rem;border-radius:.35rem;background:#a90d13;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.2);"></div>
+
   <div class="container products-container">
     <div class="row table-controls border-b">
       <div class="searchbox">
@@ -110,19 +112,7 @@
 
     {{-- Receipt preview --}}
 
-    <div
-        id="in-cart-preview"
-        style="
-            display:none;
-            position:absolute;
-            top:0;
-            left:0;
-            width:100%;
-            height:100%;
-            background:var(--light-pure);
-            z-index:10;
-            flex-direction:column;
-        ">
+    <div class="receipt-preview" id="in-cart-preview">
 
         <div class="cart-header border-b">
 
@@ -137,32 +127,21 @@
         </div>
 
 
-        <div style="
-                flex:1;
-                overflow-y:auto;
-                padding:1.5rem;
-                font-family:monospace;
-                font-size:14px;
-                background:#fff;">
+        <div class="receipt-wrapper">
 
-          <div style="
-                    text-align:center;
-                    border-bottom:1px dashed #ccc;
-                    padding-bottom:10px;
-                    margin-bottom:10px;">
-
+          <div class="receipt-header">
             <strong id="preview-branch" style="font-size:16px; font-weight:900;color:var(--secondary-deep);"></strong>
             <br>
-            <small id="preview-address" ></small>
+            <small id="preview-address"></small>
           </div>
 
 
-          <div style="margin-bottom:10px;font-size:12px;">
+          <div class="receipt-details">
             Date: <span id="preview-date"></span><br>
             Payment:<span id="preview-payment-method"></span>
           </div>
 
-          <table style="width:100%;border-collapse:collapse;">
+          <table class="receipt-items">
             <thead>
               <tr>
                 <th>Qty</th>
@@ -175,7 +154,7 @@
           </table>
 
 
-            <div style="margin-top:10px;">
+            <div class="receipt-due">
               <strong>Total: </strong>
 
               <span id="preview-total"></span><br>
@@ -217,6 +196,7 @@
   <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/pos/receiptPreview.css') }}">
 
   <style>
     .table-controls .filters {

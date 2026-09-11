@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PosController extends Controller{
@@ -294,6 +296,7 @@ class PosController extends Controller{
         $orders = $request->validate([
             'orders' => 'required|array',
             'orders.*.local_id' => 'required|string|max:100',
+            'orders.*.sync_token' => 'required|string',
             'orders.*.branch_id' => 'required|integer',
             'orders.*.receipt_no' => 'required|string|max:100',
             'orders.*.total_amount' => 'required|numeric|min:0',
@@ -311,6 +314,28 @@ class PosController extends Controller{
 
         foreach ($orders as $order) {
             try {
+                $claims = json_decode(
+                    Crypt::decryptString($order['sync_token']),
+                    true,
+                    512,
+                    JSON_THROW_ON_ERROR
+                );
+
+                $user = \App\Models\User::findOrFail($claims['user_id']);
+
+                if ($user->role !== $claims['role']) {
+                    throw new \RuntimeException('Offline sync credentials are invalid.');
+                }
+
+                if (
+                    $user->role === 'staff' &&
+                    (int) $user->branch_id !== (int) $order['branch_id']
+                ) {
+                    throw new \RuntimeException('Offline order branch is not assigned to this user.');
+                }
+
+                Auth::login($user);
+
                 $response = $this->processOrder(new Request([
                     'cart' => array_map(fn ($item) => [
                         'id' => $item['menu_item_id'],
@@ -324,9 +349,12 @@ class PosController extends Controller{
                     'reference_number' => $order['reference_number'] ?? null,
                 ]), (int) $order['branch_id']);
 
+                $responseData = $response->getData(true);
+
                 $results[] = [
                     'local_id' => $order['local_id'],
                     'success' => $response->getStatusCode() < 400,
+                    'error' => $responseData['error'] ?? null,
                 ];
             } catch (\Throwable $error) {
                 $results[] = [

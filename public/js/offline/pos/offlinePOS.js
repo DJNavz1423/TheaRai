@@ -1173,6 +1173,9 @@ document.addEventListener(
                             branch_id:
                                 Number(branchId),
 
+                            sync_token:
+                                auth.sync_token,
+
                             total_amount:
                                 total,
 
