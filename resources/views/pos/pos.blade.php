@@ -22,7 +22,7 @@
                 @endforeach
             </select>
 
-            <select id="" class="ts-filter unit-selector">
+            <select id="filter-status" class="ts-filter unit-selector">
                 <option value="all">All Status</option>
                 <option value="enabled" selected>Enabled</option>
                 <option value="disabled">Disabled</option>
@@ -182,12 +182,14 @@
     @push('scripts')
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
-    <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
+    <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsPosFilter.js') }}" defer></script>
+
     <script type="text/javascript" src="{{ asset('js/offline/pos/cachePOSData.js') }}" defer></script>
 
 
         <script>
-            const menuItems = @json($menuItems);
+            window.menuItems = @json($menuItems);
             let cart = [];
 
             const dishGrid = document.getElementById('dish-grid');
@@ -214,7 +216,8 @@
                     ? `<img src="${item.img_url}" alt="${item.name}">` 
                     : `<div class="placeholder">${initialChar}</div>`;
 
-                    const isAvailable = item.is_available === false ? false : true;
+                    const isAvailable = item.is_available === true || item.is_available == 1;
+                    
                     const soldOutClass = isAvailable ? '' : 'not-available';
 
                     const btnClass = isAvailable ? 'is-avail' : 'is-not-avail';
@@ -278,50 +281,22 @@
                     if(data.success){
                         item.is_available = data.is_available;
 
-                        const catId = document.getElementById('category').value;
-                        const query = document.getElementById('menuSearch').value.toLowerCase();
-
-                        let filteredItems = menuItems;
-
-                        if(catId !== 'all')
-                            filteredItems = filteredItems.filter(item => item.category_id == catId);
-
-                        if(query !== '')
-                            filteredItems = filteredItems.filter(item => item.name.toLowerCase().includes(query));
-                        
-                        renderMenu(filteredItems);
+                        if(typeof window.applyPosFilters === 'function'){
+                            window.applyPosFilters();
+                        }
                     } else {
                         alert('Failed to update availability');
                         buttonEl.disabled = false;
-                        buttonEl.innerHTML = item.is_available ? 'Mark Unavailable' : 'Mark Available';
+                        buttonEl.innerHTML = item.is_available ? 'Disable' : 'Enable';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Something went wrong.');
                     buttonEl.disabled = false;
-                    buttonEl.innerHTML = item.is_available ? 'Mark Unavailable' : 'Mark Available';
+                    buttonEl.innerHTML = item.is_available ? 'Disable' : 'Enable';
                 });
             }
-
-            //category filtering
-            document.getElementById('category').addEventListener('change', (e) => {
-                const catId = e.target.value;
-
-                if(catId === 'all'){
-                    renderMenu(menuItems);
-                } else{
-                    const filteredItems = menuItems.filter(item => item.category_id == catId);
-                    renderMenu(filteredItems);
-                }
-            });
-
-            //search filtering
-            document.getElementById('menuSearch').addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase();
-                const filteredItems = menuItems.filter(item => item.name.toLowerCase().includes(query));
-                renderMenu(filteredItems);
-            });
 
             //cart logic
             function addToCart(item){
@@ -586,9 +561,6 @@
             }
 
             cashTenderedInput.addEventListener('input', calculateChange);
-
-            renderMenu(menuItems);
-
         </script>
     @endpush
 @endonce
