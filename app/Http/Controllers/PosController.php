@@ -294,7 +294,7 @@ class PosController extends Controller{
     public function syncOfflineOrders(Request $request)
     {
         $orders = $request->validate([
-            'orders' => 'required|array',
+            'orders' => 'present|array',
             'orders.*.local_id' => 'required|string|max:100',
             'orders.*.sync_token' => 'required|string',
             'orders.*.branch_id' => 'required|integer',
@@ -309,6 +309,13 @@ class PosController extends Controller{
             'orders.*.items.*.price_at_time' => 'required|numeric|min:0',
             'orders.*.items.*.subtotal' => 'required|numeric|min:0',
         ])['orders'];
+
+        if (!$orders) {
+            return response()->json([
+                'success' => true,
+                'results' => [],
+            ]);
+        }
 
         $results = [];
 

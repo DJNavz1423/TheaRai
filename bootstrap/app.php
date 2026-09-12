@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->validateCsrfTokens(except: [
             'offline/orders/sync',
+            'offline/session',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

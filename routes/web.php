@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route; # import route class, handles url paths for website
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Http\Request;
 
 #import my authcontroller so routes know which file to use for login logic
 use App\Http\Controllers\AuthController; 
@@ -284,6 +285,30 @@ Route::get('/offline/data',
 
 Route::post('/offline/orders/sync', [PosController::class, 'syncOfflineOrders'])
     ->name('offline.orders.sync');
+
+Route::post('/offline/session', function (Request $request) {
+    try {
+        $claims = json_decode(
+            Crypt::decryptString($request->input('sync_token')),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+        $user = \App\Models\User::findOrFail($claims['user_id']);
+
+        if ($user->role !== $claims['role']) {
+            return response()->json(['success' => false], 401);
+        }
+
+        auth()->login($user);
+        $request->session()->regenerate();
+
+        return response()->json(['success' => true]);
+    } catch (\Throwable $error) {
+        return response()->json(['success' => false], 401);
+    }
+})->name('offline.session');
 
 Route::get('/offline-pos', function () {
     return view('pos.offline-pos');

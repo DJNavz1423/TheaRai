@@ -32,7 +32,7 @@
 
         if (!(await isServerAvailable())) {
             serverWasUnavailable = true;
-            setStatus('Waiting for the Laravel server to come back online...');
+            setStatus('', false);
             return;
         }
 
@@ -55,8 +55,29 @@
             .filter(order => order.sync_status === 'pending');
 
         if (!orders.length) {
-            setStatus('Connection restored. Returning online...', true);
-            goOnline(offlineAuth.role);
+            try {
+                const sessionResponse = await fetch('/offline/session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sync_token: offlineAuth.sync_token
+                    })
+                });
+
+                if (!sessionResponse.ok) {
+                    setStatus('Online session could not be restored.');
+                    return;
+                }
+
+                setStatus('Connection restored. Returning online...', true);
+                goOnline(offlineAuth.role);
+            } catch (error) {
+                setStatus('Online session could not be restored. Retrying...');
+            }
+
             return;
         }
 

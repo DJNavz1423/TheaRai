@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thearai-v21';
+const CACHE_NAME = 'thearai-v22';
 
 
 /*
