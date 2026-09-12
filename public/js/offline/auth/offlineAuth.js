@@ -39,3 +39,5 @@ const OfflineAuth = (() => {
     };
 
 })();
+
+window.OfflineAuth = OfflineAuth;

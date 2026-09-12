@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thearai-v22';
+const CACHE_NAME = 'thearai-v24';
 
 
 /*
@@ -67,6 +67,7 @@ const STATIC_FILES = [
     '/js/offline/auth/offlineAuth.js',
     '/js/offline/auth/password.js',
     '/js/offline/auth/registerOfflineUser.js',
+    '/js/offline/auth/offlineConnectionRedirect.js',
     '/js/offline/pos/syncOfflineOrders.js',
 
     /*

@@ -170,6 +170,19 @@
   <script src="{{ asset('js/offline/auth/password.js') }}" defer></script>
   <script src="{{ asset('js/offline/auth/registerOfflineUser.js') }}" defer></script>
   <script src="{{ asset('js/offline/pos/syncOfflineOrders.js') }}" defer></script>
+  @php
+    $onlineUser = [
+      'id' => auth()->id(),
+      'name' => auth()->user()->name,
+      'email' => strtolower(auth()->user()->email),
+      'role' => auth()->user()->role,
+      'branch_id' => auth()->user()->branch_id,
+    ];
+  @endphp
+  <script>
+    window.theaRaiOnlineUser = @json($onlineUser);
+  </script>
+  <script type="text/javascript" src="{{ asset('js/offline/auth/offlineConnectionRedirect.js') }}" defer></script>
 
   @include('partials.qr_notif')
 
