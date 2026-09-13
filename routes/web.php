@@ -29,6 +29,8 @@ use App\Http\Controllers\PosController;
 use App\Http\Controllers\QrMenuController;
 use App\Http\Controllers\QrOrderController;
 
+use App\Http\Controllers\TransactionController;
+
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
 });
@@ -188,6 +190,10 @@ Route::middleware(['auth'])->group(function(){
 
         Route::post('/qr-orders/{id}/serve', [QrOrderController::class, 'serve'])
             ->name('admin.qr.orders.serve');
+
+        #transactions
+        Route::get('/transactions', [TransactionController::class, 'index'])
+            ->name('admin.transactions.index');
     });
 
 
@@ -213,6 +219,9 @@ Route::middleware(['auth'])->group(function(){
 
         Route::post('/qr-orders/{id}/serve', [QrOrderController::class, 'serve'])
             ->name('cashier.qr.orders.serve');
+
+        Route::get('/transactions', [TransactionController::class, 'index'])
+            ->name('cashier.transactions.index');
     });
     
     
