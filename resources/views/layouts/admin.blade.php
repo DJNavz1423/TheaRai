@@ -94,7 +94,7 @@
 
         {{-- dropdown sales --}}
         <li>
-          <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn">
+          <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn {{ request()->routeIs('admin.transactions.index', 'admin.qr.orders') ? 'active' : '' }}">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z"/></svg>
             </span>
@@ -110,8 +110,11 @@
 
           <ul class="sub-menu">
             <div>
-              <li><a href="#">Overview</a></li>
-              <li><a href="#">Transactions</a></li>
+              <li class="{{ request()->routeIs('admin.transactions.index') ? 'active' : '' }}">
+                <a href="{{ url('/admin/transactions') }}">
+                  Transactions
+                </a>
+              </li>
               <li class="{{ request()->routeIs('admin.qr.orders') ? 'active' : '' }}">
                 <a href="{{ url('/admin/qr-orders') }}">
                   QR Orders
@@ -168,25 +171,14 @@
         {{-- dropdown menu end--}}
 
         {{-- dropdown people management --}}
-        <li>
-          <button onclick=toggleSubMenu(this) class="dropdown-btn sidebar-btn {{ request()->routeIs('admin.peopleManagement.*') ? 'active' : '' }}">
+        <li class="{{ request()->routeIs('admin.peopleManagement.users') ? 'active' : '' }}">
+          <a href="{{ url('/admin/users') }}">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M40-272q0-34 17.5-62.5T104-378q62-31 126-46.5T360-440q66 0 130 15.5T616-378q29 15 46.5 43.5T680-272v32q0 33-23.5 56.5T600-160H120q-33 0-56.5-23.5T40-240v-32Zm800 112H738q11-18 16.5-38.5T760-240v-40q0-44-24.5-84.5T666-434q51 6 96 20.5t84 35.5q36 20 55 44.5t19 53.5v40q0 33-23.5 56.5T840-160ZM247-527q-47-47-47-113t47-113q47-47 113-47t113 47q47 47 47 113t-47 113q-47 47-113 47t-113-47Zm466 0q-47 47-113 47-11 0-28-2.5t-28-5.5q27-32 41.5-71t14.5-81q0-42-14.5-81T544-792q14-5 28-6.5t28-1.5q66 0 113 47t47 113q0 66-47 113ZM120-240h480v-32q0-11-5.5-20T580-306q-54-27-109-40.5T360-360q-56 0-111 13.5T140-306q-9 5-14.5 14t-5.5 20v32Zm296.5-343.5Q440-607 440-640t-23.5-56.5Q393-720 360-720t-56.5 23.5Q280-673 280-640t23.5 56.5Q327-560 360-560t56.5-23.5ZM360-240Zm0-400Z"/></svg>
             </span>
-            
-            <span class="nav-item">Manage People</span>
-            
-            <span class="icon-wrapper dropdown-arrow">
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M465-363.5q-7-2.5-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5q-8 0-15-2.5Z"/></svg>
-            </span>
-          </button>
 
-          <ul class="sub-menu">
-            <div>
-              <li class="{{ request()->is('admin/users') ? 'active' : '' }}"><a href="{{ url('/admin/users') }}">User Accounts</a></li>
-              <li><a href="#">Contacts</a></li>
-            </div>
-          </ul>
+            <span class="nav-item">User Accounts</span>
+          </a>
         </li>
         {{-- dropdown people management end --}}
 
