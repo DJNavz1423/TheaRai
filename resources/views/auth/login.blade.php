@@ -26,7 +26,7 @@
                     <span class = "logo d-none">
                         <img src="{{ asset('img/logos/TheaRaiLogo.webp') }}" alt="TheaRai Logo">
                     </span>
-                    <span class="heading underline-fullwidth d-flex">Admin Login</span>
+                    <span class="heading underline-fullwidth d-flex">User Login</span>
                 </h1>
 
                 <form action="/login" method="POST" class="mt-5">
