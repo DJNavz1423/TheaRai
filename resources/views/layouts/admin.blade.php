@@ -152,6 +152,12 @@
 
             <ul class="sub-menu">
               <div>
+                <li class="{{ request()->routeIs('admin.branches') ? 'active' : '' }}">
+                  <a href="{{ url('/admin/branches') }}">
+                    Manage Branches
+                  </a>
+                </li>
+
                 <li class="{{ request()->routeIs('admin.tables') ? 'active' : '' }}">
                   <a href="{{ url('/admin/tables') }}">
                     Manage Tables

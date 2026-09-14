@@ -31,6 +31,8 @@ use App\Http\Controllers\QrOrderController;
 
 use App\Http\Controllers\TransactionController;
 
+use App\Http\Controllers\ManageBranchController;
+
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
 });
@@ -197,6 +199,10 @@ Route::middleware(['auth'])->group(function(){
         
         Route::get('/transactions/{id}', [TransactionController::class, 'show'])
             ->name('admin.transactions.show');
+
+        #branch
+        Route::get('/branches', [ManageBranchController::class, 'index'])
+            ->name('admin.branches');
     });
 
 
