@@ -14,6 +14,13 @@
   <link rel="stylesheet" href="{{ asset('css/cashier/header.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
 
+  <style>
+    .modal{
+      height: auto !important;
+      z-index: 9999 !important;
+    }
+  </style>
+
   @stack('styles')
 
   <title>TheaRai Eatery | @yield('title', 'POS')</title>

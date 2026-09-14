@@ -194,6 +194,9 @@ Route::middleware(['auth'])->group(function(){
         #transactions
         Route::get('/transactions', [TransactionController::class, 'index'])
             ->name('admin.transactions.index');
+        
+        Route::get('/transactions/{id}', [TransactionController::class, 'show'])
+            ->name('admin.transactions.show');
     });
 
 
@@ -222,6 +225,9 @@ Route::middleware(['auth'])->group(function(){
 
         Route::get('/transactions', [TransactionController::class, 'index'])
             ->name('cashier.transactions.index');
+        
+        Route::get('/transactions/{id}', [TransactionController::class, 'show'])
+            ->name('cashier.transactions.show');
     });
     
     
