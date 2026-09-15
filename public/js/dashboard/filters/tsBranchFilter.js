@@ -39,14 +39,37 @@ document.addEventListener('DOMContentLoaded', function () {
             const address =
                 row.getAttribute('data-address') || '';
 
+            const inventory =
+                row.getAttribute('data-inventory') || '';
+
+            const inventoryRaw =
+                row.getAttribute('data-inventory-raw') || '';
+
+            const date =
+                row.getAttribute('data-date') || '';
+
+            const dateFull =
+                row.getAttribute('data-date-full') || '';
+
+            const dateIso =
+                row.getAttribute('data-date-iso') || '';
+
 
             const matchesSearch =
                 name.includes(searchQuery) ||
-                address.includes(searchQuery);
+                address.includes(searchQuery) ||
+                inventory.includes(searchQuery) ||
+                inventoryRaw.includes(searchQuery) ||
+                date.includes(searchQuery) ||
+                dateFull.includes(searchQuery) ||
+                dateIso.includes(searchQuery);
 
 
-            row.style.display =
-                matchesSearch ? '' : 'none';
+            if (matchesSearch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
 
         });
 
@@ -103,12 +126,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     if (searchBar) {
-
         searchBar.addEventListener(
             'input',
             applyBranchFilters
         );
-
     }
 
 

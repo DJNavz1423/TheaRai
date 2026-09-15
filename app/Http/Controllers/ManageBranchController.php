@@ -56,4 +56,23 @@ class ManageBranchController extends Controller
             compact('branches')
         );
     }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:500',
+        ]);
+
+        DB::table('laravel.branches')->insert([
+            'name' => $validated['name'],
+            'address' => $validated['address'] ?? null,
+            'created_at' => now(),
+        ]);
+
+        return back()->with(
+            'success',
+            'Branch added successfully!'
+        );
+    }
 }

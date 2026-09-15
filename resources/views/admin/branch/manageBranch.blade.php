@@ -5,7 +5,7 @@
 @section('content')
   <div class="container">
     <div class="row mb-3">
-      <h1 class="heading">Branch Management</h1>
+      <h1 class="heading">Branch Management ({{ count($branches) }})</h1>
 
       <div class="row heading-btn-row">
         <button id="addButton" class="btn" type="button" onclick="document.getElementById('addModal').style.display='flex'">
@@ -57,8 +57,12 @@
               class="branch-row"
               data-name="{{ strtolower($branch->name) }}"
               data-address="{{ strtolower($branch->address ?? '') }}"
-              data-created="{{ \Carbon\Carbon::parse($branch->created_at)->timestamp }}"
-            >
+              data-inventory="{{ number_format($branch->inventory_value, 2) }}"
+              data-inventory-raw="{{ number_format($branch->inventory_value, 2, '.', '') }}"
+              data-date="{{ strtolower(\Carbon\Carbon::parse($branch->created_at)->format('M j, Y')) }}"
+              data-date-full="{{ strtolower(\Carbon\Carbon::parse($branch->created_at)->format('F j, Y')) }}"
+              data-date-iso="{{ \Carbon\Carbon::parse($branch->created_at)->format('Y-m-d') }}"
+              data-created="{{ \Carbon\Carbon::parse($branch->created_at)->timestamp }}">
 
               {{-- Branch Name --}}
               <td role="cell">
@@ -119,6 +123,9 @@
       </table>
     </div>
   </div>
+
+  {{-- Modals --}}
+  @include('admin.branch.modals.addModal')
 @endsection
 
 @once

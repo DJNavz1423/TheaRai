@@ -203,6 +203,9 @@ Route::middleware(['auth'])->group(function(){
         #branch
         Route::get('/branches', [ManageBranchController::class, 'index'])
             ->name('admin.branches');
+
+        Route::post('/branches', [ManageBranchController::class, 'store'])
+            ->name('admin.branches.store');
     });
 
 
