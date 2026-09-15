@@ -337,3 +337,7 @@ Route::post('/offline/session', function (Request $request) {
 Route::get('/offline-pos', function () {
     return view('pos.offline-pos');
 }) ->name('offline.pos');
+
+Route::get('/offline-transactions', function () {
+    return view('admin.transaction.offline-transaction');
+}) ->name('offline.transactions');
