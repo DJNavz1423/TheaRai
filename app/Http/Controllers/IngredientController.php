@@ -29,6 +29,7 @@ class IngredientController extends Controller
                 $cashIn = DB::table('laravel.orders')
                     ->where('branch_id', $branch->id)
                     ->where('payment_method', 'cash')
+                    ->where('payment_status', 'paid')
                     ->sum('total_amount');
 
                 $cashSpent = DB::table('laravel.expenses')
@@ -83,6 +84,7 @@ class IngredientController extends Controller
 
             $totalBranchCashIn = DB::table('laravel.orders')
                 ->where('payment_method', 'cash')
+                ->where('payment_status', 'paid')
                 ->where('branch_id', $branchId)
                 ->sum('total_amount');
 
@@ -312,6 +314,7 @@ class IngredientController extends Controller
 
             $totalBranchCashIn = DB::table('laravel.orders')
                 ->where('payment_method', 'cash')
+                ->where('payment_status', 'paid')
                 ->where('branch_id', $branchId)
                 ->sum('total_amount');
 

@@ -234,3 +234,93 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 });
+
+
+/////////////// refund
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const modal =
+        document.getElementById('refundModal');
+
+    const form =
+        document.getElementById('refundForm');
+
+    const receipt =
+        document.getElementById('refund-receipt');
+
+    const amount =
+        document.getElementById('refund-amount');
+
+    const reasonSelect =
+        document.getElementById('refund_reason');
+
+    const conditionSelect =
+        document.getElementById('refund_condition');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Open refund modal
+    |--------------------------------------------------------------------------
+    */
+
+    document
+        .querySelectorAll('.transaction-refund-btn')
+        .forEach(button => {
+
+            button.addEventListener('click', function () {
+
+                const transactionReceipt =
+                    this.dataset.receipt || '';
+
+                const transactionAmount =
+                    Number(this.dataset.amount || 0);
+
+
+                form.action =
+                    this.dataset.url;
+
+
+                receipt.textContent =
+                    transactionReceipt;
+
+
+                amount.textContent =
+                    `₱${transactionAmount.toFixed(2)}`;
+
+
+                reasonSelect.tomselect.clear();
+
+                conditionSelect.tomselect.clear();
+
+
+                modal.style.display =
+                    'flex';
+
+            });
+
+        });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Close modal
+    |--------------------------------------------------------------------------
+    */
+
+    modal.addEventListener(
+        'click',
+        function (event) {
+
+            if (event.target === modal) {
+
+                modal.style.display =
+                    'none';
+
+            }
+
+        }
+    );
+
+});

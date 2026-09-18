@@ -200,12 +200,18 @@ Route::middleware(['auth'])->group(function(){
         Route::get('/transactions/{id}', [TransactionController::class, 'show'])
             ->name('admin.transactions.show');
 
+        Route::post('/transactions/{id}/refund', [TransactionController::class, 'refund'])
+            ->name('admin.transactions.refund');
+
         #branch
         Route::get('/branches', [ManageBranchController::class, 'index'])
             ->name('admin.branches');
 
         Route::post('/branches', [ManageBranchController::class, 'store'])
             ->name('admin.branches.store');
+
+        Route::put('/branches/{id}', [ManageBranchController::class, 'update'])
+            ->name('admin.branches.update');
     });
 
 
@@ -234,6 +240,9 @@ Route::middleware(['auth'])->group(function(){
 
         Route::get('/transactions', [TransactionController::class, 'index'])
             ->name('cashier.transactions.index');
+        
+        Route::post('/transactions/{id}/refund', [TransactionController::class, 'refund'])
+            ->name('cashier.transactions.refund');
         
         Route::get('/transactions/{id}', [TransactionController::class, 'show'])
             ->name('cashier.transactions.show');
