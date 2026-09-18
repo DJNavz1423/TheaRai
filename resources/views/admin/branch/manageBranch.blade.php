@@ -105,7 +105,9 @@
                   <div class="dropdown-menu border" style="display: none;">
                     <div class="dropdown-section">
                       <button type="button" class="btn dropdown-item branch-edit-btn"
-                    data-id="{{ $branch->id }}">
+                    data-id="{{ $branch->id }}"
+                    data-name="{{ $branch->name }}"
+                    data-address="{{ $branch->address ?? '' }}">
                     <span class="icon-wrapper">
                       <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M160-120q-17 0-28.5-11.5T120-160v-97q0-16 6-30.5t17-25.5l505-504q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L313-143q-11 11-25.5 17t-30.5 6h-97Zm544-528 56-56-56-56-56 56 56 56Z"/></svg>
                     </span>
@@ -126,6 +128,7 @@
 
   {{-- Modals --}}
   @include('admin.branch.modals.addModal')
+  @include('admin.branch.modals.editModal')
 @endsection
 
 @once
@@ -146,5 +149,6 @@
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsBranchFilter.js') }}" defer></script>
+  <script type="text/javascript" src="{{ asset('js/dashboard/modal/branchModal.js') }}" defer></script>
   @endpush
 @endonce

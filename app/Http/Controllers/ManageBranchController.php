@@ -57,8 +57,7 @@ class ManageBranchController extends Controller
         );
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:500',
@@ -73,6 +72,33 @@ class ManageBranchController extends Controller
         return back()->with(
             'success',
             'Branch added successfully!'
+        );
+    }
+
+    public function update(Request $request, $id){
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'nullable|string|max:500',
+        ]);
+
+        $branch = DB::table('laravel.branches')
+            ->where('id', $id)
+            ->first();
+
+        if (!$branch) {
+            return back()->with('error', 'Branch not found.');
+        }
+
+        DB::table('laravel.branches')
+            ->where('id', $id)
+            ->update([
+                'name' => $validated['name'],
+                'address' => $validated['address'] ?? null,
+            ]);
+
+        return back()->with(
+            'success',
+            'Branch updated successfully!'
         );
     }
 }
