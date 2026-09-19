@@ -15,6 +15,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const detailTotal =
         document.getElementById('detail-total');
 
+    const detailSubtotalRow =
+    document.getElementById('detail-subtotal-row');
+
+    const detailDiscountRow =
+        document.getElementById('detail-discount-row');
+
+    const detailSubtotal =
+        document.getElementById('detail-subtotal');
+
+    const detailDiscount =
+        document.getElementById('detail-discount');
+
     const detailPaymentMethod =
         document.getElementById('detail-payment-method');
 
@@ -88,8 +100,41 @@ document.addEventListener('DOMContentLoaded', function () {
                         transaction.branch_name ||
                         'Unknown Branch';
 
+                    const subtotalAmount = Number(transaction.subtotal_amount || 0);
+
+                    const discountAmount = Number(transaction.discount_amount || 0);
+
                     detailTotal.textContent =
                         `₱${Number(transaction.total_amount).toFixed(2)}`;
+
+                    if (discountAmount > 0) {
+                        detailSubtotal.textContent =
+                            `₱${subtotalAmount.toFixed(2)}`;
+
+                        let discountText =
+                            `₱${discountAmount.toFixed(2)}`;
+
+                        if (
+                            transaction.discount_type === 'percentage' &&
+                            Number(transaction.discount_value) > 0
+                        ) {
+                            discountText =
+                                `${Number(transaction.discount_value).toFixed(2)}% ` +
+                                `(${window.formatPeso.format(discountAmount)})`;
+                        }
+
+                        detailDiscount.textContent =
+                            discountText;
+
+                        detailSubtotalRow.style.display = 'flex';
+                        detailDiscountRow.style.display = 'flex';
+
+                    } else {
+
+                        detailSubtotalRow.style.display = 'none';
+                        detailDiscountRow.style.display = 'none';
+
+                    }
 
                     detailPaymentMethod.textContent =
                         transaction.payment_method

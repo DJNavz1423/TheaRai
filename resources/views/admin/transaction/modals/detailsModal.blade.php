@@ -22,6 +22,16 @@
                     <span id="detail-branch"></span>
                 </div>
 
+                <div class="row mb-3" id="detail-subtotal-row" style="display: none;">
+                    <strong>Subtotal</strong>
+                    <span id="detail-subtotal"></span>
+                </div>
+
+                <div class="row mb-3" id="detail-discount-row" style="display: none;">
+                    <strong>Discount</strong>
+                    <span id="detail-discount"></span>
+                </div>
+
                 <div class="row mb-3">
                     <strong>Total Amount</strong>
                     <span id="detail-total"></span>
