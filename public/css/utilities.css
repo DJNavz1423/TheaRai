@@ -273,6 +273,18 @@ flex utilities
   flex: 1 !important;
 }
 
+.align-c{
+  align-items: center;
+}
+
+.just-c{
+  justify-content: center;
+}
+
+.just-sb{
+  justify-content: space-between;
+}
+
 /*
   gap
 */
@@ -322,4 +334,9 @@ flex utilities
 
 .border-b{
   border-bottom: 1.5px solid var(--secondary-soft) !important;
+}
+
+/**width**/
+.wd-100{
+  width: 100%;
 }
