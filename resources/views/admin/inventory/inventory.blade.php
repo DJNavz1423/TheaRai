@@ -8,6 +8,13 @@
         <h1 class="heading">Item List ({{ count($ingredients) }})</h1>
 
         <div class="row heading-btn-row">
+            <button id="inventoryDownloadBtn" type="button" class="btn leftBtn">
+                <span class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-160h560q17 0 28.5 11.5T800-120q0 17-11.5 28.5T760-80H200q-17 0-28.5-11.5T160-120q0-17 11.5-28.5T200-160Zm262.5-109q-8.5-4-14.5-12L250-535q-15-20-4-42.5t36-22.5h78v-240q0-17 11.5-28.5T400-880h160q17 0 28.5 11.5T600-840v240h78q25 0 36 22.5t-4 42.5L512-281q-6 8-14.5 12t-17.5 4q-9 0-17.5-4Z"/></svg>
+                </span>
+                <span>Download CSV</span>
+            </button>
+
             <button id="addButton" class="btn" type="button" onclick="document.getElementById('addModal').style.display='flex'">
             <span class="icon-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
@@ -250,14 +257,15 @@
 
 @once
     @push('scripts')
-        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
-        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
+        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
 
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsInventoryFilters.js') }}" defer></script>
         <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/toggleTab.js') }}" defer></script>
         <script type="text/javascript" src="{{ asset('js/dashboard/imageUpload.js') }}" defer></script>
+        <script type="text/javascript" src="{{ asset('js/dashboard/inventory/inventoryDownload.js') }}" defer></script>
 
         <script>
             // Injects row data into the Full Edit Modal
