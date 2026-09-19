@@ -253,12 +253,13 @@ Route::middleware(['auth'])->group(function(){
 
  #QR menu routes
     Route::get('/qr-menu', [QrMenuController::class, 'index'])
-        ->name('qr.menu');
+    ->name('qr.menu');
 
     Route::post('/qr-menu/checkout', [QrMenuController::class, 'checkout'])
         ->name('qr.checkout');
 
-    Route::get('/qr-menu/success', [QrMenuController::class, 'success']);
+    Route::get('/qr-menu/success', [QrMenuController::class, 'success'])
+        ->name('qr.success');
 
 # User Account Routes
     Route::get('/my-account', [UserAccountController::class, 'index'])
