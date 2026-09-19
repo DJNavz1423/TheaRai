@@ -21,8 +21,8 @@ section{
 
 .table-controls{
   padding-left: 30px;
-  padding-top: 20px;
-  padding-bottom: 19px;
+  padding-top: 8px;
+  padding-bottom: 7px;
   flex-shrink: 0;
 }
 
@@ -188,7 +188,7 @@ product grid
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px;
+  padding: 8px;
 
   h2{
     display: flex;
@@ -353,28 +353,124 @@ product grid
 }
 
 .cart-summary{
-  padding: 20px;
+  position: relative;
+  padding: 8px 16px;
   background: var(--light-cool);
+
+  .summary-expanded-content {
+    position: relative;
+    overflow: visible;
+  }
+
+  .summary-expand-control {
+    display: none;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .summary-expand-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(-20%,-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--primary-deep);
+    color: var(--light-pure);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .summary-collapse-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(50%,-90%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--primary-deep);
+    color: var(--light-pure);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  &.is-collapsed .summary-expanded-content {
+    display: none;
+  }
+
+  &.is-collapsed .summary-expand-control {
+    display: flex;
+  }
 
   .summary-row{
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .summary-row.summary-total{
     margin-bottom: 0;
-
+    
     *{
       font-family: 'Lato', sans-serif;
       font-weight: 900;
       font-size: 1.2rem;
     }
   }
+
+  .discount-row{
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 10px;
+
+    .discount-inputs{
+      display: flex;
+
+      .discount-input-wrapper{
+        position: relative;
+        position-anchor: --wrapper;
+
+        span{
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: absolute;
+          position-anchor: --discount-input;
+          top: anchor(top);
+          bottom: anchor(bottom);
+          right: calc(anchor(right) + 20px);
+        }
+      }
+
+      input{
+        background-color: transparent;
+        border: 1px solid var(--secondary-light);
+        border-radius: 0;
+        anchor-name: --discount-input;
+
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+    }
+  }
 }
 
 .cart-footer{
-  padding: 15px 20px;
+  padding: 8px 20px;
 
   .cart-actions{
     display: flex;

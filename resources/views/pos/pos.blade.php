@@ -55,7 +55,41 @@
             </div>
         </div>
 
-        <div class="cart-summary border-t">
+        <div id="cartSummary" class="cart-summary border-t">
+             <div class="summary-expand-control" id="summaryExpandControl">
+                <button type="button" id="summaryExpandBtn" class="summary-expand-btn" aria-label="Expand cart summary">
+                    ∧
+                </button>
+            </div>
+
+
+            <div id="summaryExpandedContent" class="summary-expanded-content">
+                <button type="button" id="summaryCollapseBtn" class="summary-collapse-btn" aria-label="Collapse cart summary">
+                    ∨
+                </button>
+
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">&#8369;0.00</span>
+                </div>
+
+                <div class="summary-row discount-row">
+                    <span>Discount</span>
+
+                    <div class="discount-inputs">
+                        <div class="discount-input-wrapper">
+                            <input type="text" inputmode="decimal" id="discount-percent" placeholder="0" autocomplete="off">
+                            <span>%</span>
+                        </div>
+
+                        <div class="discount-input-wrapper">
+                            <input type="text" inputmode="decimal" id="discount-amount" placeholder="0.00" autocomplete="off">
+                            <span>&#8369;</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="summary-row summary-total">
                 <h2>Total</h2>
                 <h3 id="cart-total">&#8369;0.00</h3>
@@ -139,6 +173,16 @@
 
             <table class="receipt-due">
                 <tr>
+                    <td>Subtotal:</td>
+                    <td id="preview-subtotal"></td>
+                </tr>
+
+                <tr>
+                    <td>Discount:</td>
+                    <td id="preview-discount"></td>
+                </tr>
+
+                <tr>
                     <td><strong style="font-weight: 900; color: var(--secondary-deep);">Total Due:</strong></td>
                     <td style="font-weight: 900; color: var(--secondary-deep);" class="preview-total" id="preview-total"></td>
                 </tr>
@@ -204,6 +248,22 @@
             const cashFields = document.getElementById('cash-fields');
             const digitalFields = document.getElementById('digital-fields');
             const referenceNumberInput = document.getElementById('reference-number');
+            const cartSubtotalEl = document.getElementById('cart-subtotal');
+            const discountPercentInput = document.getElementById('discount-percent');
+            const discountAmountInput = document.getElementById('discount-amount');
+            const cartSummary = document.getElementById('cartSummary');
+            const summaryExpandBtn = document.getElementById('summaryExpandBtn');
+            const summaryCollapseBtn = document.getElementById('summaryCollapseBtn');
+
+            let discountMode = null;
+
+            summaryExpandBtn.addEventListener('click', function () {
+                cartSummary.classList.remove('is-collapsed');
+            });
+
+            summaryCollapseBtn.addEventListener('click', function () {
+                cartSummary.classList.add('is-collapsed');
+            });
             
             //render menu items
             function renderMenu(items){
@@ -325,14 +385,114 @@
                 updateCartUI();
             }
 
-            function updateCartUI(){
+            function getCartSubtotal() {
+    return cart.reduce(
+        (sum, item) => sum + (item.price * item.quantity),
+        0
+    );
+}
+
+function getDiscountAmount(subtotal) {
+
+    if (!discountMode || subtotal <= 0) {
+        return 0;
+    }
+
+    if (discountMode === 'percentage') {
+
+        let percentage =
+            parseFloat(discountPercentInput.value) || 0;
+
+        percentage =
+            Math.min(Math.max(percentage, 0), 100);
+
+        return subtotal * (percentage / 100);
+    }
+
+    if (discountMode === 'amount') {
+
+        let amount =
+            parseFloat(discountAmountInput.value) || 0;
+
+        return Math.min(Math.max(amount, 0), subtotal);
+    }
+
+    return 0;
+}
+
+function updateDiscountFields(subtotal, activeInput = null) {
+
+    if (subtotal <= 0) {
+        discountPercentInput.value = '';
+        discountAmountInput.value = '';
+        discountMode = null;
+        return;
+    }
+
+    if (discountMode === 'percentage') {
+
+        let percentage =
+            parseFloat(discountPercentInput.value) || 0;
+
+        percentage =
+            Math.min(Math.max(percentage, 0), 100);
+
+        const discountAmount =
+            subtotal * (percentage / 100);
+
+        // Only update the OTHER field.
+        if (activeInput !== discountPercentInput) {
+            discountPercentInput.value =
+                percentage === 0
+                    ? ''
+                    : percentage;
+        }
+
+        discountAmountInput.value =
+            discountAmount === 0
+                ? ''
+                : discountAmount.toFixed(2);
+
+    } else if (discountMode === 'amount') {
+
+        let amount =
+            parseFloat(discountAmountInput.value) || 0;
+
+        amount =
+            Math.min(Math.max(amount, 0), subtotal);
+
+        const percentage =
+            subtotal > 0
+                ? (amount / subtotal) * 100
+                : 0;
+
+        // Only update the OTHER field.
+        if (activeInput !== discountAmountInput) {
+            discountAmountInput.value =
+                amount === 0
+                    ? ''
+                    : amount.toFixed(2);
+        }
+
+        discountPercentInput.value =
+            percentage === 0
+                ? ''
+                : percentage.toFixed(2);
+    }
+}
+
+            function updateCartUI(activeDiscountInput = null){
                 cartItemsContainer.innerHTML = '';
-                let total = 0;
+                const subtotal = getCartSubtotal();
+                const discountAmount = getDiscountAmount(subtotal);
+
+                let total = Math.max(0, subtotal - discountAmount);
 
                 if(cart.length === 0){
                     cartItemsContainer.appendChild(emptyCartMsg);
                     checkoutBtn.disabled = true;
                     clearCartBtn.disabled = true;
+                    cartSubtotalEl.textContent = window.formatPeso.format(0);
                     cartTotalEl.textContent = window.formatPeso.format(0);
                 } else{
                     checkoutBtn.disabled = false;
@@ -340,7 +500,6 @@
 
                     cart.forEach(item => {
                         const lineTotal = item.price * item.quantity;
-                        total += lineTotal;
 
                         const row = document.createElement('div');
                         row.className = 'cart-item';
@@ -405,9 +564,23 @@
                         });
                     });
                 }
+                updateDiscountFields(subtotal, activeDiscountInput);
+                cartSubtotalEl.textContent = window.formatPeso.format(subtotal);
                 cartTotalEl.textContent = window.formatPeso.format(total);
                 calculateChange();
             }
+
+        discountPercentInput.addEventListener('input', function () {
+        discountMode = 'percentage';
+
+    updateCartUI(discountPercentInput);
+    });
+
+discountAmountInput.addEventListener('input', function () {
+    discountMode = 'amount';
+
+    updateCartUI(discountAmountInput);
+});
 
             //toggle payment fields
             paymentMethodSelect.addEventListener('change', (e) => {
@@ -434,7 +607,9 @@
 
                 const selectedMethod = paymentMethodSelect.value;
                 const cashTendered = parseFloat(cashTenderedInput.value) || 0;
-                const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const subtotalAmount = getCartSubtotal();
+                const discountAmount = getDiscountAmount(subtotalAmount);
+                const totalAmount = Math.max(0, subtotalAmount - discountAmount);           
 
                 if(selectedMethod === 'cash' && cashTendered < totalAmount){
                     alert('Insufficient cash tendered!');
@@ -465,6 +640,10 @@
                     itemsContainer.appendChild(row);
                 });
 
+                document.getElementById('preview-subtotal').innerText = window.formatPeso.format(subtotalAmount);
+
+                document.getElementById('preview-discount').innerText = window.formatPeso.format(discountAmount);
+
                 document.getElementById('preview-total').innerText = window.formatPeso.format(totalAmount);
 
                 const tenderedDisplay = selectedMethod === 'digital' ? totalAmount : cashTendered;
@@ -488,7 +667,13 @@
 
                 const selectedMethod = paymentMethodSelect.value;
                 const cashTendered = parseFloat(cashTenderedInput.value) || 0;
-                const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const subtotalAmount = getCartSubtotal();
+                const discountAmount = getDiscountAmount(subtotalAmount);
+                const totalAmount = Math.max(0, subtotalAmount - discountAmount);
+                const discountType = discountMode;
+                const discountValue = discountMode === 'percentage'
+                        ? parseFloat(discountPercentInput.value) || 0
+                        : parseFloat(discountAmountInput.value) || 0;
 
                 fetch("{{ route('cashier.pos.order') }}",{
                     method: 'POST',
@@ -499,6 +684,10 @@
                     body: JSON.stringify({
                         cart: cart,
                         total_amount: totalAmount,
+                        subtotal_amount: subtotalAmount,
+                        discount_type: discountType,
+                        discount_value: discountValue,
+                        discount_amount: discountAmount,
                         cash_tendered: selectedMethod === 'digital' ? totalAmount : cashTendered,
                         payment_method: selectedMethod,
                         reference_number: referenceNumberInput.value
@@ -548,12 +737,17 @@
             });
 
             function calculateChange(){
-                const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const subtotal = getCartSubtotal();
+
+                const discountAmount = getDiscountAmount(subtotal);
+
+                const totalAmount = Math.max(0, subtotal - discountAmount);
+
                 const cash = parseFloat(cashTenderedInput.value) || 0;
 
                 let change = cash - totalAmount;
 
-                if (change < 0 || totalAmount === 0){
+                if (change < 0 || totalAmount === 0) {
                     change = 0;
                 }
 

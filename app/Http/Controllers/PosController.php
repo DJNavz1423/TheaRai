@@ -58,6 +58,9 @@ class PosController extends Controller{
             'cart.*.id' => 'required|integer|exists:pgsql.laravel.menu_items,id',
             'cart.*.quantity' => 'required|integer|min:1',
             'cart.*.price' => 'required|numeric|min:0',
+            'discount_type' => 'nullable|in:percentage,amount',
+            'discount_value' => 'nullable|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
             'total_amount' => 'required|numeric|min:0',
             'cash_tendered' => 'required|numeric|min:0',
             'payment_method' => 'required|string|in:cash,digital',
@@ -87,13 +90,40 @@ class PosController extends Controller{
                 ]);
             }
 
-            $changeAmount = $request->cash_tendered - $request->total_amount;
+            $subtotalAmount = collect($request->cart)
+                ->sum(function ($item) {
+                    return $item['price'] * $item['quantity'];
+                });
+
+            $discountType = $request->input('discount_type');
+            $discountValue = (float) ($request->input('discount_value') ?? 0);
+            $discountAmount = 0;
+
+            if ($discountType === 'percentage') {
+                $discountValue = min($discountValue, 100);
+
+                $discountAmount = round($subtotalAmount * ($discountValue / 100), 2);
+            } elseif ($discountType === 'amount') {
+
+                $discountAmount = min(max($discountValue, 0), $subtotalAmount);
+            } else {
+                $discountType = null;
+                $discountValue = 0;
+            }
+
+            $totalAmount = round($subtotalAmount - $discountAmount, 2);
+
+            $changeAmount = $request->cash_tendered - $totalAmount;
 
             // 1. Insert Order WITH the branch_id
             $orderId = DB::table('laravel.orders')->insertGetId([
                 'branch_id' => $activeBranchId,
                 'receipt_no' => $receiptNo,
-                'total_amount' => $request->total_amount,
+                'subtotal_amount' => $subtotalAmount,
+                'discount_type' => $discountType,
+                'discount_value' => $discountValue,
+                'discount_amount' => $discountAmount,
+                'total_amount' => $totalAmount,
                 'cash_tendered' => $request->cash_tendered,
                 'change_amount' => $changeAmount,
                 'payment_method' => $request->payment_method,
@@ -153,7 +183,7 @@ class PosController extends Controller{
                 }
             }
 
-            $this->logActivity('created', 'order', $orderId, "{$receiptNo} processed at Branch {$activeBranchId} for ₱" . number_format($request->total_amount, 2));
+            $this->logActivity('created', 'order', $orderId, "{$receiptNo} processed at Branch {$activeBranchId} for ₱" . number_format($totalAmount, 2));
 
             DB::commit();
 
