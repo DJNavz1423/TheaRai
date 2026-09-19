@@ -17,7 +17,8 @@
   gap:12px;
 }
 
-#addButton{
+
+#addButton, .leftBtn{
   display: inline-flex;
   flex-direction: row;
   align-items: center;
@@ -28,4 +29,27 @@
   font-size: 14px;
   letter-spacing: normal;
   font-weight: 600;
+}
+
+.leftBtn{
+  background-color: transparent;
+  color: var(--tertiary-light);
+  border: 1px solid var(--secondary-soft);
+  gap: 6px;
+  transition: 300ms all ease-in;
+
+  svg{
+    fill: var(--tertiary-light);
+    transition: 200ms all ease-in;
+  }
+}
+
+.leftBtn:hover{
+  color: var(--light-pure);
+  background-color: var(--tertiary-light);
+  border-color: transparent;
+
+  svg{
+    fill: var(--light-pure);
+  }
 }
