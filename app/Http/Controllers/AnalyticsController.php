@@ -17,16 +17,19 @@ class AnalyticsController extends Controller
         $endOfDay = $manilaNow->copy()->endOfDay()->utc();
 
         $todayCash = DB::table('laravel.orders')
+            ->where('payment_status', 'paid')
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->where('payment_method', 'cash')
             ->sum('total_amount');
 
         $todayDigital = DB::table('laravel.orders')
+            ->where('payment_status', 'paid')
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->where('payment_method', '!=', 'cash')
             ->sum('total_amount');
 
         $dailyCount = DB::table('laravel.orders')
+            ->where('payment_status', 'paid')
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->count();
 
@@ -45,6 +48,7 @@ class AnalyticsController extends Controller
             ->join('laravel.orders', 'order_items.order_id', '=', 'orders.id')
             ->join('laravel.menu_items', 'order_items.menu_item_id', '=', 'menu_items.id')
             ->select('menu_items.name', 'menu_items.img_url', DB::raw('SUM(order_items.quantity) as total_qty'), DB::raw('SUM(order_items.subtotal) as total_revenue'))
+            ->where('payment_status', 'paid')
             ->whereBetween('orders.created_at', [$startOfDay, $endOfDay])
             ->groupBy('menu_items.id', 'menu_items.name', 'menu_items.img_url')
             ->orderByDesc('total_qty')
@@ -67,6 +71,7 @@ class AnalyticsController extends Controller
 
         $totalMoneyIn = DB::table('laravel.orders')
             ->where('payment_method', 'cash')
+            ->where('payment_status', 'paid')
             ->sum('total_amount');
 
         $totalMoneyOut = DB::table('laravel.cash_transactions')

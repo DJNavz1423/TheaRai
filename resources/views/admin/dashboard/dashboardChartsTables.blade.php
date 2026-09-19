@@ -54,12 +54,19 @@
       
       <div class="col dashboard-section">
         <div class="section-content border">
-          <div class="section-header mb-1">
-            <h3 class="text-muted"><p>Total Balance (Cash):</p> </h3>
+          <div class="section-header mb-1" >
+            <h3 class="text-muted d-flex align-c just-sb wd-100">
+            <p>Today's Balance (Cash):</p>
+            <data value="{{ $todayCashBalance ?? 0 }}" class="format-peso" style="color: black; font-size: 1rem;"></data>
+          </h3>
           </div>
-          <div class="total-balance">
+
+          <div class="section-header" style="padding-top: 0; margin-bottom: 0;">
+            <h3 class="text-muted d-flex align-c just-sb wd-100">
+            <p>Total Balance (Cash):</p>
             <data value="{{ $currentCashBalance ?? 0 }}" class="format-peso"></data>
-        </div>
+          </h3>
+          </div>
         </div>
 
         <div id="low-stock-section"  class="section-content border">

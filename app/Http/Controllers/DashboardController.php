@@ -34,14 +34,17 @@ class DashboardController extends Controller
         
         $salesData = (object) [
             'monthly_total' => DB::table('laravel.orders')
+                ->where('payment_status', 'paid')
                 ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
                 ->sum('total_amount'),
 
             'daily_total' => DB::table('laravel.orders')
+                ->where('payment_status', 'paid')
                 ->whereBetween('created_at', [$startOfDay, $endOfDay])
                 ->sum('total_amount'),
 
-            'daily_count' => DB::table('laravel.orders')                
+            'daily_count' => DB::table('laravel.orders')  
+                ->where('payment_status', 'paid')              
                 ->whereBetween('created_at', [$startOfDay, $endOfDay])
                 ->count(),
         ];
@@ -54,8 +57,23 @@ class DashboardController extends Controller
                 ->sum('amount'),
         ];
 
+        $todayCashIn = DB::table('laravel.orders')
+            ->where('payment_method', 'cash')
+            ->where('payment_status', 'paid')
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->sum('total_amount');
+
+        $todayCashOut = DB::table('laravel.cash_transactions')
+            ->where('transaction_type', 'expense')
+            ->where('fund_source', 'cash_in_hand')
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->sum('amount');
+
+        $todayCashBalance = $todayCashIn - $todayCashOut;
+
         $totalMoneyIn = DB::table('laravel.orders')
             ->where('payment_method', 'cash')
+            ->where('payment_status', 'paid')
             ->sum('total_amount');
 
         $totalMoneyOut = DB::table('laravel.cash_transactions')
@@ -66,6 +84,7 @@ class DashboardController extends Controller
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
         $recentTransactions = DB::table('laravel.orders')
+            ->where('payment_status', 'paid')
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->orderBy('created_at', 'desc')
             ->limit(7)
@@ -110,6 +129,7 @@ class DashboardController extends Controller
             'totalMoneyIn',
             'totalMoneyOut',
             'currentCashBalance',
+            'todayCashBalance',
             'recentTransactions',
             'recentActivities',
             'dailyToken',
