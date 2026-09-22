@@ -12,7 +12,7 @@
   left: anchor(left);
   bottom: anchor(bottom);
   right: anchor(right);
-  height: 100%;
+  height: auto;
   z-index: 99;
   background: rgba(0, 0, 0, 0.5);
   
