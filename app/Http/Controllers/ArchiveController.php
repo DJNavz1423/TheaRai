@@ -241,11 +241,23 @@ class ArchiveController extends Controller
                 ->value('table_number');
 
             $itemName = 'Table ' . $number;
-        } else {
-            $itemName = DB::table('laravel.' . $table)->where('id', $id)->value('name');
+        } elseif($table === 'expenses'){
+            $itemName = DB::table('laravel.expenses')
+                ->where('id', $id)
+                ->value('description');
+        } elseif($table === 'activity_logs') {
+            $itemName = DB::table('laravel.activity_logs')
+                ->where('id', $id)
+                ->value('description');
+        }  else {
+            $itemName = DB::table('laravel.' . $table)
+                ->where('id', $id)
+                ->value('name');
         }
 
-        DB::table('laravel.' . $table)->where('id', $id)->delete();
+        DB::table('laravel.' . $table)
+            ->where('id', $id)
+            ->delete();
 
         // Map the table name to a singular module name for clean logging
         $modules = [
