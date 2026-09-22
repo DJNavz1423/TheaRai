@@ -65,8 +65,8 @@
 
 @once
   @push('scripts')
-    <script src="{{ asset('js/tomSelect/tomSelect.js') }}" defer></script>
-    <script src="{{ asset('js/tomSelect/tomSelectConfig.js') }}" defer></script>
+    <script src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
+    <script src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
     <script src="{{ asset('js/offline/pos/offlineTransactions.js') }}" defer></script>
     <script src="{{ asset('js/offline/pos/syncOfflineOrders.js') }}" defer></script>
   @endpush
