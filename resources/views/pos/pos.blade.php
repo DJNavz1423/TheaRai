@@ -582,23 +582,16 @@ function updateDiscountFields(subtotal, activeInput = null) {
     }
 
     if (discountMode === 'percentage') {
+        let rawPercentage = parseFloat(discountPercentInput.value);
 
-        let percentage =
-            parseFloat(discountPercentInput.value) || 0;
+        let percentage = Number.isFinite(rawPercentage) ? Math.max(rawPercentage, 0) : 0;
 
-        percentage =
-            Math.min(Math.max(percentage, 0), 100);
-
-        const discountAmount =
-            subtotal * (percentage / 100);
-
-        // Only update the OTHER field.
-        if (activeInput !== discountPercentInput) {
-            discountPercentInput.value =
-                percentage === 0
-                    ? ''
-                    : percentage;
+        if (activeInput === discountPercentInput && percentage > 100) {
+            percentage = 100;
+            discountPercentInput.value = '100';
         }
+
+        const discountAmount = subtotal * (percentage / 100);
 
         discountAmountInput.value =
             discountAmount === 0
@@ -607,25 +600,18 @@ function updateDiscountFields(subtotal, activeInput = null) {
 
     } else if (discountMode === 'amount') {
 
-        let amount =
-            parseFloat(discountAmountInput.value) || 0;
+        let rawAmount = parseFloat(discountAmountInput.value);
 
-        amount =
-            Math.min(Math.max(amount, 0), subtotal);
+        let amount = Number.isFinite(rawAmount) ? Math.max(rawAmount, 0) : 0;
 
-        const percentage =
-            subtotal > 0
-                ? (amount / subtotal) * 100
-                : 0;
-
-        // Only update the OTHER field.
-        if (activeInput !== discountAmountInput) {
+        if (activeInput === discountAmountInput && amount > subtotal) {
+            amount = subtotal;
             discountAmountInput.value =
-                amount === 0
-                    ? ''
-                    : amount.toFixed(2);
+                subtotal.toFixed(2);
         }
 
+        const percentage = subtotal > 0 ? (amount / subtotal) * 100 : 0;
+        
         discountPercentInput.value =
             percentage === 0
                 ? ''
