@@ -20,5 +20,5 @@
   }
 
   fetchQrNotifications();
-  setInterval(fetchQrNotifications, 60000); 
+  setInterval(fetchQrNotifications, 7000); 
 </script>
