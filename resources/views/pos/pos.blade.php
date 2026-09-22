@@ -24,7 +24,9 @@
 
             <select id="filter-status" class="ts-filter unit-selector">
                 <option value="all">All Status</option>
-                <option value="enabled" selected>Enabled</option>
+                <option value="enabled" selected>Available</option>
+                <option value="sold_out">Sold Out</option>
+                <option value="out_of_stock">Out of Stock</option>
                 <option value="disabled">Disabled</option>
             </select>
         </div>
@@ -206,15 +208,16 @@
             </button>
         </div>
     </div>
-
-
   </div>
+
+  @include('pos.modal.disableModal')
 @endsection
 
 @once
     @push('styles')
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
         <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/admin/modal.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/tableControls.css') }}">
         <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
         <link rel="stylesheet" href="{{ asset('css/pos/pos.css') }}">
@@ -254,6 +257,23 @@
             const cartSummary = document.getElementById('cartSummary');
             const summaryExpandBtn = document.getElementById('summaryExpandBtn');
             const summaryCollapseBtn = document.getElementById('summaryCollapseBtn');
+            const disableReasonModal = document.getElementById('disableReasonModal');
+
+            const disableReasonSelect = document.getElementById('disableReasonSelect');
+
+            const disableOtherReasonWrapper = document.getElementById('disableOtherReasonWrapper');
+
+            const disableOtherReason = document.getElementById('disableOtherReason');
+
+            const confirmDisableReason = document.getElementById('confirmDisableReason');
+
+            const cancelDisableReason = document.getElementById('cancelDisableReason');
+
+            const closeDisableReasonModal = document.getElementById('closeDisableReasonModal');
+
+            const disableReasonItemName = document.getElementById('disableReasonItemName');
+
+            let pendingDisableItem = null;
 
             let discountMode = null;
 
@@ -281,7 +301,21 @@
                     const soldOutClass = isAvailable ? '' : 'not-available';
 
                     const btnClass = isAvailable ? 'is-avail' : 'is-not-avail';
-                    const btnText = isAvailable ? 'Disable' : 'Enable';
+
+                    let btnText = 'Disable';
+
+                    if (!isAvailable) {
+
+                        if (item.disabled_reason === 'out_of_stock') {
+                            btnText = 'Out of Stock';
+
+                        } else if (item.disabled_reason === 'sold_out') {
+                            btnText = 'Sold Out';
+
+                        } else {
+                            btnText = 'Disabled';
+                        }
+                    }
 
                     const card = document.createElement('div');
                     card.className = `dish-card ${soldOutClass}`;
@@ -312,10 +346,17 @@
                     });
 
                     const toggleBtn = card.querySelector('.toggle-avail-btn');
+
                     toggleBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        toggleAvailability(item, toggleBtn, card);
-                    })
+
+                        if (isAvailable) {
+                            openDisableReasonModal(item, toggleBtn, card);
+
+                        } else {
+                            toggleAvailability(item, toggleBtn, card);
+                        }
+                    });
 
                     card.addEventListener('mousedown', () => { if(isAvailable) card.style.transform = 'scale(0.95)' });
                     card.addEventListener('mouseup', () => card.style.transform = 'scale(1)');
@@ -325,38 +366,149 @@
                 });
             }
 
-            function toggleAvailability(item, buttonEl, cardEl){
+            function toggleAvailability(item, buttonEl, cardEl, reason = null, reasonOther = '') {
                 buttonEl.disabled = true;
-                buttonEl.innerHTML = 'Updating...';
+                buttonEl.innerText = 'Updating...';
 
                 fetch(`/cashier/pos/${item.id}/toggle-availability`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
+                    },
+                    body: JSON.stringify({
+                        reason: reason,
+                        reason_other: reasonOther
+                    })
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if(data.success){
+
+                    if (data.success) {
                         item.is_available = data.is_available;
 
-                        if(typeof window.applyPosFilters === 'function'){
+                        item.disabled_reason = data.disabled_reason;
+                        
+                        closeDisableReason();
+
+                        if (typeof window.applyPosFilters === 'function') {
                             window.applyPosFilters();
                         }
                     } else {
-                        alert('Failed to update availability');
+                        alert(data.message || 'Failed to update availability.');
                         buttonEl.disabled = false;
-                        buttonEl.innerHTML = item.is_available ? 'Disable' : 'Enable';
+                        buttonEl.innerText = item.is_available ? 'Disable' : 'Enable';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Something went wrong.');
                     buttonEl.disabled = false;
-                    buttonEl.innerHTML = item.is_available ? 'Disable' : 'Enable';
+                    buttonEl.innerText = item.is_available ? 'Disable' : 'Enable';
                 });
             }
+
+            function openDisableReasonModal(item, buttonEl, cardEl) {
+                pendingDisableItem = {
+                    item: item,
+                    buttonEl: buttonEl,
+                    cardEl: cardEl
+                };
+
+                disableReasonItemName.innerText = `Disable "${item.name}"`;
+
+                disableReasonSelect.value = '';
+
+                disableOtherReason.value = '';
+
+                disableOtherReasonWrapper.style.display = 'none';
+
+                confirmDisableReason.disabled = true;
+
+                disableReasonModal.style.display = 'flex';
+            }
+
+
+            function closeDisableReason() {
+                disableReasonModal.style.display = 'none';
+
+                pendingDisableItem = null;
+
+                disableReasonSelect.value = '';
+
+                disableOtherReason.value = '';
+
+                disableOtherReasonWrapper.style.display =
+                    'none';
+
+                confirmDisableReason.disabled = true;
+            }
+
+
+            disableReasonSelect.addEventListener('change', function () {
+                    const reason = this.value;
+
+                    if (reason === 'others') {
+                        disableOtherReasonWrapper.style.display = 'flex';
+                        confirmDisableReason.disabled = disableOtherReason.value.trim() === '';
+                    } else {
+
+                        disableOtherReasonWrapper.style.display = 'none';
+
+                        confirmDisableReason.disabled = reason === '';
+                    }
+                }
+            );
+
+
+            disableOtherReason.addEventListener('input',
+                function () {
+                    if (disableReasonSelect.value === 'others') {
+                        confirmDisableReason.disabled = this.value.trim() === '';
+                    }
+                }
+            );
+
+
+            confirmDisableReason.addEventListener('click',
+                function () {
+                    if (!pendingDisableItem) {
+                        return;
+                    }
+
+                    const reason = disableReasonSelect.value;
+
+                    const reasonOther = disableOtherReason.value.trim();
+
+                    if (!reason) {
+                        return;
+                    }
+
+                    if (reason === 'others' && reasonOther === '') {
+                        return;
+                    }
+
+                    toggleAvailability(
+                        pendingDisableItem.item,
+                        pendingDisableItem.buttonEl,
+                        pendingDisableItem.cardEl,
+                        reason,
+                        reasonOther
+                    );
+                }
+            );
+
+
+            cancelDisableReason.addEventListener(
+                'click',
+                closeDisableReason
+            );
+
+
+            closeDisableReasonModal.addEventListener(
+                'click',
+                closeDisableReason
+            );
 
             //cart logic
             function addToCart(item){

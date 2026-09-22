@@ -6,19 +6,33 @@
 
   <style>
     body {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 12px;
-            margin: 0;
-            padding: 10px;
-            color: #000;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    margin: 0;
+    padding: 10px;
+    color: #000;
+    }
+    .text-center { 
+        text-align: center; 
+    }
+    .text-right {
+         text-align: right; 
+    }
+    .border-bottom {
+         border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 5px; 
+    }
+    .border-top {
+         border-top: 1px dashed #000; padding-top: 5px; margin-top: 5px; 
         }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .border-bottom { border-bottom: 1px dashed #000; padding-bottom: 5px; margin-bottom: 5px; }
-        .border-top { border-top: 1px dashed #000; padding-top: 5px; margin-top: 5px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 3px 0; }
-        .bold { font-weight: bold; }
+    table {
+         width: 100%; border-collapse: collapse; 
+    }
+    th, td {
+         padding: 3px 0; 
+    }
+    .bold {
+         font-weight: bold; 
+    }
   </style>
 
   <title>{{ $order->branch_name ?? 'TheaRai Eatery' }} | Order Receipt</title>
@@ -57,6 +71,20 @@
     </table>
 
     <table>
+        <tr>
+            <td>Subtotal:</td>
+            <td class="text-right">P{{ number_format($order->subtotal_amount, 2) }}</td>
+        </tr>
+
+        @if($order->discount_amount > 0)
+        <tr>
+            <td>Discount:</td>
+            <td class="text-right">
+                P{{ number_format($order->discount_amount, 2) }}
+            </td>
+        </tr>
+        @endif
+
         <tr>
             <td class="bold">Total Due:</td>
             <td class="text-right bold">P{{ number_format($order->total_amount, 2) }}</td>

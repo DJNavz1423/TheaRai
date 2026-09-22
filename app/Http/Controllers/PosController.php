@@ -18,6 +18,92 @@ class PosController extends Controller{
         return $user->branch_id;
     }
 
+    private function hasInsufficientIngredients(int $menuItemId, int $branchId, int $dishQuantity = 1): bool {
+
+    $recipeItems = DB::table('laravel.menu_item_ingredient as pivot')
+        ->join(
+            'laravel.ingredients as ing',
+            'pivot.ingredient_id',
+            '=',
+            'ing.id'
+        )
+        ->select(
+            'pivot.ingredient_id',
+            'pivot.quantity_used',
+            'pivot.unit_id',
+            'ing.primary_unit_id',
+            'ing.secondary_unit_id',
+            'ing.conversion_factor'
+        )
+        ->where('pivot.menu_item_id', $menuItemId)
+        ->get();
+
+    // No recipe means there are no tracked ingredients to check.
+    if ($recipeItems->isEmpty()) {
+        return false;
+    }
+
+    $ingredientIds = $recipeItems
+        ->pluck('ingredient_id')
+        ->all();
+
+    $stockByIngredient = DB::table('laravel.branch_inventory')
+        ->where('branch_id', $branchId)
+        ->whereIn('ingredient_id', $ingredientIds)
+        ->pluck('stock_quantity', 'ingredient_id');
+
+    foreach ($recipeItems as $ingredient) {
+
+        $requiredAmount =
+            $ingredient->quantity_used * $dishQuantity;
+
+        if (
+            $ingredient->unit_id ==
+            $ingredient->primary_unit_id
+        ) {
+
+            $requiredPrimaryUnits =
+                $requiredAmount;
+
+        } elseif (
+            $ingredient->unit_id ==
+            $ingredient->secondary_unit_id
+        ) {
+
+            if (
+                !$ingredient->conversion_factor ||
+                $ingredient->conversion_factor <= 0
+            ) {
+                throw new \Exception(
+                    "Invalid conversion factor for ingredient {$ingredient->ingredient_id}"
+                );
+            }
+
+            $requiredPrimaryUnits =
+                $requiredAmount /
+                $ingredient->conversion_factor;
+
+        } else {
+
+            throw new \Exception(
+                "Invalid recipe unit for ingredient {$ingredient->ingredient_id}"
+            );
+        }
+
+        $availableStock =
+            (float) $stockByIngredient->get(
+                $ingredient->ingredient_id,
+                0
+            );
+
+        if ($availableStock < $requiredPrimaryUnits) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
     public function index() {
         $user = auth()->user();
         $activeBranchId = $this->getActiveBranchId();
@@ -44,10 +130,39 @@ class PosController extends Controller{
                 'mi.img_url',
                 'mi.created_at',
                 'bmi.is_available',
+                'bmi.disabled_reason',
                 DB::raw('COALESCE(bmi.branch_price, mi.final_price) as final_price')
             )
             ->where(DB::raw('COALESCE(bmi.branch_price, mi.final_price)'), '>', 0)
             ->get();
+        
+        $menuItems->transform(function ($item) use ($activeBranchId) {
+            $item->out_of_stock =
+                $this->hasInsufficientIngredients(
+                    (int) $item->id,
+                    (int) $activeBranchId
+                );
+
+            /*
+            * Automatically disable an AVAILABLE item when
+            * one or more required ingredients are insufficient.
+            */
+            if ($item->out_of_stock && ($item->is_available === true || $item->is_available == 1)) {
+
+                DB::table('laravel.branch_menu_items')
+                    ->where('id', $item->id)
+                    ->where('branch_id', $activeBranchId)
+                    ->update([
+                        'is_available' => false,
+                        'disabled_reason' => 'out_of_stock',
+                    ]);
+
+                $item->is_available = false;
+                $item->disabled_reason = 'out_of_stock';
+            }
+
+            return $item;
+        });
 
         return view('pos.pos', compact('categories', 'menuItems', 'layout', 'activeBranch'));
     }
@@ -71,6 +186,26 @@ class PosController extends Controller{
 
         try{
             DB::beginTransaction();
+
+            foreach ($request->cart as $cartItem) {
+
+    if (
+        $this->hasInsufficientIngredients(
+            (int) $cartItem['id'],
+            $activeBranchId,
+            (int) $cartItem['quantity']
+        )
+    ) {
+
+        $itemName = DB::table('laravel.menu_items')
+            ->where('id', $cartItem['id'])
+            ->value('name');
+
+        throw new \Exception(
+            "Insufficient ingredients for {$itemName}."
+        );
+    }
+}
 
             $receiptNo = $request->input('receipt_no')
                 ?: 'REC-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
@@ -215,20 +350,80 @@ class PosController extends Controller{
             return response()->json(['success' => false, 'message' => 'Menu item not assigned to this branch'], 404);
         }
 
-        $newStatus = !$pivot->is_available;
+        /*
+        * Currently available -> DISABLE
+        */
+        if ($pivot->is_available) {
+
+            $reason = $request->input('reason');
+            $reasonOther = trim($request->input('reason_other', ''));
+
+            if (!in_array($reason, ['sold_out', 'out_of_stock', 'others'], true)) {
+                return response()->json(['success' => false, 'message' => 'Please select a reason for disabling this item.'], 422);
+            }
+
+            if ($reason === 'others' && $reasonOther === '') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please specify the reason.'
+                ], 422);
+            }
+
+            /*
+            * "Others" is stored as the default "disabled" type.
+            */
+            $disabledReason = match ($reason) {
+                'sold_out' => 'sold_out',
+                'out_of_stock' => 'out_of_stock',
+                'others' => 'disabled',
+            };
+
+            /*
+            * Keep the custom "Others" text only in the activity log.
+            */
+            $reasonText = match ($reason) {
+                'sold_out' => 'Sold Out',
+                'out_of_stock' => 'Out of Stock',
+                'others' => $reasonOther,
+            };
+
+            DB::table('laravel.branch_menu_items')
+                ->where('id', $pivot->id)
+                ->update([
+                    'is_available' => false,
+                    'disabled_reason' => $disabledReason,
+                ]);
+
+            $this->logActivity('updated', 'menu_item', $id, "Cashier disabled item ID {$id} at Branch {$activeBranchId}. Reason: {$reasonText}");
+
+            return response()->json(['success' => true, 'is_available' => false, 'disabled_reason' => $disabledReason, 'message' => "Menu item disabled. Reason: {$reasonText}"]);
+        }
+
+        /*
+        * Currently disabled -> ENABLE
+        */
+
+        if ($this->hasInsufficientIngredients((int) $id, (int) $activeBranchId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot enable this item because one or more required ingredients are out of stock or insufficient.'
+            ], 422);
+        }
 
         DB::table('laravel.branch_menu_items')
             ->where('id', $pivot->id)
-            ->update(['is_available' => $newStatus]);
+            ->update([
+                'is_available' => true,
+                'disabled_reason' => null,
+            ]);
 
-        $statusText = $newStatus ? 'Available' : 'Unavailable';
-        
-        $this->logActivity('updated', 'menu_item', $id, "Cashier marked item ID {$id} as {$statusText} at Branch {$activeBranchId}");
+        $this->logActivity('updated', 'menu_item', $id, "Cashier enabled item ID {$id} at Branch {$activeBranchId}");
 
         return response()->json([
-            'success' => true, 
-            'is_available' => $newStatus,
-            'message' => "Menu item marked as {$statusText}"
+            'success' => true,
+            'is_available' => true,
+            'disabled_reason' => null,
+            'message' => 'Menu item enabled.'
         ]);
     }
 

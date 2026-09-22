@@ -55,18 +55,25 @@ document.addEventListener('DOMContentLoaded', function () {
                 |--------------------------------------------------------------------------
                 */
 
-                const isAvailable =
-                    item.is_available === true ||
-                    item.is_available == 1;
+                const isAvailable = item.is_available === true || item.is_available == 1;
 
+                const disabledReason = item.disabled_reason || 'disabled';
 
                 let matchesStatus = true;
 
                 if (statusVal === 'enabled') {
                     matchesStatus = isAvailable;
-                }
 
-                if (statusVal === 'disabled') {
+                } else if (statusVal === 'sold_out') {
+                    matchesStatus = !isAvailable && disabledReason === 'sold_out';
+
+                } else if (statusVal === 'out_of_stock') {
+                    matchesStatus = !isAvailable && disabledReason === 'out_of_stock';
+
+                } else if (statusVal === 'disabled') {
+                    /*
+                    * "Disabled" means every disabled type.
+                    */
                     matchesStatus = !isAvailable;
                 }
 
