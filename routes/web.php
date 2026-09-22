@@ -268,6 +268,9 @@ Route::middleware(['auth'])->group(function(){
     Route::put('/my-account', [UserAccountController::class, 'update'])
         ->name('settings.myAccount.update');
 
+    Route::put('/my-account/password',  [UserAccountController::class, 'updatePassword'])
+        ->name('settings.myAccount.password');
+
     
 
 Route::post('/heartbeat', function () {

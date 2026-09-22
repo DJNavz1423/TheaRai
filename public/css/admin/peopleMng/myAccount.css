@@ -1,4 +1,5 @@
-.modal-dialog{
+.container{
+  .modal-dialog{
   padding: 0 !important; 
 }
 
@@ -35,18 +36,38 @@
 }
 
 .modal-footer{
+  justify-content: space-between;
   padding: 1rem;
-  >button:first-child{
-    color: var(--light-pure);
-    background-color: var(--quaternary-darker);
-    border: 0;
-    border-radius: 8px;
-    border-top-left-radius: 0;
 
+  >button{
+    color: var(--light-pure) !important;
+    background-color: var(--primary-deep) !important;
+    border: 1px solid var(--light-pure) !important;
+    border-radius: 8px !important;
+    border-top-left-radius: 0 !important;
+    flex: 1;
+    transition: 200ms all ease;
+  }
+  >button:first-child:hover{
+    background-color: var(--quaternary-darker) !important;
+    border-color: var(--quaternary-darker) !important;
+  }
+
+  >button:last-child{
+    color: var(--light-pure) !important;
+    background-color: var(--quaternary-darker) !important;
+    border: 0 !important;
+    
     &:disabled,
     &[disabled] {
       cursor: not-allowed;
       filter: grayscale(100%);
     }
   }
+
+  >button:last-child:hover{
+    background-color: var(--quaternary) !important;
+  }
 }
+}
+

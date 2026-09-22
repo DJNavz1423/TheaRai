@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserAccountController extends Controller
 {
@@ -56,5 +57,39 @@ class UserAccountController extends Controller
         );
 
         return back()->with('success', 'Personal information updated successfully.');
+    }
+
+    public function updatePassword(Request $request){
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'new_password' => [
+                'required',
+                'string',
+                'min:10',
+                'confirmed'
+            ]
+        ]);
+
+        DB::table('laravel.users')
+            ->where('id', $user->id)
+            ->update([
+                'password' => Hash::make(
+                    $validated['new_password']
+                ),
+                'updated_at' => now(),
+            ]);
+
+        $this->logActivity(
+            'updated',
+            'user',
+            $user->id,
+            "Changed password for user: {$user->name}"
+        );
+
+        return back()->with(
+            'success',
+            'Password changed successfully.'
+        );
     }
 }

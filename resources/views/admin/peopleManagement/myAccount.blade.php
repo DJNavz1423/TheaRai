@@ -77,19 +77,20 @@
           </div>
         </div>
 
-        <div class="modal-footer">
-          <button
-              type="submit"
-              class="btn"
-              id="updateAccountButton"
-              disabled
-          >
-              Update Account
-          </button>
+        <div class="modal-footer row">
+            <button type="button" class="btn" id="changePassBtn">
+                Change Password
+            </button>
+
+            <button type="submit" class="btn" id="updateAccountButton" disabled>
+                Update Account
+            </button>
       </div>
       </form>
     </div>
   </div>
+
+  @include('admin.peopleManagement.modals.passwordModal')
 @endsection
 
 @once
@@ -99,6 +100,7 @@
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
     <link rel="stylesheet" href="{{ asset('css/admin/peopleMng/myAccount.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin/peopleMng/users.css') }}">
   @endpush
 @endonce
 
@@ -315,6 +317,208 @@
 
         checkForChanges();
     });
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const changePassBtn =
+        document.getElementById('changePassBtn');
+
+    const modal =
+        document.getElementById('managePasswordModal');
+
+    const form =
+        document.getElementById('managePasswordForm');
+
+    const newPasswordInput =
+        document.getElementById('new-password');
+
+    const confirmPasswordInput =
+        document.getElementById('confirm-password');
+
+    const passwordHint =
+        document.getElementById('password-match-hint');
+
+    const modalTitle =
+        document.getElementById('modalTitle');
+
+    const updateButton =
+        form.querySelector('button[type="submit"]');
+
+    function validatePasswordMatch() {
+
+        const password =
+            newPasswordInput.value;
+
+        const confirm =
+            confirmPasswordInput.value;
+
+        if (
+            password.length > 0 &&
+            password.length < 10
+        ) {
+
+            passwordHint.textContent =
+                'Password must be at least 10 characters';
+
+            passwordHint.style.color =
+                '#c90a1d';
+
+            updateButton.disabled = true;
+
+            return;
+        }
+
+        if (confirm.length === 0) {
+
+            passwordHint.textContent = '';
+            updateButton.disabled = true;
+
+            return;
+        }
+
+        if (password === confirm) {
+
+            passwordHint.textContent =
+                '✓ Passwords match';
+
+            passwordHint.style.color =
+                '#0d884e';
+
+        } else {
+
+            passwordHint.textContent =
+                '✗ Passwords do not match';
+
+            passwordHint.style.color =
+                '#c90a1d';
+        }
+
+        updateButton.disabled =
+            password.length < 10 ||
+            confirm.length < 10 ||
+            password !== confirm;
+    }
+
+    function resetPasswordModal() {
+
+        newPasswordInput.value = '';
+        confirmPasswordInput.value = '';
+
+        newPasswordInput.type = 'password';
+        confirmPasswordInput.type = 'password';
+
+        passwordHint.textContent = '';
+        updateButton.disabled = true;
+
+        const newPasswordOn =
+            document.querySelector(
+                '#toggle-new-password .visibility-on'
+            );
+
+        const newPasswordOff =
+            document.querySelector(
+                '#toggle-new-password .visibility-off'
+            );
+
+        const confirmPasswordOn =
+            document.querySelector(
+                '#toggle-confirm-password .visibility-on'
+            );
+
+        const confirmPasswordOff =
+            document.querySelector(
+                '#toggle-confirm-password .visibility-off'
+            );
+
+        newPasswordOn.classList.remove('d-none');
+        newPasswordOff.classList.add('d-none');
+
+        confirmPasswordOn.classList.remove('d-none');
+        confirmPasswordOff.classList.add('d-none');
+    }
+
+    changePassBtn.addEventListener('click', function () {
+
+        form.action =
+            "{{ route('settings.myAccount.password') }}";
+
+        modalTitle.textContent =
+            'Change Password';
+
+        resetPasswordModal();
+
+        modal.style.display = 'flex';
+    });
+
+    newPasswordInput.addEventListener(
+        'input',
+        validatePasswordMatch
+    );
+
+    confirmPasswordInput.addEventListener(
+        'input',
+        validatePasswordMatch
+    );
+
+    form.addEventListener('submit', function (event) {
+
+        if (
+            newPasswordInput.value.length < 10 ||
+            newPasswordInput.value !==
+            confirmPasswordInput.value
+        ) {
+            event.preventDefault();
+
+            validatePasswordMatch();
+        }
+    });
+
+    function setupPasswordToggle(
+        input,
+        button
+    ) {
+
+        if (!input || !button) return;
+
+        const eyeOpen =
+            button.querySelector('.visibility-on');
+
+        const eyeClosed =
+            button.querySelector('.visibility-off');
+
+        button.addEventListener('click', function () {
+
+            const isPassword =
+                input.type === 'password';
+
+            input.type =
+                isPassword ? 'text' : 'password';
+
+            eyeOpen.classList.toggle(
+                'd-none',
+                !isPassword
+            );
+
+            eyeClosed.classList.toggle(
+                'd-none',
+                isPassword
+            );
+        });
+    }
+
+    setupPasswordToggle(
+        newPasswordInput,
+        document.getElementById('toggle-new-password')
+    );
+
+    setupPasswordToggle(
+        confirmPasswordInput,
+        document.getElementById('toggle-confirm-password')
+    );
+
+});
 </script>
 
 <script>
