@@ -32,7 +32,7 @@ section{
   }
   .ts-wrapper:last-child{
     margin-left: unset !important;
-    width: max-content !important;
+    width: 150px !important;
   }
 
   .ts-wrapper .ts-control .item{
