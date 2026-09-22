@@ -177,7 +177,7 @@ class TransactionController extends Controller {
         }
 
         $items = DB::table('laravel.order_items as order_items')
-            ->join(
+            ->leftJoin(
                 'laravel.menu_items as menu_items',
                 'order_items.menu_item_id',
                 '=',
@@ -188,7 +188,7 @@ class TransactionController extends Controller {
                 $transaction->id
             )
             ->select(
-                'menu_items.name',
+                'order_items.menu_item_name as name',
                 'menu_items.img_url',
                 'order_items.quantity',
                 'order_items.price_at_time',
