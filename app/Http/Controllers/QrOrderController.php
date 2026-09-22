@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class QrOrderController extends Controller
 {
@@ -37,6 +38,42 @@ class QrOrderController extends Controller
             ->where('orders.payment_method', '!=', 'cash')
             ->orderBy('orders.created_at', 'asc')
             ->get();
+        
+        $philippineNow = Carbon::now('Asia/Manila');
+
+        $todayStart = $philippineNow
+            ->copy()
+            ->startOfDay()
+            ->utc();
+
+        $todayEnd = $philippineNow
+            ->copy()
+            ->endOfDay()
+            ->utc();
+
+        $todayQrTransactions = DB::table('laravel.orders as orders')
+            ->leftJoin(
+                'laravel.branches as branches',
+                'orders.branch_id',
+                '=',
+                'branches.id'
+            )
+            ->select(
+                'orders.id',
+                'orders.receipt_no',
+                'orders.total_amount',
+                'orders.payment_method',
+                'orders.payment_status',
+                'orders.status',
+                'orders.created_at',
+                'orders.branch_id',
+                'branches.name as branch_name'
+            )
+            ->where('orders.branch_id', $branchId)
+            ->where('orders.payment_method', '!=', 'cash')
+            ->whereBetween('orders.created_at', [$todayStart, $todayEnd])
+            ->orderByDesc('orders.created_at')
+            ->get();
 
         foreach ($qrOrders as $order) {
             $order->items = DB::table('laravel.order_items')
@@ -46,7 +83,7 @@ class QrOrderController extends Controller
                 ->get();
         }
 
-        return view('pos.qr_orders', compact('qrOrders', 'activeBranch'));
+        return view('pos.qr_orders', compact('qrOrders', 'activeBranch', 'todayQrTransactions'));
     }
 
     public function serve($id)
