@@ -204,8 +204,6 @@
 
           <ul class="sub-menu">
             <div>
-              <li><a href="#">General</a></li>
-
               <li class="{{ request()->is('/my-account') ? 'active' : '' }}">
                 <a href="{{ url('/my-account') }}">My Account</a>
               </li>
