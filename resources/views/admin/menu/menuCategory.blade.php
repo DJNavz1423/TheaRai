@@ -127,5 +127,16 @@
         document.getElementById('deleteModal').style.display = 'flex';
     }
 </script>
+
+@if(session('error'))
+    <script>
+        alert("🚨 ERROR: {{ session('error') }}");
+    </script>
+@endif
+
+@if(session('success'))
+    <script>
+        alert("✅ SUCCESS: {{ session('success') }}");
+    </script>
   @endpush
 @endonce

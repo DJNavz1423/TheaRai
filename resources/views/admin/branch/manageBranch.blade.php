@@ -150,5 +150,16 @@
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsBranchFilter.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/modal/branchModal.js') }}" defer></script>
+
+  @if(session('error'))
+    <script>
+        alert("🚨 ERROR: {{ session('error') }}");
+    </script>
+@endif
+
+@if(session('success'))
+    <script>
+        alert("✅ SUCCESS: {{ session('success') }}");
+    </script>
   @endpush
 @endonce
