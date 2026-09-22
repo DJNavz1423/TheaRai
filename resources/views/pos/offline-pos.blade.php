@@ -61,6 +61,25 @@
 
 
     <div class="cart-summary border-t">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">&#8369;0.00</span>
+      </div>
+
+      <div class="summary-row discount-row">
+        <span>Discount</span>
+        <div class="discount-inputs">
+          <div class="discount-input-wrapper">
+            <input type="text" inputmode="decimal" id="discount-percent" placeholder="0" autocomplete="off">
+            <span>%</span>
+          </div>
+          <div class="discount-input-wrapper">
+            <input type="text" inputmode="decimal" id="discount-amount" placeholder="0.00" autocomplete="off">
+            <span>&#8369;</span>
+          </div>
+        </div>
+      </div>
+
       <div class="summary-row summary-total">
         <h2>Total</h2>
         <h3 id="cart-total">&#8369;0.00</h3>
@@ -155,6 +174,14 @@
 
 
             <div class="receipt-due">
+              <strong>Subtotal: </strong>
+
+              <span id="preview-subtotal"></span><br>
+
+              Discount:
+
+              <span id="preview-discount"></span><br>
+
               <strong>Total: </strong>
 
               <span id="preview-total"></span><br>
