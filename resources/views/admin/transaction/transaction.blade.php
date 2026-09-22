@@ -169,6 +169,7 @@
   @push('scripts')
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
   <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
+  <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTransactionFilter.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/modal/transactionModal.js') }}" defer></script>
