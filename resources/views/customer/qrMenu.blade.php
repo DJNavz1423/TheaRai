@@ -44,6 +44,14 @@
         </div>
     </div>
 
+    <div id="best-seller-section" class="category-section best-seller-section">
+        <h3 class="category-heading">
+            Best Seller Foods
+        </h3>
+
+        <div id="best-seller-container" class="menu-grid"></div>
+    </div>
+
     <div id="menu-container"></div>
 
     <button id="floating-cart-btn" class="btn" onclick="openCart()">
@@ -80,6 +88,7 @@
 
     <script>
         const menuItems = @json($menuItems);
+        const bestSellerItems = @json($bestSellerItems);
         const categories = @json($categories); // Pulled so we have access to category names
         let cart = {};
 
@@ -108,6 +117,28 @@
                 </div>
             `;
             return card;
+        }
+
+        function renderBestSellers() {
+
+            const section =
+                document.getElementById('best-seller-section');
+
+            const container =
+                document.getElementById('best-seller-container');
+
+            container.innerHTML = '';
+
+            if (bestSellerItems.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            bestSellerItems.forEach(item => {
+                container.appendChild(
+                    createCardElement(item)
+                );
+            });
         }
 
         // Main render function handles BOTH grouped and flat layouts
@@ -170,8 +201,11 @@
                 filtered = filtered.filter(item => item.name.toLowerCase().includes(query));
             }
 
-            // ONLY show the headings if 'All Categories' is selected AND they are not actively typing a search query.
             const isGrouped = (catId === 'all' && query === '');
+
+            const bestSellerSection = document.getElementById('best-seller-section');
+
+            bestSellerSection.style.display = isGrouped ? '' : 'none';
 
             renderMenu(filtered, isGrouped);
         }
@@ -316,6 +350,7 @@
         }
 
         // Force a filter sweep on load to setup the initial grouped layout
+        renderBestSellers();
         filterMenu();
         updateCartUI();
     </script>

@@ -42,7 +42,40 @@ class QrMenuController extends Controller
             )
             ->get();
 
-        return view('customer.qrMenu', compact('menuItems', 'table', 'branch', 'categories'));
+        $bestSellerItems = DB::table('laravel.order_items as oi')
+            ->join('laravel.orders as o', 'oi.order_id', '=', 'o.id')
+            ->join('laravel.menu_items as mi', 'oi.menu_item_id', '=', 'mi.id')
+            ->join('laravel.branch_menu_items as bmi', function ($join) use ($branchId) {
+                $join->on('bmi.menu_item_id', '=', 'mi.id')
+                    ->where('bmi.branch_id', '=', $branchId);
+            })
+            ->where('o.branch_id', $branchId)
+            ->where('o.payment_status', 'paid')
+            ->where('bmi.is_available', true)
+            ->whereNull('mi.deleted_at')
+            ->select(
+                'mi.id',
+                'mi.name',
+                'mi.img_url',
+                'mi.category_id',
+                'bmi.branch_price',
+                'mi.final_price',
+                DB::raw('COALESCE(bmi.branch_price, mi.final_price) as price'),
+                DB::raw('SUM(oi.quantity) as total_sold')
+            )
+            ->groupBy(
+                'mi.id',
+                'mi.name',
+                'mi.img_url',
+                'mi.category_id',
+                'bmi.branch_price',
+                'mi.final_price'
+            )
+            ->orderByDesc('total_sold')
+            ->limit(6)
+            ->get();
+
+        return view('customer.qrMenu', compact('menuItems', 'bestSellerItems', 'table', 'branch', 'categories'));
     }
 
     // 2. Process the Cart and Generate the Xendit Link
