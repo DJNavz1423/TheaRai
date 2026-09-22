@@ -158,6 +158,21 @@ document.addEventListener(
                 'cart-total'
             );
 
+        const cartSubtotalEl =
+            document.getElementById(
+                'cart-subtotal'
+            );
+
+        const discountPercentInput =
+            document.getElementById(
+                'discount-percent'
+            );
+
+        const discountAmountInput =
+            document.getElementById(
+                'discount-amount'
+            );
+
         const clearCartBtn =
             document.getElementById(
                 'clearCartBtn'
@@ -204,6 +219,8 @@ document.addEventListener(
         let categories = [];
 
         let cart = [];
+
+        let discountMode = null;
 
 
         /*
@@ -612,9 +629,83 @@ document.addEventListener(
         }
 
 
-        function updateCartUI() {
+        function getCartSubtotal() {
+            return cart.reduce(
+                (sum, item) => sum + item.price * item.quantity,
+                0
+            );
+        }
+
+        function getDiscountAmount(subtotal) {
+            if (!discountMode || subtotal <= 0) {
+                return 0;
+            }
+
+            if (discountMode === 'percentage') {
+                const percentage = Math.min(
+                    Math.max(Number(discountPercentInput.value) || 0, 0),
+                    100
+                );
+
+                return subtotal * percentage / 100;
+            }
+
+            return Math.min(
+                Math.max(Number(discountAmountInput.value) || 0, 0),
+                subtotal
+            );
+        }
+
+        function updateDiscountFields(subtotal, activeInput = null) {
+            if (subtotal <= 0) {
+                discountPercentInput.value = '';
+                discountAmountInput.value = '';
+                discountMode = null;
+                return;
+            }
+
+            const discountAmount = getDiscountAmount(subtotal);
+
+            if (discountMode === 'percentage') {
+                const percentage = Math.min(
+                    Math.max(Number(discountPercentInput.value) || 0, 0),
+                    100
+                );
+
+                if (activeInput !== discountPercentInput) {
+                    discountPercentInput.value = percentage || '';
+                }
+
+                discountAmountInput.value = discountAmount
+                    ? discountAmount.toFixed(2)
+                    : '';
+            }
+
+            if (discountMode === 'amount') {
+                const amount = Math.min(
+                    Math.max(Number(discountAmountInput.value) || 0, 0),
+                    subtotal
+                );
+
+                discountPercentInput.value = amount
+                    ? ((amount / subtotal) * 100).toFixed(2)
+                    : '';
+
+                if (activeInput !== discountAmountInput) {
+                    discountAmountInput.value = amount
+                        ? amount.toFixed(2)
+                        : '';
+                }
+            }
+        }
+
+        function updateCartUI(activeInput = null) {
 
             cartItemsContainer.innerHTML = '';
+
+            const subtotal = getCartSubtotal();
+            const discountAmount = getDiscountAmount(subtotal);
+            const total = Math.max(0, subtotal - discountAmount);
 
 
             if (!cart.length) {
@@ -625,6 +716,11 @@ document.addEventListener(
 
                 cartTotalEl.textContent =
                     formatMoney(0);
+
+                cartSubtotalEl.textContent =
+                    formatMoney(0);
+
+                updateDiscountFields(0);
 
                 checkoutBtn.disabled =
                     true;
@@ -645,17 +741,11 @@ document.addEventListener(
                 false;
 
 
-            let total = 0;
-
-
             cart.forEach(item => {
 
                 const lineTotal =
                     item.price *
                     item.quantity;
-
-
-                total += lineTotal;
 
 
                 const row =
@@ -743,8 +833,9 @@ document.addEventListener(
             });
 
 
-            cartTotalEl.textContent =
-                formatMoney(total);
+            updateDiscountFields(subtotal, activeInput);
+            cartSubtotalEl.textContent = formatMoney(subtotal);
+            cartTotalEl.textContent = formatMoney(total);
 
 
             document
@@ -818,6 +909,16 @@ document.addEventListener(
 
         }
 
+        discountPercentInput.addEventListener('input', function () {
+            discountMode = 'percentage';
+            updateCartUI(this);
+        });
+
+        discountAmountInput.addEventListener('input', function () {
+            discountMode = 'amount';
+            updateCartUI(this);
+        });
+
 
         /*
         |--------------------------------------------------------------------------
@@ -865,19 +966,8 @@ document.addEventListener(
 
         function calculateChange() {
 
-            const total =
-                cart.reduce(
-                    (
-                        sum,
-                        item
-                    ) =>
-                        sum +
-                        (
-                            item.price *
-                            item.quantity
-                        ),
-                    0
-                );
+            const subtotal = getCartSubtotal();
+            const total = Math.max(0, subtotal - getDiscountAmount(subtotal));
 
 
             const cash =
@@ -930,19 +1020,9 @@ document.addEventListener(
                     ) || 0;
 
 
-                const total =
-                    cart.reduce(
-                        (
-                            sum,
-                            item
-                        ) =>
-                            sum +
-                            (
-                                item.price *
-                                item.quantity
-                            ),
-                        0
-                    );
+                const subtotal = getCartSubtotal();
+                const discountAmount = getDiscountAmount(subtotal);
+                const total = Math.max(0, subtotal - discountAmount);
 
 
                 if (
@@ -1038,6 +1118,20 @@ document.addEventListener(
 
                 });
 
+
+                document
+                    .getElementById(
+                        'preview-subtotal'
+                    )
+                    .textContent =
+                        formatMoney(subtotal);
+
+                document
+                    .getElementById(
+                        'preview-discount'
+                    )
+                    .textContent =
+                        formatMoney(discountAmount);
 
                 document
                     .getElementById(
@@ -1139,28 +1233,15 @@ document.addEventListener(
                             ) || 0;
 
 
-                        const total =
-                            cart.reduce(
-                                (
-                                    sum,
-                                    item
-                                ) =>
-                                    sum +
-                                    (
-                                        item.price *
-                                        item.quantity
-                                    ),
-                                0
-                            );
+                        const subtotal = getCartSubtotal();
 
+                        const discountAmount = getDiscountAmount(subtotal);
 
-                        const localId =
-                            crypto.randomUUID();
+                        const total = Math.max(0, subtotal - discountAmount);
 
+                        const localId = crypto.randomUUID();
 
-                        const receiptNo =
-                            createOfflineReceiptNo();
-
+                        const receiptNo = createOfflineReceiptNo();
 
                         const order = {
 
@@ -1178,6 +1259,20 @@ document.addEventListener(
 
                             total_amount:
                                 total,
+
+                            subtotal_amount:
+                                subtotal,
+
+                            discount_type:
+                                discountMode,
+
+                            discount_value:
+                                discountMode === 'percentage'
+                                    ? Number(discountPercentInput.value) || 0
+                                    : Number(discountAmountInput.value) || 0,
+
+                            discount_amount:
+                                discountAmount,
 
                             cash_tendered:
                                 method === 'digital'
