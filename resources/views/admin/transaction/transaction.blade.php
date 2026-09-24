@@ -173,5 +173,17 @@
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsTransactionFilter.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/modal/transactionModal.js') }}" defer></script>
+
+@if(session('error'))
+    <script>
+        alert("🚨 ERROR: {{ session('error') }}");
+    </script>
+@endif
+
+@if(session('success'))
+    <script>
+        alert("✅ SUCCESS: {{ session('success') }}");
+    </script>
+@endif
   @endpush
 @endonce
