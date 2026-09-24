@@ -165,49 +165,68 @@ public function success(Request $request)
 
     $pendingOrder = Cache::get($cacheKey);
 
+    /*
+     * If the temporary cache is already gone, check whether
+     * this payment was already converted into a paid order.
+     *
+     * This prevents the success page from showing
+     * "session expired" when the success URL is opened again.
+     */
     if (!$pendingOrder) {
-        return "Order session expired or could not be found.";
+
+        $existingOrder = DB::table('laravel.orders')
+            ->where('receipt_no', $receiptNo)
+            ->where('payment_status', 'paid')
+            ->first();
+
+        if (!$existingOrder) {
+            return "Order session expired or could not be found.";
+        }
+
+        $orderId = $existingOrder->id;
+
+    } else {
+
+        if (!$pendingOrder['payment_reference']) {
+            return "Payment information is missing.";
+        }
+
+        $secretKey = env('XENDIT_SECRET_KEY');
+
+        // Ask Xendit for the actual invoice status.
+        $response = Http::withBasicAuth($secretKey, '')
+            ->get(
+                'https://api.xendit.co/v2/invoices/' .
+                $pendingOrder['payment_reference']
+            );
+
+        if (!$response->successful()) {
+            return "Unable to verify payment. Please contact the staff.";
+        }
+
+        $xenditData = $response->json();
+
+        // Do NOT create an order unless Xendit says PAID.
+        if (($xenditData['status'] ?? null) !== 'PAID') {
+            return "Payment was not completed.";
+        }
+
+        // Create the actual paid order now.
+        try {
+
+            $orderId = $this->createPaidOrder(
+                $pendingOrder,
+                $xenditData
+            );
+
+        } catch (\Exception $e) {
+
+            return "Payment was received, but the order could not be created. Please contact the staff.";
+        }
+
+        // Remove the temporary pending order data.
+        Cache::forget($cacheKey);
     }
-
-    if (!$pendingOrder['payment_reference']) {
-        return "Payment information is missing.";
-    }
-
-    $secretKey = env('XENDIT_SECRET_KEY');
-
-    // Ask Xendit for the actual invoice status.
-    $response = Http::withBasicAuth($secretKey, '')
-        ->get(
-            'https://api.xendit.co/v2/invoices/' .
-            $pendingOrder['payment_reference']
-        );
-
-    if (!$response->successful()) {
-        return "Unable to verify payment. Please contact the staff.";
-    }
-
-    $xenditData = $response->json();
-
-    // Do NOT create an order unless Xendit says PAID.
-    if (($xenditData['status'] ?? null) !== 'PAID') {
-        return "Payment was not completed.";
-    }
-
-    // Create the actual paid order now.
-    try {
-
-        $orderId = $this->createPaidOrder(
-            $pendingOrder,
-            $xenditData
-        );
-
-    } catch (\Exception $e) {
-
-        return "Payment was received, but the order could not be created. Please contact the staff.";
-    }
-
-    // Remove the temporary pending order data.
-    Cache::forget($cacheKey);
 
     $order = DB::table('laravel.orders')
         ->join(
