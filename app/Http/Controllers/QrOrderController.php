@@ -79,7 +79,7 @@ class QrOrderController extends Controller
             $order->items = DB::table('laravel.order_items')
                 ->join('laravel.menu_items', 'order_items.menu_item_id', '=', 'menu_items.id')
                 ->where('order_items.order_id', $order->id)
-                ->select('order_items.quantity', 'menu_items.name')
+                ->select('order_items.quantity', 'menu_items.name', 'menu_items.img_url')
                 ->get();
         }
 
@@ -98,21 +98,37 @@ class QrOrderController extends Controller
         return back()->with('success', 'Order marked as served!');
     }
 
-    public function getNotifications()
-    {
+    public function getNotifications() {
         $branchId = $this->getActiveBranchId();
 
         if (!$branchId) {
-            return response()->json(['count' => 0]);
+            return response()->json(['count' => 0, 'branch_id' => null, 'latest_order' => null,]);
         }
+        
+        $baseQuery = DB::table('laravel.orders')
+                ->where('orders.branch_id', $branchId)
+                ->where('orders.payment_status', 'paid')
+                ->where('orders.status', 'pending')
+                ->where('orders.payment_method', '!=', 'cash');
 
-        $count = DB::table('laravel.orders')
-            ->where('branch_id', $branchId)
-            ->where('payment_status', 'paid')
-            ->where('status', 'pending')
-            ->where('payment_method', '!=', 'cash')
-            ->count();
+        $count = (clone $baseQuery)->count();
 
-        return response()->json(['count' => $count]);
+        $latestOrder = $baseQuery
+        ->leftJoin(
+            'laravel.tables',
+            'orders.table_id',
+            '=',
+            'tables.id'
+        )
+        ->select(
+            'orders.id',
+            'orders.receipt_no',
+            'orders.created_at',
+            'tables.table_number'
+        )
+        ->orderByDesc('orders.created_at')
+        ->first();
+
+        return response()->json(['count' => $count, 'branch_id' => $branchId, 'latest_order' => $latestOrder,]);
     }
 }

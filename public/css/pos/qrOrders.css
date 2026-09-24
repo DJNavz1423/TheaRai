@@ -44,6 +44,9 @@
   }
 
   .order-list{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     strong{
       color: var(--quaternary-dark);
       font-weight: 900;

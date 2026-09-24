@@ -5,9 +5,7 @@
 <div class="container">
     <h1 class="heading mb-4">QR Orders - {{ $activeBranch ? $activeBranch->name : 'Unknown Branch' }}</h1>
     
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+    
 
     <div class="order-grid">
         @forelse($qrOrders as $order)
@@ -29,9 +27,21 @@
                 <ul class="order-list">
                     @foreach($order->items as $item)
                         <li>
-                          <p>
-                           <strong>{{ $item->quantity }}x</strong>  {{ $item->name }}
-                          </p>
+                            <div class="item-group">
+                                <div class="item-image">
+                                    @if($item->img_url)
+                                    <img src="{{ $item->img_url }}" alt="{{ $item->name }}">
+                                    @else
+                                    <span class="placeholder">
+                                        {{ strtoupper(substr($item->name, 0, 1)) }}
+                                    </span>
+                                @endif
+                                </div>
+
+                                <p>
+                                <strong>{{ $item->quantity }}x</strong>  {{ $item->name }}
+                                </p>
+                            </div>
                         </li>
                     @endforeach
                 </ul>
@@ -52,6 +62,7 @@
                         <th>Total Amount</th>
                         <th>Payment Method</th>
                         <th>Payment Status</th>
+                        <th>Status</th>
                         <th>Date</th>
                     </tr>
                 </thead>
@@ -77,6 +88,10 @@
 
                             <td role="cell">
                                 {{ ucwords($transaction->payment_status ?? 'Unknown') }}
+                            </td>
+
+                            <td role="cell">
+                                {{ ucwords($transaction->status ?? 'Unknown') }}
                             </td>
 
                             <td role="cell">
@@ -162,5 +177,17 @@
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
     <script type="text/javascript" src="{{ asset('js/dashboard/modal/transactionModal.js') }}" defer></script>
+
+    @if(session('error'))
+    <script>
+        alert("🚨 ERROR: {{ session('error') }}");
+    </script>
+@endif
+
+@if(session('success'))
+    <script>
+        alert("✅ SUCCESS: {{ session('success') }}");
+    </script>
+@endif
     @endpush
 @endonce
