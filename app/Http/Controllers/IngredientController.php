@@ -131,7 +131,10 @@ class IngredientController extends Controller
 
             // 3. Log Expense if there is an opening stock cost
             if($totalExpense > 0){  
-                $unitAbbr = DB::table('laravel.units')->where('id', $validated['primary_unit_id'])->value('abbreviation');
+                $unitAbbr = DB::table('laravel.units')
+                    ->where('id', $validated['primary_unit_id'])
+                    ->value('abbreviation');
+
                 $expenseId = DB::table('laravel.expenses')->insertGetId([
                     'expense_type' => 'ingredient_purchase',
                     'fund_source' => $validated['fund_source'],
@@ -140,6 +143,18 @@ class IngredientController extends Controller
                     'description' => 'Opening stock for ' . $stockQty . ' ' . $unitAbbr . ' of ' . $validated['name'], 
                     'created_at' => now()
                 ]);
+
+                if ($validated['fund_source'] === 'cash_in_hand') {
+                    DB::table('laravel.cash_transactions')->insert([
+                        'transaction_type' => 'expense',
+                        'fund_source' => 'cash_in_hand',
+                        'amount' => $totalExpense,
+                        'branch_id' => $validated['branch_id'],
+                        'description' => 'Opening stock for ' . $validated['name'],
+                        'created_at' => now(),
+                    ]);
+                }
+                
                 $this->logActivity('created', 'expense', $expenseId, "Added opening stock expense for: {$validated['name']}");
             }
 
@@ -372,6 +387,7 @@ class IngredientController extends Controller
 
             if($actualTotalCost > 0){
                 $remarks = $validated['remarks'] ?: "Restocked {$ingredient->name}";
+
                 $expenseId = DB::table('laravel.expenses')->insertGetId([
                     'expense_type' => 'ingredient_purchase',
                     'fund_source' => $validated['fund_source'],
@@ -380,6 +396,17 @@ class IngredientController extends Controller
                     'description' => $remarks,
                     'created_at' => now()
                 ]);
+
+                if ($validated['fund_source'] === 'cash_in_hand') {
+                    DB::table('laravel.cash_transactions')->insert([
+                        'transaction_type' => 'expense',
+                        'fund_source' => 'cash_in_hand',
+                        'amount' => $actualTotalCost,
+                        'branch_id' => $validated['branch_id'],
+                        'description' => $remarks,
+                        'created_at' => now(),
+                    ]);
+                }
 
                 $this->logActivity('created', 'expense', $expenseId, "Restock expense for: {$ingredient->name}");
             }
