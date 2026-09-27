@@ -197,38 +197,68 @@
 
     async function fetchQrNotifications() {
 
-        try {
+    try {
 
-            const response =
-                await fetch(
-                    '{{ route("qr.orders.notifications") }}'
-                );
-
-            if (!response.ok) {
-                return;
-            }
-
-            const data =
-                await response.json();
-
-
-            updateBadges(
-                Number(data.count) || 0
+        const response =
+            await fetch(
+                '{{ route("qr.orders.notifications") }}'
             );
 
-
-            checkForNewQrOrder(data);
-
-        } catch (error) {
-
-            console.error(
-                'Error fetching QR notifications:',
-                error
-            );
-
+        if (!response.ok) {
+            return;
         }
 
+        const data =
+            await response.json();
+
+
+        /*
+         * QR notifications
+         */
+
+        updateBadges(
+            Number(data.qr_orders?.count) || 0
+        );
+
+        checkForNewQrOrder({
+            branch_id: data.branch_id,
+            latest_order: data.qr_orders?.latest_order || null
+        });
+
+
+        /*
+         * Inventory notifications
+         *
+         * Send the inventory data to the inventory
+         * notification partial without making another
+         * HTTP request.
+         */
+
+        document.dispatchEvent(
+            new CustomEvent(
+                'inventory-notifications-updated',
+                {
+                    detail: {
+                        branch_id: data.branch_id,
+                        out_of_stock:
+                            data.inventory?.out_of_stock || [],
+                        low_stock:
+                            data.inventory?.low_stock || []
+                    }
+                }
+            )
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Error fetching notifications:',
+            error
+        );
+
     }
+
+}
 
 
     /*
@@ -261,6 +291,6 @@
     */
 
     fetchQrNotifications();
-    setInterval(fetchQrNotifications, 7000);
+    setInterval(fetchQrNotifications, 15000);
 })();
 </script>

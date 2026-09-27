@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/pos/inventoryNotif.css') }}">
 
   @stack('styles')
 
@@ -337,7 +338,9 @@
     })();
 </script>
 
+  @include('partials.inventory_notif')
   @include('partials.qr_notif')
+  
 
   @stack('scripts')
 </body>

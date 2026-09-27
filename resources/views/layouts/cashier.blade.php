@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="{{ asset('css/cashier/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/cashier/header.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/pos/inventoryNotif.css') }}">
 
   <style>
     .modal{
@@ -174,6 +175,7 @@
   </script>
   <script type="text/javascript" src="{{ asset('js/offline/auth/offlineConnectionRedirect.js') }}" defer></script>
 
+  @include('partials.inventory_notif')
   @include('partials.qr_notif')
 
   @stack('scripts')
