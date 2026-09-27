@@ -57,7 +57,7 @@
           <div class="section-header mb-1" >
             <h3 class="text-muted d-flex align-c just-sb wd-100">
             <p>Today's Balance (Cash):</p>
-            <data value="{{ $todayCashBalance ?? 0 }}" class="format-peso" style="color: black; font-size: 1rem;"></data>
+            <data value="{{ $todayCashIn ?? 0 }}" class="format-peso" style="color: black; font-size: 1rem;"></data>
           </h3>
           </div>
 
@@ -89,7 +89,10 @@
               <div class="alert-item list-item {{ $item->stock_quantity == 0 ? 'out-of-stock-item' : 'low-stock-item' }}">
                
                 <div class="alert-item-details item-info">
-                   <div class="item-name">{{ $item->name }}</div>
+                   <div class="item-name">
+                      {{ $item->name }}
+                      <span class="text-muted">({{ $item->branch_name }})</span>
+                    </div>
                   <div class="item-meta">
                     <span class="stock-qty {{ $item->stock_quantity == 0 ? 'out-of-stock' : 'low-stock' }}">{{ $item->stock_quantity }} {{$item->primary_unit_abbr}}</span>
                   <data value="{{ $item->purchase_price }}" class="stock-price format-peso">{{ $item->purchase_price }}</data>

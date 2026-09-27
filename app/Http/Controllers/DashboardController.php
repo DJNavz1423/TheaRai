@@ -23,12 +23,45 @@ class DashboardController extends Controller
             ->selectRaw('COALESCE(SUM(stock_quantity * purchase_price), 0) as total')
             ->value('total');
 
-        $lowStockCount = DB::table('laravel.admin_global_inventory')
-            ->whereRaw('stock_quantity <= alert_threshold')
-            ->count();
+        $lowStockQuery = DB::table('laravel.branch_inventory as bi')
+            ->join(
+                'laravel.ingredients as i',
+                'bi.ingredient_id',
+                '=',
+                'i.id'
+            )
+            ->join(
+                'laravel.branches as b',
+                'bi.branch_id',
+                '=',
+                'b.id'
+            )
+            ->leftJoin(
+                'laravel.units as u',
+                'i.primary_unit_id',
+                '=',
+                'u.id'
+            )
+            ->whereNull('bi.deleted_at')
+            ->whereNull('i.deleted_at')
+            ->whereColumn(
+                'bi.stock_quantity',
+                '<=',
+                'bi.alert_threshold'
+            );
 
-        $lowStockItems = DB::table('laravel.admin_global_inventory')
-            ->whereRaw('stock_quantity <= alert_threshold')
+        $lowStockCount = (clone $lowStockQuery)->count();
+
+        $lowStockItems = $lowStockQuery
+            ->select(
+                'i.id',
+                'i.name',
+                'bi.stock_quantity',
+                'bi.purchase_price',
+                'u.abbreviation as primary_unit_abbr',
+                'b.name as branch_name'
+            )
+            ->orderBy('bi.stock_quantity')
             ->limit(7)
             ->get();
         
@@ -62,14 +95,6 @@ class DashboardController extends Controller
             ->where('payment_status', 'paid')
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->sum('total_amount');
-
-        $todayCashOut = DB::table('laravel.cash_transactions')
-            ->where('transaction_type', 'expense')
-            ->where('fund_source', 'cash_in_hand')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->sum('amount');
-
-        $todayCashBalance = $todayCashIn - $todayCashOut;
 
         $totalMoneyIn = DB::table('laravel.orders')
             ->where('payment_method', 'cash')
@@ -129,7 +154,7 @@ class DashboardController extends Controller
             'totalMoneyIn',
             'totalMoneyOut',
             'currentCashBalance',
-            'todayCashBalance',
+            'todayCashIn',
             'recentTransactions',
             'recentActivities',
             'dailyToken',
