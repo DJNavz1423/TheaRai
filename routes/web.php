@@ -33,6 +33,9 @@ use App\Http\Controllers\TransactionController;
 
 use App\Http\Controllers\ManageBranchController;
 
+//waiter
+use App\Http\Controllers\WaiterController;
+
 Route::get('/', function(){ #if someone visits the main website, automatically send to login page
     return redirect('/login');
 });
@@ -246,6 +249,14 @@ Route::middleware(['auth'])->group(function(){
         
         Route::get('/transactions/{id}', [TransactionController::class, 'show'])
             ->name('cashier.transactions.show');
+    });
+
+    Route::prefix('waiter')->middleware('role:waiter')->group(function () {
+    Route::get('/dashboard', [WaiterController::class, 'index'])
+        ->name('waiter.dashboard');
+
+    Route::post('/orders/{id}/serve', [WaiterController::class, 'serve'])
+        ->name('waiter.orders.serve');
     });
     
     
