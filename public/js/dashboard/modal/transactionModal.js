@@ -201,6 +201,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         const imageContent = item.img_url ? `<img src="${item.img_url}" alt="${item.name}">` : `<span>${initial}</span>`;
 
+                        const itemSubtotal = Number(item.subtotal || 0);
+
+                        let itemTotal = itemSubtotal;
+
+                        if (item.total_amount !== undefined && item.total_amount !== null) {
+                            itemTotal = Number(item.total_amount);
+                        } else if (item.total !== undefined && item.total !== null) {
+                            itemTotal = Number(item.total);
+                        } else if (discountAmount > 0 && subtotalAmount > 0) {
+                            const itemDiscount = (itemSubtotal / subtotalAmount) * discountAmount;
+                            itemTotal = Math.max(0, itemSubtotal - itemDiscount);
+                        }
+
                         itemRow.innerHTML = `
                             <div class="item-group">
                                 <div class="item-image">
@@ -220,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </div>
 
                             <strong>
-                                ₱${Number(item.subtotal).toFixed(2)}
+                                ₱${itemTotal.toFixed(2)}
                             </strong>
                         `;
 
