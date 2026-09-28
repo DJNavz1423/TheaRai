@@ -98,111 +98,135 @@ class QrOrderController extends Controller
         return back()->with('success', 'Order marked as served!');
     }
 
-    public function getNotifications() {
-    $branchId = $this->getActiveBranchId();
+    public function getNotifications(){
+        $user = auth()->user();
+        $branchId = $this->getActiveBranchId();
 
-    if (!$branchId) {
+        /*
+        * QR ORDER NOTIFICATIONS
+        *
+        * QR orders remain branch-based.
+        * Admin/dev/owner need a selected branch to receive QR order alerts.
+        */
+        $count = 0;
+        $latestOrder = null;
+
+        if ($branchId) {
+
+            $baseQuery = DB::table('laravel.orders')
+                ->where('orders.branch_id', $branchId)
+                ->where('orders.payment_status', 'paid')
+                ->where('orders.status', 'pending')
+                ->where('orders.payment_method', '!=', 'cash');
+
+            $count = (clone $baseQuery)->count();
+
+            $latestOrder = $baseQuery
+                ->leftJoin(
+                    'laravel.tables',
+                    'orders.table_id',
+                    '=',
+                    'tables.id'
+                )
+                ->select(
+                    'orders.id',
+                    'orders.receipt_no',
+                    'orders.created_at',
+                    'tables.table_number'
+                )
+                ->orderByDesc('orders.created_at')
+                ->first();
+        }
+
+
+        /*
+        * INVENTORY NOTIFICATIONS
+        *
+        * Admin/dev/owner = ALL branches.
+        * Staff = assigned branch only.
+        */
+        $inventoryQuery = DB::table('laravel.branch_inventory as bi')
+            ->join(
+                'laravel.ingredients as i',
+                'bi.ingredient_id',
+                '=',
+                'i.id'
+            )
+            ->join(
+                'laravel.branches as b',
+                'bi.branch_id',
+                '=',
+                'b.id'
+            )
+            ->leftJoin(
+                'laravel.units as u',
+                'i.primary_unit_id',
+                '=',
+                'u.id'
+            )
+            ->whereNull('bi.deleted_at')
+            ->whereNull('i.deleted_at')
+            ->whereColumn(
+                'bi.stock_quantity',
+                '<=',
+                'bi.alert_threshold'
+            );
+
+        $isAdminLevel = in_array(
+            $user->role,
+            ['admin', 'dev', 'owner']
+        );
+
+        if (!$isAdminLevel) {
+            $inventoryQuery->where(
+                'bi.branch_id',
+                $user->branch_id
+            );
+        }
+
+        $warnings = $inventoryQuery
+            ->select(
+                'i.id',
+                'i.name',
+                'bi.branch_id',
+                'b.name as branch_name',
+                'bi.stock_quantity',
+                'bi.alert_threshold',
+                'u.abbreviation as unit'
+            )
+            ->orderBy('bi.stock_quantity')
+            ->get();
+
+        $outOfStock = $warnings
+            ->filter(function ($item) {
+                return $item->stock_quantity <= 0;
+            })
+            ->values();
+
+        $lowStock = $warnings
+            ->filter(function ($item) {
+                return $item->stock_quantity > 0
+                    && $item->stock_quantity <= $item->alert_threshold;
+            })
+            ->values();
+
+
         return response()->json([
-            'branch_id' => null,
+            'branch_id' => $branchId,
+
             'qr_orders' => [
-                'count' => 0,
-                'latest_order' => null,
+                'count' => $count,
+                'latest_order' => $latestOrder,
             ],
+
+            'inventory_scope' => $isAdminLevel
+                ? 'all'
+                : 'branch:' . $user->branch_id,
+
             'inventory' => [
-                'out_of_stock' => [],
-                'low_stock' => [],
+                'out_of_stock' => $outOfStock,
+                'low_stock' => $lowStock,
             ],
         ]);
     }
-
-    /*
-     * QR ORDER NOTIFICATIONS
-     */
-    $baseQuery = DB::table('laravel.orders')
-        ->where('orders.branch_id', $branchId)
-        ->where('orders.payment_status', 'paid')
-        ->where('orders.status', 'pending')
-        ->where('orders.payment_method', '!=', 'cash');
-
-    $count = (clone $baseQuery)->count();
-
-    $latestOrder = $baseQuery
-        ->leftJoin(
-            'laravel.tables',
-            'orders.table_id',
-            '=',
-            'tables.id'
-        )
-        ->select(
-            'orders.id',
-            'orders.receipt_no',
-            'orders.created_at',
-            'tables.table_number'
-        )
-        ->orderByDesc('orders.created_at')
-        ->first();
-
-
-    /*
-     * INVENTORY NOTIFICATIONS
-     */
-    $warnings = DB::table('laravel.branch_inventory as bi')
-        ->join(
-            'laravel.ingredients as i',
-            'bi.ingredient_id',
-            '=',
-            'i.id'
-        )
-        ->leftJoin(
-            'laravel.units as u',
-            'i.primary_unit_id',
-            '=',
-            'u.id'
-        )
-        ->where('bi.branch_id', $branchId)
-        ->whereNull('bi.deleted_at')
-        ->whereNull('i.deleted_at')
-        ->whereColumn(
-            'bi.stock_quantity',
-            '<=',
-            'bi.alert_threshold'
-        )
-        ->select(
-            'i.id',
-            'i.name',
-            'bi.stock_quantity',
-            'bi.alert_threshold',
-            'u.abbreviation as unit'
-        )
-        ->orderBy('bi.stock_quantity')
-        ->get();
-
-    $outOfStock = $warnings
-        ->filter(function ($item) {
-            return $item->stock_quantity <= 0;
-        })
-        ->values();
-
-    $lowStock = $warnings
-        ->filter(function ($item) {
-            return $item->stock_quantity > 0
-                && $item->stock_quantity <= $item->alert_threshold;
-        })
-        ->values();
-
-
-    return response()->json([
-        'branch_id' => $branchId,
-
-        'qr_orders' => [
-            'count' => $count,
-            'latest_order' => $latestOrder,
-        ],
-
-        'inventory' => [
-            'out_of_stock' => $outOfStock,
-            'low_stock' => $lowStock,
-        ],
-    ]);
-}
 }

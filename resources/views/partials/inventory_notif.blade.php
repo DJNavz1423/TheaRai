@@ -129,6 +129,9 @@
                     <strong>
                         (${stock} ${unit})
                     </strong>
+                    <small>
+                        — ${item.branch_name}
+                    </small>
                 </div>
             `;
 
@@ -138,16 +141,15 @@
 
     function checkInventoryNotifications(data) {
 
-        if (!data.branch_id) {
-            return;
-        }
-
-
         const outOfStock =
             data.out_of_stock || [];
 
         const lowStock =
             data.low_stock || [];
+
+        if (outOfStock.length === 0 && lowStock.length === 0) {
+        return;
+        }
 
 
         /*
@@ -159,18 +161,18 @@
         const state = {
             out: outOfStock.map(item => ({
                 id: item.id,
+                branch_id: item.branch_id,
                 stock: Number(item.stock_quantity)
             })),
 
             low: lowStock.map(item => ({
                 id: item.id,
+                branch_id: item.branch_id,
                 stock: Number(item.stock_quantity)
             }))
         };
 
-
-        const storageKey =
-            `inventory_notif_${data.branch_id}`;
+        const storageKey = `inventory_notif_${data.inventory_scope}`;
 
         const currentSignature =
             JSON.stringify(state);

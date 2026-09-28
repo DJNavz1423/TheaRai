@@ -240,6 +240,7 @@
                 {
                     detail: {
                         branch_id: data.branch_id,
+                        inventory_scope: data.inventory_scope,
                         out_of_stock:
                             data.inventory?.out_of_stock || [],
                         low_stock:
