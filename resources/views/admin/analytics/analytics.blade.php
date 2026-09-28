@@ -133,7 +133,10 @@
               <div class="alert-item list-item {{ $item->stock_quantity == 0 ? 'out-of-stock-item' : 'low-stock-item' }}">
                
                 <div class="alert-item-details item-info">
-                   <div class="item-name">{{ $item->name }}</div>
+                   <div class="item-name">
+                    {{ $item->name }}
+                    <span class="text-muted">({{ $item->branch_name }})</span>
+                  </div>
                   <div class="item-meta">
                     <span class="stock-qty {{ $item->stock_quantity == 0 ? 'out-of-stock' : 'low-stock' }}">{{ $item->stock_quantity }} {{$item->primary_unit_abbr}}</span>
                   <data value="{{ $item->purchase_price }}" class="stock-price format-peso">{{ $item->purchase_price }}</data>

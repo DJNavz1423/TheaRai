@@ -47,8 +47,26 @@ class AnalyticsController extends Controller
         $fastestMovers = DB::table('laravel.order_items')
             ->join('laravel.orders', 'order_items.order_id', '=', 'orders.id')
             ->join('laravel.menu_items', 'order_items.menu_item_id', '=', 'menu_items.id')
-            ->select('menu_items.name', 'menu_items.img_url', DB::raw('SUM(order_items.quantity) as total_qty'), DB::raw('SUM(order_items.subtotal) as total_revenue'))
-            ->where('payment_status', 'paid')
+            ->select(
+                'menu_items.name',
+                'menu_items.img_url',
+                DB::raw('SUM(order_items.quantity) as total_qty'),
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN orders.subtotal_amount > 0
+                            THEN order_items.subtotal
+                                - (
+                                    order_items.subtotal
+                                    / orders.subtotal_amount
+                                    * orders.discount_amount
+                                )
+                            ELSE order_items.subtotal
+                        END
+                    ) as total_revenue
+                ")
+            )
+            ->where('orders.payment_status', 'paid')
             ->whereBetween('orders.created_at', [$startOfDay, $endOfDay])
             ->groupBy('menu_items.id', 'menu_items.name', 'menu_items.img_url')
             ->orderByDesc('total_qty')
@@ -60,12 +78,45 @@ class AnalyticsController extends Controller
             ->distinct('menu_item_id')
             ->count('menu_item_id');
 
-        $lowStockCount = DB::table('laravel.admin_global_inventory')
-            ->whereRaw('stock_quantity <= alert_threshold')
-            ->count();
+        $lowStockQuery = DB::table('laravel.branch_inventory as bi')
+            ->join(
+                'laravel.ingredients as i',
+                'bi.ingredient_id',
+                '=',
+                'i.id'
+            )
+            ->join(
+                'laravel.branches as b',
+                'bi.branch_id',
+                '=',
+                'b.id'
+            )
+            ->leftJoin(
+                'laravel.units as u',
+                'i.primary_unit_id',
+                '=',
+                'u.id'
+            )
+            ->whereNull('bi.deleted_at')
+            ->whereNull('i.deleted_at')
+            ->whereColumn(
+                'bi.stock_quantity',
+                '<=',
+                'bi.alert_threshold'
+            );
 
-        $lowStockItems = DB::table('laravel.admin_global_inventory')
-            ->whereRaw('stock_quantity <= alert_threshold')
+        $lowStockCount = (clone $lowStockQuery)->count();
+
+        $lowStockItems = $lowStockQuery
+            ->select(
+                'i.id',
+                'i.name',
+                'bi.stock_quantity',
+                'bi.purchase_price',
+                'u.abbreviation as primary_unit_abbr',
+                'b.name as branch_name'
+            )
+            ->orderBy('bi.stock_quantity')
             ->limit(7)
             ->get();
 
