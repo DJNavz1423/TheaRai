@@ -70,7 +70,7 @@
                         class="unit-selector"
                         required
                     >
-                        <option value="staff">Staff</option>
+                        <option value="staff">Cashier</option>
                         <option value="admin">Admin</option>
 
                         @if(in_array(auth()->user()->role, ['dev', 'owner']))

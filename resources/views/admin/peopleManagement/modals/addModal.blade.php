@@ -48,7 +48,7 @@
                 <div class="input-group mb-3">
                     <label for="role-select">Role</label>
                     <select name="role" id="role-select" class="unit-selector" required>
-                        <option value="staff" selected>Staff</option>
+                        <option value="staff" selected>Cashier</option>
                         <option value="admin">Admin</option>
                         
                         @if(in_array(auth()->user()->role, ['dev', 'owner']))
