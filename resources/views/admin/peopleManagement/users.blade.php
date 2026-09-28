@@ -30,6 +30,7 @@
             <select id="filter-role" class="ts-filter">
                 <option value="all" selected>All Roles</option>
                 <option value="staff">Cashier</option>
+                <option value="waiter">Waiter</option>
                 <option value="admin">Admin</option>
 
                 @if(in_array(auth()->user()->role, ['dev', 'owner']))
@@ -101,6 +102,10 @@
                         @elseif($user->role === 'staff')
                         <span class="badge bg-secondary">
                             Cashier
+                        </span>
+                        @elseif($user->role === 'waiter')
+                        <span class="badge bg-secondary">
+                            Waiter
                         </span>
                     @endif
                     </span>

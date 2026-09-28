@@ -49,6 +49,7 @@
                     <label for="role-select">Role</label>
                     <select name="role" id="role-select" class="unit-selector" required>
                         <option value="staff" selected>Cashier</option>
+                        <option value="waiter">Waiter</option>
                         <option value="admin">Admin</option>
                         
                         @if(in_array(auth()->user()->role, ['dev', 'owner']))
@@ -71,7 +72,7 @@
                             <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                         @endforeach
                     </select>
-                    <small class="text-muted">Staff must be assigned to a specific branch for POS access.</small>
+                    <small class="text-muted">Staffs must be assigned to a specific branch for POS access.</small>
                 </div>
             </div>
 

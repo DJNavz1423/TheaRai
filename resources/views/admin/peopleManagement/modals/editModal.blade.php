@@ -64,13 +64,9 @@
                 <div class="input-group mb-3">
                     <label for="edit_role">Role</label>
 
-                    <select
-                        name="role"
-                        id="edit_role"
-                        class="unit-selector"
-                        required
-                    >
+                    <select name="role" id="edit_role" class="unit-selector" required>
                         <option value="staff">Cashier</option>
+                        <option value="waiter">Waiter</option>
                         <option value="admin">Admin</option>
 
                         @if(in_array(auth()->user()->role, ['dev', 'owner']))
@@ -83,13 +79,7 @@
                 <div class="input-group mb-3" id="edit_branch_wrapper">
                     <label for="edit_branch">Assigned Branch</label>
 
-                    <select
-                        name="branch_id"
-                        id="edit_branch"
-                        class="unit-selector"
-                        placeholder="Select a branch..."
-                        required
-                    >
+                    <select name="branch_id" id="edit_branch" class="unit-selector" placeholder="Select a branch..." required>
                         <option value="" disabled>Select a branch...</option>
 
                         @foreach($branches as $branch)
@@ -100,7 +90,7 @@
                     </select>
 
                     <small class="text-muted">
-                        Staff must be assigned to a specific branch for POS access.
+                        Staffs must be assigned to a specific branch for POS access.
                     </small>
                 </div>
 

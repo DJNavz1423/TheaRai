@@ -48,7 +48,7 @@ class UserController extends Controller
                 'digits:11',
             ],
             'password' => 'required|min:10',
-            'role' => 'required|string|in:admin,staff,dev,owner',
+            'role' => 'required|string|in:admin,staff,waiter,dev,owner',
             'branch_id' => ['nullable', 'integer', 'exists:pgsql.laravel.branches,id'],
         ], [
             'email.regex' => 'The email must end with a valid @thearai.com.ph domain.',
@@ -85,11 +85,11 @@ class UserController extends Controller
 
         if (in_array($currentUserRole, ['dev', 'owner'])) {
 
-            $allowedRoles = 'admin,staff,dev,owner';
+            $allowedRoles = 'admin,staff,waiter,dev,owner';
 
         } else {
 
-            $allowedRoles = 'admin,staff';
+            $allowedRoles = 'admin,staff,waiter';
         }
 
         $targetUser = DB::table('laravel.users')
