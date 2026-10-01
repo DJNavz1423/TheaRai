@@ -73,7 +73,7 @@
 
   <div class="container grid-content d-grid mt-4">
     <div class="col dashboard-section" style="grid-area: box1;">
-      <div class="section-content border">
+      <div class="section-content border" style="background-color: rgb(7, 23, 34);">
         <div class="chart-card">
         <metabase-dashboard
           token="{{ $token }}"
@@ -222,7 +222,7 @@
     <script>
       defineMetabaseConfig({
         "theme": {
-          "preset": "light"
+          "preset": "dark"
         },
         "isGuest": true,
         "instanceUrl": "{{ $metabaseSiteUrl }}"
