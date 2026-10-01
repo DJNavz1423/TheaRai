@@ -305,5 +305,6 @@ function openUnitEditModal(id, name, abbreviation) {
     <script>
         alert("✅ SUCCESS: {{ session('success') }}");
     </script>
+@endif
   @endpush
 @endonce
