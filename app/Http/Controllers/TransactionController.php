@@ -125,6 +125,67 @@ class TransactionController extends Controller {
                 'layout',
                 'isAdminLevel'
             )
+        )->with('isWaiter', false);
+    }
+
+    public function waiterIndex() {
+        $user = auth()->user();
+
+        $startOfDay = now('Asia/Manila')->startOfDay()->utc();
+        $endOfDay = now('Asia/Manila')->endOfDay()->utc();
+
+        $transactions = DB::table('laravel.orders as orders')
+            ->leftJoin(
+                'laravel.branches as branches',
+                'orders.branch_id',
+                '=',
+                'branches.id'
+            )
+            ->where('orders.branch_id', $user->branch_id)
+            ->whereBetween(
+                'orders.created_at',
+                [$startOfDay, $endOfDay]
+            )
+            ->select(
+                'orders.id',
+                'orders.receipt_no',
+                'orders.total_amount',
+                'orders.cash_tendered',
+                'orders.change_amount',
+                'orders.payment_method',
+                'orders.reference_number',
+                'orders.payment_status',
+                'orders.status',
+                'orders.created_at',
+                'orders.branch_id',
+                'branches.name as branch_name'
+            )
+            ->orderByDesc('orders.created_at')
+            ->get();
+
+        $paymentMethods = $transactions
+            ->pluck('payment_method')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $paymentStatuses = $transactions
+            ->pluck('payment_status')
+            ->filter()
+            ->unique()
+            ->values();
+
+        return view(
+            'admin.transaction.transaction',
+            [
+                'transactions' => $transactions,
+                'branches' => collect(),
+                'paymentMethods' => $paymentMethods,
+                'paymentStatuses' => $paymentStatuses,
+                'layout' => 'layouts.waiter',
+                'isAdminLevel' => false,
+                'isWaiter' => true,
+            ]
         );
     }
 

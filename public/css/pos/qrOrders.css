@@ -15,7 +15,6 @@
   .card-header{
     display: flex; 
     justify-content: space-between; 
-    align-items: center;
 
     h2{
       font-family: 'Lato', sans-serif;

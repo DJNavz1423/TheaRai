@@ -263,6 +263,8 @@ class PosController extends Controller{
                 'change_amount' => $changeAmount,
                 'payment_method' => $request->payment_method,
                 'reference_number' => $request->reference_number,
+                'order_source' => 'pos',
+                'status' => 'pending',
                 'created_at' => now(),
             ]);
 

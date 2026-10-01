@@ -299,6 +299,7 @@ public function success(Request $request)
             'payment_method' => $paymentMethod,
             'payment_status' => 'paid',
             'status' => 'pending',
+            'order_source' => 'qr',
             'cash_tendered' => $pendingOrder['total_amount'],
             'change_amount' => 0,
             'payment_reference' => $pendingOrder['payment_reference'],

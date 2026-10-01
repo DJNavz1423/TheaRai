@@ -57,6 +57,10 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/api/qr-orders/notifications', [QrOrderController::class, 'getNotifications'])
         ->name('qr.orders.notifications');
 
+    Route::get('/api/waiter/notifications', [WaiterController::class, 'getNotifications'])
+        ->middleware('role:waiter')
+        ->name('waiter.notifications');
+
 
     Route::prefix('admin')->middleware('role:admin|dev|owner')->group(function(){
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.index');
@@ -257,6 +261,12 @@ Route::middleware(['auth'])->group(function(){
 
     Route::post('/orders/{id}/serve', [WaiterController::class, 'serve'])
         ->name('waiter.orders.serve');
+
+    Route::get('/transactions', [TransactionController::class, 'waiterIndex'])
+        ->name('waiter.transactions.index');
+
+    Route::get('/transactions/{id}', [TransactionController::class, 'show'])
+        ->name('waiter.transactions.show');
     });
     
     

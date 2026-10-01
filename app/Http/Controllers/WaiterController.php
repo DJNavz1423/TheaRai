@@ -13,6 +13,21 @@ class WaiterController extends Controller
         $user = auth()->user();
         $branchId = $user->branch_id;
 
+        $posExpireBefore = now('Asia/Manila')
+            ->subMinutes(25)
+            ->utc();
+
+        DB::table('laravel.orders')
+            ->where('branch_id', $branchId)
+            ->where('order_source', 'pos')
+            ->where('payment_status', 'paid')
+            ->where('status', 'pending')
+            ->where('created_at', '<', $posExpireBefore)
+            ->update([
+                'status' => 'served',
+                'updated_at' => now(),
+            ]);
+
         $pendingOrdersQuery = DB::table('laravel.orders')
             ->leftJoin(
                 'laravel.tables',
@@ -51,6 +66,25 @@ class WaiterController extends Controller
 
         $pendingCount = $pendingOrders->count();
 
+        $startOfDay = now('Asia/Manila')->startOfDay()->utc();
+        $endOfDay = now('Asia/Manila')->endOfDay()->utc();
+
+        $todayTransactions = DB::table('laravel.orders')
+            ->where('branch_id', $branchId)
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->select(
+                'id',
+                'receipt_no',
+                'total_amount',
+                'payment_method',
+                'payment_status',
+                'status',
+                'order_source',
+                'created_at'
+            )
+            ->orderByDesc('created_at')
+            ->get();
+
         $posCount = DB::table('laravel.orders')
             ->where('branch_id', $branchId)
             ->where('payment_status', 'paid')
@@ -70,12 +104,83 @@ class WaiterController extends Controller
             'pendingCount',
             'posCount',
             'qrCount',
-            'pendingOrders'
+            'pendingOrders',
+            'todayTransactions'
         ));
     }
 
-    public function serve($id)
-    {
+    public function getNotifications() {
+        $user = auth()->user();
+        $branchId = $user->branch_id;
+
+        $posExpireBefore = now('Asia/Manila')
+            ->subMinutes(30)
+            ->utc();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Automatically serve expired POS orders
+        |--------------------------------------------------------------------------
+        */
+
+        DB::table('laravel.orders')
+            ->where('branch_id', $branchId)
+            ->where('order_source', 'pos')
+            ->where('payment_status', 'paid')
+            ->where('status', 'pending')
+            ->where('created_at', '<', $posExpireBefore)
+            ->update([
+                'status' => 'served',
+                'updated_at' => now(),
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pending waiter orders
+        |--------------------------------------------------------------------------
+        */
+
+        $ordersQuery = DB::table('laravel.orders')
+            ->leftJoin(
+                'laravel.tables',
+                'orders.table_id',
+                '=',
+                'tables.id'
+            )
+            ->where('orders.branch_id', $branchId)
+            ->where('orders.payment_status', 'paid')
+            ->where('orders.status', 'pending');
+
+        $count = (clone $ordersQuery)->count();
+
+        $latestOrder = $ordersQuery
+            ->select(
+                'orders.id',
+                'orders.receipt_no',
+                'orders.order_source',
+                'orders.created_at',
+                'tables.table_number'
+            )
+            ->orderByDesc('orders.created_at')
+            ->first();
+
+        $posCount = (clone $ordersQuery)
+            ->where('orders.order_source', 'pos')
+            ->count();
+
+        $qrCount = (clone $ordersQuery)
+            ->where('orders.order_source', 'qr')
+            ->count();
+
+        return response()->json([
+            'count' => $count,
+            'pos_count' => $posCount,
+            'qr_count' => $qrCount,
+            'latest_order' => $latestOrder,
+        ]);
+    }
+
+    public function serve($id) {
         $user = auth()->user();
 
         $updated = DB::table('laravel.orders')

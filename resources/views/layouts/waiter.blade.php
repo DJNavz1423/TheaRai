@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -26,6 +27,38 @@
   <aside id="sidebar">
     <nav>
       <ul>
+        {{-- logo --}}
+        <li>
+          <span class="logo d-flex">
+            <img src="{{ asset('img/logos/TheaRaiLogo_Secondary.webp') }}" alt="TheaRai Logo">
+          </span>
+
+          <button onclick=toggleSidebar() id="toggle-btn" class="sidebar-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z"/></svg>
+          </button>
+        </li>
+
+        <li class="{{ request()->routeIs('waiter.dashboard') ? 'active' : '' }}">
+          <a href="{{ url('/waiter/dashboard') }}">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M520-640v-160q0-17 11.5-28.5T560-840h240q17 0 28.5 11.5T840-800v160q0 17-11.5 28.5T800-600H560q-17 0-28.5-11.5T520-640ZM120-480v-320q0-17 11.5-28.5T160-840h240q17 0 28.5 11.5T440-800v320q0 17-11.5 28.5T400-440H160q-17 0-28.5-11.5T120-480Zm400 320v-320q0-17 11.5-28.5T560-520h240q17 0 28.5 11.5T840-480v320q0 17-11.5 28.5T800-120H560q-17 0-28.5-11.5T520-160Zm-400 0v-160q0-17 11.5-28.5T160-360h240q17 0 28.5 11.5T440-320v160q0 17-11.5 28.5T400-120H160q-17 0-28.5-11.5T120-160Zm80-360h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Zm160-320Zm240-160Zm0 240ZM360-280Z"/></svg>
+            </span>
+
+            <span class="nav-item">Dashboard</span>
+          </a>
+
+          <span class="qr-notif-badge">0</span>
+        </li>
+
+        <li class="{{ request()->routeIs('waiter.transactions.index') ? 'active' : '' }}">
+          <a href="{{ url('/waiter/transactions') }}">
+            <span class="icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M856-390 570-104q-12 12-27 18t-30 6q-15 0-30-6t-27-18L103-457q-11-11-17-25.5T80-513v-287q0-33 23.5-56.5T160-880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15-5.5 29.5T856-390ZM513-160l286-286-353-354H160v286l353 354ZM260-640q25 0 42.5-17.5T320-700q0-25-17.5-42.5T260-760q-25 0-42.5 17.5T200-700q0 25 17.5 42.5T260-640Zm220 160Z"/></svg>
+            </span>
+
+            <span class="nav-item">Sales Transaction</span>
+          </a>
+        </li>
 
          {{-- dropdown settings --}}
         <li>
@@ -79,7 +112,7 @@
         
         <div class="row">
           <div class="row btn-row">
-          <button onclick="window.location.href='{{ url('/cashier/qr-orders') }}'" style="position: relative;">
+          <button onclick="window.location.href='{{ url('/waiter/dashboard') }}'" style="position: relative;">
             <span class="icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200q-17 0-28.5-11.5T160-240q0-17 11.5-28.5T200-280h40v-280q0-83 50-147.5T420-792v-28q0-25 17.5-42.5T480-880q25 0 42.5 17.5T540-820v28q80 20 130 84.5T720-560v280h40q17 0 28.5 11.5T800-240q0 17-11.5 28.5T760-200H200Zm280-300Zm0 420q-33 0-56.5-23.5T400-160h160q0 33-23.5 56.5T480-80ZM320-280h320v-280q0-66-47-113t-113-47q-66 0-113 47t-47 113v280Z"/></svg>
             </span>
@@ -100,6 +133,162 @@
 
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/utils/liveClock.js') }}" defer></script>
+
+  <script>
+    (function () {async function sendHeartbeat() {
+
+      /*
+      * Do not attempt heartbeat while offline.
+      */
+      if (!navigator.onLine) {
+        return;
+      }
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+      if (!csrfToken) {
+          return;
+      }
+
+      try {
+        const response = await fetch('/heartbeat', {
+          method: 'POST', headers: {
+            'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json'
+            }});
+
+                if (!response.ok) { 
+                  console.warn('Heartbeat failed:', response.status);
+                }
+
+      } catch (error) {
+
+        /*
+        * Network failure is expected when the
+        * device is offline. Do not treat it as
+        * an application error.
+        */
+
+          console.log('Heartbeat skipped: device is offline.');
+        }
+    }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Online heartbeat
+        |--------------------------------------------------------------------------
+        */
+
+        setInterval(
+            sendHeartbeat,
+            60000
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Immediately send when connection returns
+        |--------------------------------------------------------------------------
+        */
+
+        window.addEventListener(
+            'online',
+            sendHeartbeat
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Optional initial heartbeat
+        |--------------------------------------------------------------------------
+        */
+
+        sendHeartbeat();
+
+    })();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const badges = document.querySelectorAll('.qr-notif-badge');
+
+    let lastOrderId = null;
+
+    async function fetchWaiterNotifications() {
+
+        try {
+
+            const response = await fetch(
+                "{{ route('waiter.notifications') }}",
+                {
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    cache: 'no-store'
+                }
+            );
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data =
+                await response.json();
+
+            const count =
+                Number(data.count || 0);
+
+            badges.forEach(badge => {
+              badge.textContent = count;
+              badge.style.display =
+                  count > 0 ? 'flex' : 'none';
+            });
+
+            const latestOrder =
+                data.latest_order;
+
+            if (
+                latestOrder &&
+                lastOrderId !== null &&
+                String(latestOrder.id) !== String(lastOrderId)
+            ) {
+
+                const orderType =
+                    latestOrder.order_source === 'qr'
+                        ? 'QR Order'
+                        : 'POS Order';
+
+                const location =
+                    latestOrder.order_source === 'qr'
+                        ? `Table ${latestOrder.table_number ?? 'Unknown'}`
+                        : 'Counter Order';
+
+                alert(
+                    `🔔 NEW ${orderType}\n\n${location}\nReceipt: ${latestOrder.receipt_no}`
+                );
+            }
+
+            if (latestOrder) {
+                lastOrderId = latestOrder.id;
+            }
+
+        } catch (error) {
+            console.log(
+                'Waiter order notification skipped.'
+            );
+        }
+    }
+
+    fetchWaiterNotifications();
+
+    setInterval(
+        fetchWaiterNotifications,
+        15000
+    );
+
+});
+</script>
 
   @stack('scripts')
 </body>
