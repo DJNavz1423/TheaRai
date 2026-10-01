@@ -444,6 +444,11 @@
             'toggle-confirm-password'
         );
 
+        setupPasswordToggle(
+            'user-password-input',
+            'toggle-user-password'
+        );
+
         const managePasswordForm = document.getElementById('managePasswordForm');
 
         if (managePasswordForm) { 
