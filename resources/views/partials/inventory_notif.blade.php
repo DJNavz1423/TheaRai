@@ -147,56 +147,50 @@
         const lowStock =
             data.low_stock || [];
 
-        if (outOfStock.length === 0 && lowStock.length === 0) {
-        return;
+        if (
+            outOfStock.length === 0 &&
+            lowStock.length === 0
+        ) {
+            return;
         }
 
 
         /*
-         * Create a signature from the current inventory state.
-         * This prevents the same warning from appearing again
-         * just because the page changed.
-         */
+        * Use the current Laravel session ID.
+        * A new login gets a new session ID,
+        * so the warning appears again on the next login.
+        */
+        const sessionId =
+            @json(session()->getId());
 
-        const state = {
-            out: outOfStock.map(item => ({
-                id: item.id,
-                branch_id: item.branch_id,
-                stock: Number(item.stock_quantity)
-            })),
-
-            low: lowStock.map(item => ({
-                id: item.id,
-                branch_id: item.branch_id,
-                stock: Number(item.stock_quantity)
-            }))
-        };
-
-        const storageKey = `inventory_notif_${data.inventory_scope}`;
-
-        const currentSignature =
-            JSON.stringify(state);
+        const storageKey =
+            `inventory_notif_${sessionId}_${data.inventory_scope}`;
 
 
-        let lastSignature = null;
+        /*
+        * Only show the inventory warning once
+        * during the current login session.
+        */
+
+        let alreadyShown = false;
 
         try {
-            lastSignature =
-                localStorage.getItem(storageKey);
+            alreadyShown =
+                sessionStorage.getItem(storageKey) === 'shown';
         } catch (error) {
-            lastSignature = null;
+            alreadyShown = false;
         }
 
 
-        if (currentSignature === lastSignature) {
+        if (alreadyShown) {
             return;
         }
 
 
         try {
-            localStorage.setItem(
+            sessionStorage.setItem(
                 storageKey,
-                currentSignature
+                'shown'
             );
         } catch (error) {
             console.warn(
