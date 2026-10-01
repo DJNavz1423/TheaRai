@@ -175,6 +175,80 @@
   </script>
   <script type="text/javascript" src="{{ asset('js/offline/auth/offlineConnectionRedirect.js') }}" defer></script>
 
+  <script>
+    (function () {async function sendHeartbeat() {
+
+      /*
+      * Do not attempt heartbeat while offline.
+      */
+      if (!navigator.onLine) {
+        return;
+      }
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+      if (!csrfToken) {
+          return;
+      }
+
+      try {
+        const response = await fetch('/heartbeat', {
+          method: 'POST', headers: {
+            'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json'
+            }});
+
+                if (!response.ok) { 
+                  console.warn('Heartbeat failed:', response.status);
+                }
+
+      } catch (error) {
+
+        /*
+        * Network failure is expected when the
+        * device is offline. Do not treat it as
+        * an application error.
+        */
+
+          console.log('Heartbeat skipped: device is offline.');
+        }
+    }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Online heartbeat
+        |--------------------------------------------------------------------------
+        */
+
+        setInterval(
+            sendHeartbeat,
+            60000
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Immediately send when connection returns
+        |--------------------------------------------------------------------------
+        */
+
+        window.addEventListener(
+            'online',
+            sendHeartbeat
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Optional initial heartbeat
+        |--------------------------------------------------------------------------
+        */
+
+        sendHeartbeat();
+
+    })();
+</script>
+
   @include('partials.inventory_notif')
   @include('partials.qr_notif')
 
