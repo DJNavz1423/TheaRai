@@ -219,6 +219,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function fetchWaiterNotifications() {
 
+        if (document.hidden) {
+            return;
+        }
+
         try {
 
             const response = await fetch(
@@ -288,6 +292,12 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchWaiterNotifications,
         15000
     );
+
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+            fetchWaiterNotifications();
+        }
+    });
 
 });
 </script>

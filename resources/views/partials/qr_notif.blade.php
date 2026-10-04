@@ -197,6 +197,10 @@
 
     async function fetchQrNotifications() {
 
+    if (document.hidden) {
+        return;
+    }
+
     try {
 
         const response =
@@ -293,5 +297,10 @@
 
     fetchQrNotifications();
     setInterval(fetchQrNotifications, 15000);
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) {
+            fetchQrNotifications();
+        }
+    });
 })();
 </script>
