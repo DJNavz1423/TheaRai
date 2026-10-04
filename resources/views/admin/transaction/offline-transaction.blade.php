@@ -21,12 +21,12 @@
       </div>
 
       <div class="filters">
-        <select id="offlineTransactionPayment" class="ts-filter">
-          <option value="all">All Payment Methods</option>
+        <select id="offlineTransactionPayment" class="ts-filter unit-selector">
+          <option value="all">Payment Methods</option>
           <option value="cash">Cash</option>
           <option value="digital">Digital</option>
         </select>
-        <select id="offlineTransactionSort" class="ts-filter">
+        <select id="offlineTransactionSort" class="ts-filter unit-selector">
           <option value="latest" selected>Latest</option>
           <option value="oldest">Oldest</option>
         </select>
