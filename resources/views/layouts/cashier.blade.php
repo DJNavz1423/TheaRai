@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="{{ asset('css/cashier/header.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/inventoryNotif.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 
   <style>
     .modal{

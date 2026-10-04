@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/inventoryNotif.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 
   @stack('styles')
 
@@ -102,11 +103,11 @@
 
             <span class="nav-item">Sales</span>
 
+            <span class="qr-notif-badge">0</span>
+
             <span class="icon-wrapper dropdown-arrow">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M465-363.5q-7-2.5-13-8.5L268-556q-11-11-11-28t11-28q11-11 28-11t28 11l156 156 156-156q11-11 28-11t28 11q11 11 11 28t-11 28L508-372q-6 6-13 8.5t-15 2.5q-8 0-15-2.5Z"/></svg>
             </span>
-
-            <span class="qr-notif-badge">0</span>
           </button>
 
           <ul class="sub-menu">
