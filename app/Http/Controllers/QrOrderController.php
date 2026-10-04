@@ -33,9 +33,9 @@ class QrOrderController extends Controller
             ->join('laravel.tables', 'orders.table_id', '=', 'tables.id')
             ->select('orders.*', 'tables.table_number')
             ->where('orders.branch_id', $branchId)
-            ->where('orders.payment_status', 'paid') 
+            ->where('orders.payment_status', 'paid')
             ->where('orders.status', 'pending')
-            ->where('orders.payment_method', '!=', 'cash')
+            ->where('orders.order_source', 'qr')
             ->orderBy('orders.created_at', 'asc')
             ->get();
         
@@ -70,7 +70,7 @@ class QrOrderController extends Controller
                 'branches.name as branch_name'
             )
             ->where('orders.branch_id', $branchId)
-            ->where('orders.payment_method', '!=', 'cash')
+            ->where('orders.order_source', 'qr')
             ->whereBetween('orders.created_at', [$todayStart, $todayEnd])
             ->orderByDesc('orders.created_at')
             ->get();
@@ -117,7 +117,7 @@ class QrOrderController extends Controller
                 ->where('orders.branch_id', $branchId)
                 ->where('orders.payment_status', 'paid')
                 ->where('orders.status', 'pending')
-                ->where('orders.payment_method', '!=', 'cash');
+                ->where('orders.order_source', 'qr');
 
             $count = (clone $baseQuery)->count();
 
