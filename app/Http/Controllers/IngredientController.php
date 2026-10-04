@@ -136,7 +136,7 @@ class IngredientController extends Controller
                     ->value('abbreviation');
 
                 $expenseId = DB::table('laravel.expenses')->insertGetId([
-                    'expense_type' => 'ingredient_purchase',
+                    'expense_type' => 'restock',
                     'fund_source' => $validated['fund_source'],
                     'branch_id' => $validated['branch_id'], // Link expense to the branch
                     'total_amount' => $totalExpense,

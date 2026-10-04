@@ -36,14 +36,14 @@
         </div>
         <div class="filters">
                 <select id="filter-category" class="ts-filter">
-                    <option value="all" selected>All Categories</option>
+                    <option value="all" selected>Categories</option>
                     @foreach($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                     @endforeach
                 </select>
 
                 <select id="filter-stock" class="ts-filter">
-                    <option value="all" selected>All Stock</option>
+                    <option value="all" selected>Stock</option>
                     <option value="in_stock">In Stock</option>
                     <option value="low_stock">Low Stock</option>
                     <option value="out_of_stock">Out of Stock</option>
@@ -55,7 +55,7 @@
                 </select>
 
                 <select id="filter-branch" class="ts-filter">
-                    <option value="all" selected>Global View</option>
+                    <option value="all" selected>Branch</option>
                     @foreach($branches as $branch)
                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                     @endforeach
@@ -130,7 +130,11 @@
                     </td>
                     <td data-cell="quantity" role="cell">
                         <div class="d-flex item-group">
-                            <span class="item-data display-qty {{$item->stock_quantity < $item->alert_threshold && $item->stock_quantity > 0 ? 'low-stock' : ''}} {{$item->stock_quantity == 0 ? 'out-of-stock' : ''}}">{{ number_format($item->stock_quantity, 2) }} {{ $item->primary_unit_abbr }} </span>
+                            <span class="item-data display-qty
+                                {{ $item->stock_quantity <= $item->alert_threshold && $item->stock_quantity > 0 ? 'low-stock' : '' }}
+                                {{ $item->stock_quantity <= 0 ? 'out-of-stock' : '' }}">
+                                {{ number_format($item->stock_quantity, 2) }} {{ $item->primary_unit_abbr }}
+                            </span>
                         </div>                        
                         
                     </td>
@@ -388,6 +392,52 @@
             let activeItemContext = {
                 branchStocks: {}
             }; 
+
+            function setModalUnitOptions(selectId, pUnit, sUnit) {
+
+                const select = document.getElementById(selectId);
+
+                if (!select) {
+                    return;
+                }
+
+                if (select.tomselect) {
+
+                    const tom = select.tomselect;
+
+                    // Completely clear the previous selection/options
+                    tom.clear(true);
+                    tom.clearOptions();
+
+                    // Add the current item's units
+                    tom.addOptions([
+                        {
+                            value: 'primary',
+                            text: pUnit
+                        },
+                        {
+                            value: 'secondary',
+                            text: sUnit
+                        }
+                    ]);
+
+                    // Always start with Primary Unit
+                    tom.setValue('primary');
+
+                    // Force Tom Select to refresh its visible display
+                    tom.refreshOptions(false);
+                    tom.refreshItems();
+
+                } else {
+
+                    select.innerHTML = `
+                        <option value="primary">${pUnit}</option>
+                        <option value="secondary">${sUnit}</option>
+                    `;
+
+                    select.value = 'primary';
+                }
+            }
             
             function openAddStockModal(id, itemName, pUnit, sUnit, convFactor, branchStocks) {
                 if(typeof branchStocks === 'string'){
@@ -407,21 +457,11 @@
 
                 document.getElementById('addStockForm').action = "{{ url('/admin/inventory') }}/" + id + "/add-stock";
 
-                let unitSelect = document.getElementById('add_unit');
-
-                if (unitSelect.tomselect) {
-                    unitSelect.tomselect.clearOptions();
-                    
-                    unitSelect.tomselect.addOption({value: 'primary', text: pUnit});
-                    unitSelect.tomselect.addOption({value: 'secondary', text: sUnit});
-
-                    unitSelect.tomselect.setValue('primary', true); 
-                } else {
-                    unitSelect.innerHTML = `
-                        <option value="primary">${pUnit}</option>
-                        <option value="secondary">${sUnit}</option>
-                    `;
-                }
+                setModalUnitOptions(
+                    'add_unit',
+                    pUnit,
+                    sUnit
+                );
 
                 document.getElementById('add_quantity').value = '';
 
@@ -455,21 +495,11 @@
 
                 document.getElementById('reduceStockForm').action = "{{ url('/admin/inventory') }}/" + id + "/reduce-stock";
 
-                let unitSelect = document.getElementById('reduce_unit');
-
-                    if (unitSelect.tomselect) {
-                        unitSelect.tomselect.clearOptions();
-                        
-                        unitSelect.tomselect.addOption({value: 'primary', text: pUnit});
-                        unitSelect.tomselect.addOption({value: 'secondary', text: sUnit});
-                        
-                        unitSelect.tomselect.setValue('primary', true); 
-                    } else {
-                        unitSelect.innerHTML = `
-                            <option value="primary">${pUnit}</option>
-                            <option value="secondary">${sUnit}</option>
-                        `;
-                    }
+                setModalUnitOptions(
+                    'reduce_unit',
+                    pUnit,
+                    sUnit
+                );
 
                 document.getElementById('reduce_quantity').value = '';
                 document.getElementById('reduce_remarks').value = '';

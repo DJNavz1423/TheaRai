@@ -75,7 +75,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update the UI
             row.querySelector('.display-price').innerHTML = `&#8369;${currentPrice.toFixed(2)}`;
             row.querySelector('.display-unit').innerText = currentAbbr;
-            row.querySelector('.display-qty').innerText = `${currentQty.toFixed(2)} ${currentAbbr}`;
+
+            const displayQty = row.querySelector('.display-qty');
+
+            displayQty.innerText = `${currentQty.toFixed(2)} ${currentAbbr}`;
+
+            // Update stock status class based on the selected context
+            displayQty.classList.toggle('low-stock', baseQty <= threshold && baseQty > 0);
+
+            displayQty.classList.toggle('out-of-stock', baseQty <= 0);
 
             // --- FILTERING LOGIC ---
             const matchesSearch = name.includes(searchQuery);
