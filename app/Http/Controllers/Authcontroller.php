@@ -37,6 +37,23 @@ class Authcontroller extends Controller
                 'last_seen_at' => now(),
             ]);
 
+            $intended = $request->session()->get('url.intended');
+
+            if ($intended) {
+
+                $intendedPath = parse_url(
+                    $intended,
+                    PHP_URL_PATH
+                );
+
+                if (
+                    $intendedPath &&
+                    str_starts_with($intendedPath, '/api/')
+                ) {
+                    $request->session()->forget('url.intended');
+                }
+            }
+
             return match($user->role){
                 'admin', 'dev', 'owner' => redirect()->intended('/admin/dashboard'),
                 'staff' => redirect()->intended('/cashier/pos'),
