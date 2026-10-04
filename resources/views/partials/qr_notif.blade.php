@@ -96,7 +96,7 @@
         alertTimer =
             setTimeout(
                 hideQrOrderAlert,
-                7000
+                15000
             );
     }
 
