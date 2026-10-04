@@ -275,7 +275,7 @@ section *{
     border-radius: 0;
   }
 
-  #sidebar .nav-item, #sidebar nav > ul > li:first-child, .dropdown-btn .icon-wrapper:last-child{
+  #sidebar .nav-item, #sidebar nav > ul > li:first-child, .dropdown-btn .dropdown-arrow{
     display: none;
   }
 
