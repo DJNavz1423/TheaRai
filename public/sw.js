@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thearai-v27';
+const CACHE_NAME = 'thearai-v28';
 
 
 /*
@@ -140,45 +140,28 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(async cache => {
 
-                for (const file of STATIC_FILES) {
+                await Promise.all(
+                    STATIC_FILES.map(async file => {
+                        try {
+                            const response = await fetch(file);
 
-                    try {
+                            if (!response.ok) {
+                                console.warn(
+                                    'FAILED TO CACHE:',
+                                    file,
+                                    response.status
+                                );
 
-                        const response =
-                            await fetch(file);
+                                return;
+                            }
 
-                        if (!response.ok) {
-
-                            console.warn(
-                                'FAILED TO CACHE:',
-                                file,
-                                response.status
-                            );
-
-                            continue;
+                            await cache.put(file, response);
+                            console.log('CACHED:', file);
+                        } catch (error) {
+                            console.error('CACHE ERROR:', file, error);
                         }
-
-
-                        await cache.put(
-                            file,
-                            response
-                        );
-
-
-                        console.log(
-                            'CACHED:',
-                            file
-                        );
-
-                    } catch (error) {
-
-                        console.error(
-                            'CACHE ERROR:',
-                            file,
-                            error
-                        );
-                    }
-                }
+                    })
+                );
             })
     );
 
@@ -441,21 +424,37 @@ self.addEventListener('fetch', event => {
         return;
     }
 
+    const cachePromise = caches.open(CACHE_NAME);
+    const cachedResponsePromise = cachePromise.then(cache =>
+        cache.match(request)
+    );
+    const networkResponsePromise = fetch(request);
+    const cacheUpdatePromise = networkResponsePromise.then(response => {
+        if (response.ok && response.type === 'basic') {
+            return cachePromise.then(cache =>
+                cache.put(request, response.clone())
+            );
+        }
+    });
+
+    event.waitUntil(
+        cacheUpdatePromise.catch(error => {
+            console.warn('Static asset cache update failed:', error);
+        })
+    );
+
     event.respondWith(
-        fetch(request, { cache: 'no-cache' }).then(async response => {
-            if (response.ok && response.type === 'basic') {
-                const cache = await caches.open(CACHE_NAME);
-                await cache.put(request, response.clone());
-            }
-
-            return response;
+        cachedResponsePromise.then(cached => {
+            return cached || networkResponsePromise;
         }).catch(async () => {
-            const cached = await caches.match(request);
-
-            return cached || new Response('', {
-                status: 503,
-                statusText: 'Offline asset unavailable'
-            });
+            try {
+                return await networkResponsePromise;
+            } catch (error) {
+                return new Response('', {
+                    status: 503,
+                    statusText: 'Offline asset unavailable'
+                });
+            }
         })
     );
 

@@ -3,7 +3,7 @@
     let serverAvailable = true;
 
     async function checkConnection() {
-        if (checking) {
+        if (checking || document.hidden) {
             return;
         }
 
@@ -71,6 +71,11 @@
 
     window.addEventListener('offline', redirectToOffline);
     window.addEventListener('online', checkConnection);
-    setInterval(checkConnection, 5000);
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            checkConnection();
+        }
+    });
+    setInterval(checkConnection, 15000);
     checkConnection();
 })();

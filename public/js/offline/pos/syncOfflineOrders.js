@@ -30,6 +30,22 @@
             return;
         }
 
+        const offlineAuthData = sessionStorage.getItem('offline_auth');
+
+        if (!offlineAuthData) {
+            return;
+        }
+
+        const offlineAuth = JSON.parse(offlineAuthData);
+        const hasOfflineAuth =
+            offlineAuth &&
+            offlineAuth.authenticated === true &&
+            offlineAuth.offline === true;
+
+        if (!hasOfflineAuth) {
+            return;
+        }
+
         if (!(await isServerAvailable())) {
             serverWasUnavailable = true;
             setStatus('', false);
@@ -39,16 +55,6 @@
         if (serverWasUnavailable) {
             setStatus('Connection restored. Synchronizing offline orders...');
             serverWasUnavailable = false;
-        }
-
-        const offlineAuth = JSON.parse(sessionStorage.getItem('offline_auth') || 'null');
-        const hasOfflineAuth =
-            offlineAuth &&
-            offlineAuth.authenticated === true &&
-            offlineAuth.offline === true;
-
-        if (!hasOfflineAuth) {
-            return;
         }
 
         const orders = (await OfflineDB.getAll(OfflineDB.STORES.orders))
