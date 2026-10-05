@@ -19,7 +19,7 @@
                 
                 <div class="input-group mb-3">
                     <label for="user-email-input">Email Address</label>
-                    <input type="email" name="email" id="user-email-input" required pattern="[a-zA-Z0-9._%+-]+@thearai\.com\.ph$" title="Must be a @thearai.com.ph email address" placeholder="juan123@thearai.com.ph">
+                    <input type="email" name="email" id="user-email-input" required pattern="[a-zA-Z0-9._%+-]+@thearai\.com$" title="Must be a @thearai.com email address" placeholder="juan123@thearai.com">
                 </div>
 
                 <div class="input-group mb-3">

@@ -30,7 +30,7 @@ class UserAccountController extends Controller
             'email' => [
                 'required',
                 'email',
-                'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com\.ph$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com$/i',
                 'unique:pgsql.laravel.users,email,' . $user->id,
             ],
 
@@ -39,7 +39,7 @@ class UserAccountController extends Controller
                 'digits:11',
             ],
         ], [
-            'email.regex' => 'The email must end with a valid @thearai.com.ph domain.',
+            'email.regex' => 'The email must end with a valid @thearai.com domain.',
             'phone_number.digits' => 'Phone number must be exactly 11 digits.',
         ]);
 

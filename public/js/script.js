@@ -13,7 +13,7 @@ function preventEmptyInput(input, isEmail = false) {
         if (isEmail) {
             isEmpty =
                 value === '' ||
-                value.toLowerCase() === '@thearai.com.ph';
+                value.toLowerCase() === '@thearai.com';
         }
 
         if (isEmpty && originalValue.trim() !== '') {

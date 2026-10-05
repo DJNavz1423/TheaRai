@@ -153,7 +153,7 @@
 
         function enforceEmailDomain() {
 
-            const domain = '@thearai.com.ph';
+            const domain = '@thearai.com';
 
             let value = emailInput.value;
 
@@ -225,7 +225,7 @@
             function (event) {
 
                 const domain =
-                    '@thearai.com.ph';
+                    '@thearai.com';
 
                 const cursorPosition =
                     this.selectionStart;

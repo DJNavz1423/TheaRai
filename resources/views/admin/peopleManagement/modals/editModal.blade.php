@@ -42,7 +42,7 @@
                         name="email"
                         id="edit_email"
                         required
-                        pattern="[a-zA-Z0-9._%+-]+@thearai\.com\.ph$">
+                        pattern="[a-zA-Z0-9._%+-]+@thearai\.com$">
                 </div>
 
                 <div class="input-group mb-3">

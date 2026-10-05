@@ -16,7 +16,7 @@ class Authcontroller extends Controller
 
     public function login(Request $request){
          $request->validate([
-            'email' => ['required', 'email', 'regex:/^.+@thearai\.com\.ph$/i'], 
+            'email' => ['required', 'email', 'regex:/^.+@thearai\.com$/i'], 
             'password' => ['required'],], 
             [ 'email.regex' => 'Invalid email format!']);
 

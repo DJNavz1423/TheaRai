@@ -41,7 +41,7 @@ class UserController extends Controller
                 'required', 
                 'email', 
                 'unique:pgsql.laravel.users,email', 
-                'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com\.ph$/i'
+                'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com$/i'
             ], 
             'phone_number' => [
                 'nullable',
@@ -51,7 +51,7 @@ class UserController extends Controller
             'role' => 'required|string|in:admin,staff,waiter,dev,owner',
             'branch_id' => ['nullable', 'integer', 'exists:pgsql.laravel.branches,id'],
         ], [
-            'email.regex' => 'The email must end with a valid @thearai.com.ph domain.',
+            'email.regex' => 'The email must end with a valid @thearai.com domain.',
             'phone_number.digits' => 'The phone number must be exactly 11 digits.',
         ]);
 
@@ -119,7 +119,7 @@ class UserController extends Controller
             'email' => [
                 'required',
                 'email',
-                'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com\.ph$/i',
+                'regex:/^[a-zA-Z0-9._%+-]+@thearai\.com$/i',
                 'unique:pgsql.laravel.users,email,' . $id,
             ],
             'phone_number' => [
@@ -133,7 +133,7 @@ class UserController extends Controller
                 . '|exclude_if:role,owner'
                 . '|required|exists:pgsql.laravel.branches,id',
         ], [
-            'email.regex' => 'The email must end with a valid @thearai.com.ph domain.'
+            'email.regex' => 'The email must end with a valid @thearai.com domain.'
         ]);
 
         DB::table('laravel.users')

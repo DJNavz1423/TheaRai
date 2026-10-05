@@ -33,7 +33,7 @@
                      @csrf
                         <!-- email input -->
                         <div class="input-group">
-                            <input type="email" name = "email" id="email" value="{{ old('email') }}" class="{{ $errors->has('email') ? 'is-invalid' : '' }}" placeholder="username@thearai.com.ph" required {{ !$errors->has('password') ? 'autofocus' : '' }}>
+                            <input type="email" name = "email" id="email" value="{{ old('email') }}" class="{{ $errors->has('email') ? 'is-invalid' : '' }}" placeholder="username@thearai.com" required {{ !$errors->has('password') ? 'autofocus' : '' }}>
 
                             @error('email')
                         <div class="error-message d-flex">

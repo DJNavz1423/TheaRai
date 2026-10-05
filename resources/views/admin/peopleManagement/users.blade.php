@@ -279,7 +279,7 @@
                         persistentRandomNum = Math.floor(Math.random() * 9999) + 1;
                     }
                     
-                    emailInput.value = `${nameStr}${persistentRandomNum}@thearai.com.ph`;
+                    emailInput.value = `${nameStr}${persistentRandomNum}@thearai.com`;
                 } else {
                     // If they delete the name completely, clear the email and reset the number
                     emailInput.value = '';
