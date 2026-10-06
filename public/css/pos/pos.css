@@ -526,3 +526,9 @@ product grid
 .cancel-btn:hover{
   transform: scale(1.03);
 }
+
+@media (max-width: 800px){
+  .table-controls{
+    padding: 12px;
+  }
+}

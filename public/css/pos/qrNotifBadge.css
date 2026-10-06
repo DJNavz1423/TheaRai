@@ -115,3 +115,17 @@
     color: var(--secondary-deep);
     letter-spacing: normal;
 }
+
+@media (max-width: 800px) {
+    #sidebar nav > ul > li:has(.qr-notif-badge) > .dropdown-btn .qr-notif-badge {
+        top: 4px;
+        right: auto;
+        left: calc(50% + 4px);
+        z-index: 1;
+        min-width: 18px;
+        padding: 1px 4px;
+        font-size: 10px;
+        line-height: 16px;
+        text-align: center;
+    }
+}

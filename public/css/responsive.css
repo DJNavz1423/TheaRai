@@ -35,6 +35,10 @@
     flex-wrap: wrap;
   }
 
+  .row:has(> :is(.heading-btn-row, .quick-btn-row)) {
+    row-gap: 1.5rem;
+  }
+
   .row > :not(.filters) {
     min-width: 0;
   }
@@ -63,8 +67,8 @@
   }
 
   .table-controls {
-    align-items: stretch;
-    flex-wrap: wrap;
+    align-items: stretch !important;
+    flex-wrap: wrap !important;
     gap: 0.75rem;
     padding: 0 0 0.75rem;
   }
@@ -225,15 +229,75 @@
     overflow-wrap: anywhere;
   }
 
-  .modal,
-  .modal-content {
-    max-width: calc(100vw - 1.5rem);
-  }
-
   .modal {
-    max-height: calc(100dvh - 1.5rem);
+    inset: 0 0 60px;
+    height: calc(100dvh - 60px);
+    max-height: none;
     overflow-y: auto;
   }
+
+  .modal-dialog,
+  .modal:has(table) .modal-dialog {
+    max-height: calc(100dvh - 3rem - 60px);
+  }
+
+  .modal .input-group {
+    min-width: 0;
+  }
+
+  .modal .input-group > label,
+  .modal .input-group > small {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.35;
+  }
+
+  #stocks > .row:first-child,
+  #edit_stocks > .row:first-child {
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  #stocks > .row:first-child > .input-group,
+  #edit_stocks > .row:first-child > .input-group {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  #stocks > .row:first-child .ts-wrapper,
+  #edit_stocks > .row:first-child .ts-wrapper {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .modal-body .input-group,
+  .modal-body input,
+  .modal-body select,
+  .modal-body textarea,
+  .modal-body .ts-wrapper {
+    box-sizing: border-box;
+  }
+
+  .modal:has(table) .modal-body {
+    overflow-x: hidden;
+  }
+
+  .modal:has(table) .modal-table {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal:has(table) .modal-table table {
+    width: max-content;
+    min-width: 680px;
+    table-layout: auto;
+  }
+
 }
 
 @media (max-width: 800px) {
@@ -263,10 +327,6 @@
     height: 42dvh;
     min-height: 260px;
     overflow: hidden;
-  }
-
-  .table-controls {
-    padding: 0.75rem;
   }
 
   .product-grid {
