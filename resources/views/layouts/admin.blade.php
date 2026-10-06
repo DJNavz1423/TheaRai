@@ -12,8 +12,6 @@
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/inventoryNotif.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
-
   @stack('styles')
 
   <title>TheaRai Eatery | @yield('title', 'Admin')</title>
@@ -351,5 +349,6 @@
   
 
   @stack('scripts')
+  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 </body>
 </html>

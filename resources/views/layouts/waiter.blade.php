@@ -15,8 +15,6 @@
   <link rel="stylesheet" href="{{ asset('css/cashier/header.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/qrNotifBadge.css') }}">
   <link rel="stylesheet" href="{{ asset('css/pos/inventoryNotif.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
-
   @stack('styles')
 
 
@@ -303,5 +301,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
   @stack('scripts')
+  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 </body>
 </html>

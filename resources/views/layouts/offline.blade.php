@@ -11,8 +11,6 @@
   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
   <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/sidebar.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
-
   @stack('styles')
   
   <title>TheaRai Eatery | @yield('title', 'Offline')</title>
@@ -108,6 +106,6 @@
   </script>
 
   @stack('scripts')
-
+  <link rel="stylesheet" href="{{ asset('css/responsive.css') }}">
 </body>
 </html>
