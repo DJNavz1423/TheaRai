@@ -88,6 +88,13 @@
           <ul class="sub-menu">
             <div>
               <li class="{{ request()->routeIs('admin.inventory.index') ? 'active' : '' }}"><a href="{{ url('/admin/inventory') }}">Stock List</a></li>
+
+              <li class="{{ request()->routeIs('admin.inventory.stock-audit') ? 'active' : ''}}">
+                <a href="{{ url('/admin/inventory/stock-audit') }}">
+                  Stock Audit
+                </a>
+              </li>
+
               <li class="{{ request()->routeIs('admin.inventory.categories_units') ? 'active' : '' }}"><a href="{{ url('/admin/inventory/categories_units') }}">Categories</a></li>
             </div>
           </ul>

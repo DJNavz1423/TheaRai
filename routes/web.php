@@ -13,6 +13,7 @@ use App\Http\Controllers\AnalyticsController;
 
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\Category_UnitsController;
+use App\Http\Controllers\StockAuditController;
 
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserAccountController;
@@ -90,6 +91,9 @@ Route::middleware(['auth'])->group(function(){
 
         Route::delete('/inventory/categories_units/{id}', [Category_UnitsController::class, 'destroy'])
             ->name('admin.inventory.categories_units.destroy');
+
+        Route::get('/inventory/stock-audit', [StockAuditController::class, 'index']) 
+            ->name('admin.inventory.stock-audit');
         
 
 
