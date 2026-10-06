@@ -25,7 +25,7 @@
         {{-- Branch --}}
         @if($isAdminLevel)
           <select id="filter-branch" class="ts-filter">
-              <option value="all">All Branches</option>
+              <option value="all">Branches</option>
               @foreach($branches as $branch)
                   <option value="{{ $branch->id }}">
                       {{ $branch->name }}
@@ -36,7 +36,7 @@
 
         {{-- Payment Method --}}
         <select id="filter-payment" class="ts-filter">
-          <option value="all">All Payment Methods</option>
+          <option value="all">Pay Methods</option>
             @foreach($paymentMethods as $paymentMethod)
               <option value="{{ strtolower($paymentMethod) }}">
                 {{ ucwords($paymentMethod) }}
@@ -47,7 +47,7 @@
 
         {{-- Payment Status --}}
         <select id="filter-payment-status" class="ts-filter">
-          <option value="all">All Payment Status</option>
+          <option value="all">Pay Status</option>
             @foreach($paymentStatuses as $paymentStatus)
               <option value="{{ strtolower($paymentStatus) }}">
                 {{ ucwords($paymentStatus) }}

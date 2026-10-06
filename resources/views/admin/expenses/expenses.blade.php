@@ -50,20 +50,20 @@
 
       <div class="filters">
         <select id="filter-type" class="ts-filter">
-          <option value="all" selected>All Types</option>
+          <option value="all" selected>Types</option>
           <option value="regular">Regular</option>
           <option value="restock">Restock</option>
           <option value="ingredient_purchase">Ingredient Purchase</option>
         </select>
 
         <select id="filter-source" class="ts-filter">
-          <option value="all" selected>All Sources</option>
+          <option value="all" selected>Sources</option>
           <option value="cash_in_hand">System Cash</option>
           <option value="external_cash">External Cash</option>
         </select>
 
         <select id="filter-branch" class="ts-filter">
-          <option value="all" selected>All Branches</option>
+          <option value="all" selected>Branches</option>
           @foreach($branches as $branch)
               <option value="{{ $branch->id }}">{{ $branch->name }}</option>
           @endforeach

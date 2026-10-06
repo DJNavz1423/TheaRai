@@ -28,7 +28,7 @@
 
         <div class="filters">
             <select id="filter-role" class="ts-filter">
-                <option value="all" selected>All Roles</option>
+                <option value="all" selected>Roles</option>
                 <option value="staff">Cashier</option>
                 <option value="waiter">Waiter</option>
                 <option value="admin">Admin</option>
@@ -40,7 +40,7 @@
             </select>
 
             <select id="filter-branch" class="ts-filter">
-                <option value="all" selected>All Branches</option>
+                <option value="all" selected>Branches</option>
                 @foreach($branches as $branch)
                     <option value="{{ strtolower($branch->name) }}">{{ $branch->name }}</option>
                 @endforeach

@@ -29,7 +29,7 @@
         </div>
         <div class="filters">
             <select id="filter-category" class="ts-filter">
-                <option value="all" selected>All Categories</option>
+                <option value="all" selected>Categories</option>
                 @foreach($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach

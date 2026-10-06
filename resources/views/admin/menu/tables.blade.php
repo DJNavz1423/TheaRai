@@ -29,7 +29,7 @@
 
         <div class="filters">
             <select id="filter-branch" class="ts-filter">
-                <option value="all" selected>All Branches</option>
+                <option value="all" selected>Branches</option>
                 @foreach($branches as $branch)
                 <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                 @endforeach
