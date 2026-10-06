@@ -50,7 +50,7 @@ class IngredientController extends Controller
         return view('admin.inventory.inventory', compact('ingredients', 'inventoryBreakdown', 'categories', 'units', 'branches', 'branchCash'));
     }
 
-    public function store(Request $request){
+    public function store(Request $request) {
         $validated = $request->validate([
             'item_code'         => 'nullable|unique:pgsql.laravel.ingredients,item_code',
             'name'              => 'required|string|max:255',
@@ -64,14 +64,14 @@ class IngredientController extends Controller
             'stock_quantity'    => 'nullable|numeric|min:0',
             'purchase_price'    => 'nullable|numeric|min:0',
             'alert_threshold'   => 'nullable|numeric|min:0',
-            'fund_source'       => 'required|string|max:255',    
+            'fund_source'       => 'required|string|max:255',
         ]);
 
-        if($request->hasFile('img_url')){
+        if ($request->hasFile('img_url')) {
             $file = $request->file('img_url');
             $path = $file->store('images', 'supabase');
             $validated['img_url'] = Storage::disk('supabase')->url($path);
-        } else{
+        } else {
             unset($validated['img_url']);
         }
 
@@ -79,7 +79,8 @@ class IngredientController extends Controller
         $purchasePrice = $validated['purchase_price'] ?? 0;
         $totalExpense = $stockQty * $purchasePrice;
 
-        if($validated['fund_source'] === 'cash_in_hand' && $totalExpense > 0){
+        if ($validated['fund_source'] === 'cash_in_hand' && $totalExpense > 0) {
+
             $branchId = $validated['branch_id'];
 
             $totalBranchCashIn = DB::table('laravel.orders')
@@ -95,7 +96,7 @@ class IngredientController extends Controller
 
             $availableSystemCash = $totalBranchCashIn - $totalBranchCashSpent;
 
-            if($totalExpense > $availableSystemCash){
+            if ($totalExpense > $availableSystemCash) {
                 return back()->with(
                     'error',
                     'Insufficient System Cash! Available: ₱' .
@@ -105,8 +106,11 @@ class IngredientController extends Controller
         }
 
         DB::beginTransaction();
+
         try {
-            // 1. Insert into Global Ingredients Table
+            /*
+            * 1. Create the global ingredient.
+            */
             $ingredientId = DB::table('laravel.ingredients')->insertGetId([
                 'item_code' => $validated['item_code'],
                 'name' => $validated['name'],
@@ -120,27 +124,28 @@ class IngredientController extends Controller
                 'updated_at' => now()
             ]);
 
-            // 2. Insert into Branch Inventory Table
-            DB::table('laravel.branch_inventory')->insert([
-                'branch_id' => $validated['branch_id'],
-                'ingredient_id' => $ingredientId,
-                'stock_quantity' => $stockQty,
-                'purchase_price' => $purchasePrice,
-                'alert_threshold' => $validated['alert_threshold'] ?? 0,
-            ]);
+            /*
+            * 2. Create the opening-stock expense BEFORE
+            *    inserting into branch_inventory.
+            *
+            *    This gives the stock-log trigger an expense_id.
+            */
+            $expenseId = null;
 
-            // 3. Log Expense if there is an opening stock cost
-            if($totalExpense > 0){  
+            if ($totalExpense > 0) {
                 $unitAbbr = DB::table('laravel.units')
                     ->where('id', $validated['primary_unit_id'])
                     ->value('abbreviation');
 
                 $expenseId = DB::table('laravel.expenses')->insertGetId([
-                    'expense_type' => 'restock',
+                    'expense_type' => 'ingredient_purchase',
                     'fund_source' => $validated['fund_source'],
-                    'branch_id' => $validated['branch_id'], // Link expense to the branch
+                    'branch_id' => $validated['branch_id'],
                     'total_amount' => $totalExpense,
-                    'description' => 'Opening stock for ' . $stockQty . ' ' . $unitAbbr . ' of ' . $validated['name'], 
+                    'description' => 'Opening stock for ' .
+                        $stockQty . ' ' .
+                        $unitAbbr . ' of ' .
+                        $validated['name'],
                     'created_at' => now()
                 ]);
 
@@ -150,21 +155,85 @@ class IngredientController extends Controller
                         'fund_source' => 'cash_in_hand',
                         'amount' => $totalExpense,
                         'branch_id' => $validated['branch_id'],
-                        'description' => 'Opening stock for ' . $validated['name'],
+                        'description' => 'Opening stock for ' .
+                            $validated['name'],
                         'created_at' => now(),
                     ]);
                 }
-                
-                $this->logActivity('created', 'expense', $expenseId, "Added opening stock expense for: {$validated['name']}");
+
+                $this->logActivity(
+                    'created',
+                    'expense',
+                    $expenseId,
+                    "Added opening stock expense for: {$validated['name']}"
+                );
             }
 
-            $this->logActivity('created', 'ingredient', $ingredientId, "Added new inventory item: {$validated['name']}");
+            /*
+            * 3. Tell PostgreSQL what is about to happen.
+            *
+            *    The log_opening_stock trigger will read this.
+            */
+            DB::statement(
+                "SELECT set_config('app.stock_source_type', ?, true)",
+                ['new_ingredient']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_source_id', ?, true)",
+                [(string) $ingredientId]
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_order_id', ?, true)",
+                ['']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_expense_id', ?, true)",
+                [$expenseId ? (string) $expenseId : '']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_remarks', ?, true)",
+                ['Initial Stock']
+            );
+
+            /*
+            * 4. Insert branch inventory.
+            *
+            *    DO NOT insert into stock_logs here.
+            *    Supabase's log_opening_stock trigger does it.
+            */
+            DB::table('laravel.branch_inventory')->insert([
+                'branch_id' => $validated['branch_id'],
+                'ingredient_id' => $ingredientId,
+                'stock_quantity' => $stockQty,
+                'purchase_price' => $purchasePrice,
+                'alert_threshold' => $validated['alert_threshold'] ?? 0,
+            ]);
+
+            $this->logActivity(
+                'created',
+                'ingredient',
+                $ingredientId,
+                "Added new inventory item: {$validated['name']}"
+            );
 
             DB::commit();
-            return back()->with('success', 'Ingredient added to global catalog and branch inventory!');
+
+            return back()->with(
+                'success',
+                'Ingredient added to global catalog and branch inventory!'
+            );
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'An error occurred: ' . $e->getMessage());
+
+            return back()->with(
+                'error',
+                'An error occurred: ' . $e->getMessage()
+            );
         }
     }
 
@@ -305,9 +374,9 @@ class IngredientController extends Controller
         );
     }
 
-    public function addStock(Request $request, $id){
+    public function addStock(Request $request, $id) {
         $validated = $request->validate([
-            'branch_id'   => 'required|exists:pgsql.laravel.branches,id', // Required from modal
+            'branch_id'   => 'required|exists:pgsql.laravel.branches,id',
             'quantity'    => 'required|numeric|min:0.01',
             'unit_type'   => 'required|in:primary,secondary',
             'unit_price'  => 'required|numeric|min:0',
@@ -315,16 +384,23 @@ class IngredientController extends Controller
             'remarks'     => 'nullable|string|max:255'
         ]);
 
-        $ingredient = DB::table('laravel.ingredients')->where('id', $id)->first();
-        if(!$ingredient) return back()->with('error', 'Ingredient not found!');
+        $ingredient = DB::table('laravel.ingredients')
+            ->where('id', $id)
+            ->first();
 
-        $addedQuantityPrimary = $validated['unit_type'] === 'primary' 
-            ? $validated['quantity'] 
-            : ($validated['quantity'] / $ingredient->conversion_factor);
+        if (!$ingredient) {
+            return back()->with('error', 'Ingredient not found!');
+        }
+
+        $addedQuantityPrimary =
+            $validated['unit_type'] === 'primary'
+                ? $validated['quantity']
+                : ($validated['quantity'] / $ingredient->conversion_factor);
 
         $actualTotalCost = $addedQuantityPrimary * $validated['unit_price'];
 
-        if($validated['fund_source'] === 'cash_in_hand' && $actualTotalCost > 0){
+        if ($validated['fund_source'] === 'cash_in_hand' && $actualTotalCost > 0) {
+
             $branchId = $validated['branch_id'];
 
             $totalBranchCashIn = DB::table('laravel.orders')
@@ -340,56 +416,31 @@ class IngredientController extends Controller
 
             $availableBranchCash = $totalBranchCashIn - $totalBranchCashSpent;
 
-            if($actualTotalCost > $availableBranchCash){
-                return back()->with('error', 'Insufficient Branch Cash! Available at branch: ₱' . number_format($availableBranchCash, 2));
+            if ($actualTotalCost > $availableBranchCash) {
+                return back()->with(
+                    'error',
+                    'Insufficient Branch Cash! Available at branch: ₱' .
+                    number_format($availableBranchCash, 2)
+                );
             }
         }
 
         DB::beginTransaction();
-        try{
-            // Fetch the specific branch inventory
-            $branchInventory = DB::table('laravel.branch_inventory')
-                ->where('ingredient_id', $id)
-                ->where('branch_id', $validated['branch_id'])
-                ->first();
 
-            if (!$branchInventory) {
-                $inheritedThreshold = DB::table('laravel.branch_inventory')
-                    ->where('ingredient_id', $id)
-                    ->whereNotNull('alert_threshold')
-                    ->value('alert_threshold') ?? 0;    
+        try {
+            $remarks =
+                $validated['remarks']
+                ?: "Restocked {$ingredient->name}";
 
-                DB::table('laravel.branch_inventory')->insert([
-                    'branch_id' => $validated['branch_id'],
-                    'ingredient_id' => $id,
-                    'stock_quantity' => $addedQuantityPrimary,
-                    'purchase_price' => $validated['unit_price'],
-                    'alert_threshold' => $inheritedThreshold,
-                ]);
-            } else {
-                // Update existing branch stock with Weighted Average Cost
-                $currentTotalValue = $branchInventory->stock_quantity * $branchInventory->purchase_price;
-                $newTotalValue = $currentTotalValue + $actualTotalCost;
-                $newTotalStock = $branchInventory->stock_quantity + $addedQuantityPrimary;
-                $newWacPrice = $newTotalStock > 0 ? ($newTotalValue / $newTotalStock) : $branchInventory->purchase_price;
-                $newWacPrice = round($newWacPrice, 2);
+            /*
+            * 1. Create the restock expense FIRST.
+            */
+            $expenseId = null;
 
-                DB::table('laravel.branch_inventory')
-                    ->where('id', $branchInventory->id)
-                    ->update([
-                        'stock_quantity' => $newTotalStock,
-                        'purchase_price' => $newWacPrice
-                    ]);
-            }
-
-            // Update the global updated_at timestamp
-            DB::table('laravel.ingredients')->where('id', $id)->update(['updated_at' => now()]);
-
-            if($actualTotalCost > 0){
-                $remarks = $validated['remarks'] ?: "Restocked {$ingredient->name}";
+            if ($actualTotalCost > 0) {
 
                 $expenseId = DB::table('laravel.expenses')->insertGetId([
-                    'expense_type' => 'ingredient_purchase',
+                    'expense_type' => 'restock',
                     'fund_source' => $validated['fund_source'],
                     'branch_id' => $validated['branch_id'],
                     'total_amount' => $actualTotalCost,
@@ -398,6 +449,7 @@ class IngredientController extends Controller
                 ]);
 
                 if ($validated['fund_source'] === 'cash_in_hand') {
+
                     DB::table('laravel.cash_transactions')->insert([
                         'transaction_type' => 'expense',
                         'fund_source' => 'cash_in_hand',
@@ -408,20 +460,130 @@ class IngredientController extends Controller
                     ]);
                 }
 
-                $this->logActivity('created', 'expense', $expenseId, "Restock expense for: {$ingredient->name}");
+                $this->logActivity(
+                    'created',
+                    'expense',
+                    $expenseId,
+                    "Restock expense for: {$ingredient->name}"
+                );
             }
 
-            $this->logActivity('updated', 'ingredient_stock', $id, "Added stock to branch {$validated['branch_id']} for: {$ingredient->name}");
+            /*
+            * 2. Tell PostgreSQL this inventory change
+            *    is caused by a RESTOCK.
+            */
+            DB::statement(
+                "SELECT set_config('app.stock_source_type', ?, true)",
+                ['restock']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_source_id', ?, true)",
+                [$expenseId ? (string) $expenseId : '']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_order_id', ?, true)",
+                ['']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_expense_id', ?, true)",
+                [$expenseId ? (string) $expenseId : '']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_remarks', ?, true)",
+                [$remarks]
+            );
+
+            /*
+            * 3. Get this specific branch's inventory.
+            */
+            $branchInventory = DB::table('laravel.branch_inventory')
+                ->where('ingredient_id', $id)
+                ->where('branch_id', $validated['branch_id'])
+                ->first();
+
+            if (!$branchInventory) {
+
+                /*
+                * New branch inventory record.
+                *
+                * log_opening_stock trigger handles the stock_logs row.
+                */
+                $inheritedThreshold = DB::table('laravel.branch_inventory')
+                    ->where('ingredient_id', $id)
+                    ->whereNotNull('alert_threshold')
+                    ->value('alert_threshold') ?? 0;
+
+                DB::table('laravel.branch_inventory')->insert([
+                    'branch_id' => $validated['branch_id'],
+                    'ingredient_id' => $id,
+                    'stock_quantity' => $addedQuantityPrimary,
+                    'purchase_price' => $validated['unit_price'],
+                    'alert_threshold' => $inheritedThreshold,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+            } else {
+
+                /*
+                * Existing branch inventory.
+                *
+                * UPDATE fires log_stock_update automatically.
+                */
+                $currentTotalValue = $branchInventory->stock_quantity * $branchInventory->purchase_price;
+
+                $newTotalValue = $currentTotalValue + $actualTotalCost;
+
+                $newTotalStock = $branchInventory->stock_quantity + $addedQuantityPrimary;
+
+                $newWacPrice = $newTotalStock > 0 ? ($newTotalValue / $newTotalStock) : $branchInventory->purchase_price;
+
+                $newWacPrice = round($newWacPrice, 2);
+
+                DB::table('laravel.branch_inventory')
+                    ->where('id', $branchInventory->id)
+                    ->update([
+                        'stock_quantity' => $newTotalStock,
+                        'purchase_price' => $newWacPrice
+                    ]);
+            }
+
+            DB::table('laravel.ingredients')
+                ->where('id', $id)
+                ->update([
+                    'updated_at' => now()
+                ]);
+
+            $this->logActivity(
+                'updated',
+                'ingredient_stock',
+                $id,
+                "Added stock to branch {$validated['branch_id']} for: {$ingredient->name}"
+            );
 
             DB::commit();
-            return back()->with('success', 'Stock added successfully to Branch!');
-        }catch(\Exception $e){
+
+            return back()->with(
+                'success',
+                'Stock added successfully to Branch!'
+            );
+
+        } catch (\Exception $e) {
+
             DB::rollBack();
-            return back()->with('error', 'An error occurred: ' . $e->getMessage());
+
+            return back()->with(
+                'error',
+                'An error occurred: ' . $e->getMessage()
+            );
         }
     }
 
-    public function reduceStock(Request $request, $id){
+    public function reduceStock(Request $request, $id) {
         $validated = $request->validate([
             'branch_id' => 'required|exists:pgsql.laravel.branches,id',
             'quantity'  => 'required|numeric|min:0.01',
@@ -429,34 +591,106 @@ class IngredientController extends Controller
             'remarks'   => 'nullable|string|max:255'
         ]);
 
-        $ingredient = DB::table('laravel.ingredients')->where('id', $id)->first();
-        if (!$ingredient) return back()->with('error', 'Ingredient not found!');
+        $ingredient = DB::table('laravel.ingredients')
+            ->where('id', $id)
+            ->first();
+
+        if (!$ingredient) {
+            return back()->with('error', 'Ingredient not found!');
+        }
 
         $branchInventory = DB::table('laravel.branch_inventory')
             ->where('ingredient_id', $id)
             ->where('branch_id', $validated['branch_id'])
             ->first();
 
-        if (!$branchInventory) return back()->with('error', 'This branch does not have this ingredient in stock.');
+        if (!$branchInventory) {
+            return back()->with(
+                'error',
+                'This branch does not have this ingredient in stock.'
+            );
+        }
 
         $reducedQuantityPrimary = $validated['unit_type'] === 'primary' ? $validated['quantity'] : ($validated['quantity'] / $ingredient->conversion_factor);
 
-        if ($reducedQuantityPrimary > $branchInventory->stock_quantity){
-            return back()->with('error', 'Cannot reduce more stock than available in this branch!');
+        if ($reducedQuantityPrimary > $branchInventory->stock_quantity) {
+            return back()->with(
+                'error',
+                'Cannot reduce more stock than available in this branch!'
+            );
         }
 
-        // Reduce stock strictly from the branch
-        DB::table('laravel.branch_inventory')
-            ->where('id', $branchInventory->id)
-            ->update([
-                'stock_quantity' => DB::raw("stock_quantity - {$reducedQuantityPrimary}")
-            ]);
-            
-        // Update global timestamp
-        DB::table('laravel.ingredients')->where('id', $id)->update(['updated_at' => now()]);
+        DB::beginTransaction();
 
-        $this->logActivity('updated', 'ingredient_stock', $id, "Reduced stock from branch {$validated['branch_id']} for: {$ingredient->name}. Reason: {$validated['remarks']}");
+        try {
 
-        return back()->with('success', 'Stock reduced successfully!');
+            /*
+            * Tell PostgreSQL this UPDATE is a manual reduction.
+            */
+            DB::statement(
+                "SELECT set_config('app.stock_source_type', ?, true)",
+                ['manual_reduction']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_source_id', ?, true)",
+                ['']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_order_id', ?, true)",
+                ['']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_expense_id', ?, true)",
+                ['']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_remarks', ?, true)",
+                [$validated['remarks']]
+            );
+
+            /*
+            * This UPDATE automatically fires log_stock_update.
+            */
+            DB::table('laravel.branch_inventory')
+                ->where('id', $branchInventory->id)
+                ->update([
+                    'stock_quantity' => DB::raw(
+                        "stock_quantity - {$reducedQuantityPrimary}"
+                    )
+                ]);
+
+            DB::table('laravel.ingredients')
+                ->where('id', $id)
+                ->update([
+                    'updated_at' => now()
+                ]);
+
+            $this->logActivity(
+                'updated',
+                'ingredient_stock',
+                $id,
+                "Reduced stock from branch {$validated['branch_id']} for: {$ingredient->name}. Reason: {$validated['remarks']}"
+            );
+
+            DB::commit();
+
+            return back()->with(
+                'success',
+                'Stock reduced successfully!'
+            );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'An error occurred: ' . $e->getMessage()
+            );
+        }
     }
 }

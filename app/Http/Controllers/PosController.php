@@ -268,6 +268,35 @@ class PosController extends Controller{
                 'created_at' => now(),
             ]);
 
+            /*
+            * Tell PostgreSQL that all inventory changes
+            * in this order are caused by this POS order.
+            */
+            DB::statement(
+                "SELECT set_config('app.stock_source_type', ?, true)",
+                ['order']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_source_id', ?, true)",
+                [(string) $orderId]
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_order_id', ?, true)",
+                [(string) $orderId]
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_expense_id', ?, true)",
+                ['']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_remarks', ?, true)",
+                ["POS Order {$receiptNo}"]
+            );
+
             // 2. Process Cart Items
             foreach ($request->cart as $cartItem){
                 DB::table('laravel.order_items')->insert([

@@ -112,7 +112,7 @@ class ExpenseController extends Controller
         }
     }
 
-    public function storeRestock(Request $request){
+    public function storeRestock(Request $request) {
         $request->validate([
             'branch_id'    => 'required|integer|exists:pgsql.laravel.branches,id',
             'fund_source'  => 'required|string',
@@ -128,16 +128,26 @@ class ExpenseController extends Controller
         $fundSource = $request->fund_source;
         $branchId = $request->branch_id;
 
-        if($fundSource === 'cash_in_hand'){
-            if(!$this->hasEnoughSystemCash($totalExpense, $branchId)){
-                return back()->with('error', 'Insufficient System Cash at this specific branch!');
+        if ($fundSource === 'cash_in_hand') {
+            if (!$this->hasEnoughSystemCash($totalExpense, $branchId)) {
+
+                return back()->with(
+                    'error',
+                    'Insufficient System Cash at this specific branch!'
+                );
             }
         }
 
         DB::beginTransaction();
-        try{
-            $description = $request->description ?: 'Restocked ' . count($request->items). ' items';
 
+        try {
+            $description =
+                $request->description
+                ?: 'Restocked ' . count($request->items) . ' items';
+
+            /*
+            * 1. Create the restock expense first.
+            */
             $expenseId = DB::table('laravel.expenses')->insertGetId([
                 'branch_id' => $branchId,
                 'expense_type' => 'restock',
@@ -147,7 +157,9 @@ class ExpenseController extends Controller
                 'created_at' => now()
             ]);
 
-            // Permanent financial history
+            /*
+            * 2. Permanent financial history.
+            */
             DB::table('laravel.cash_transactions')->insert([
                 'branch_id' => $branchId,
                 'expense_id' => $expenseId,
@@ -158,7 +170,45 @@ class ExpenseController extends Controller
                 'created_at' => now(),
             ]);
 
-            foreach($request->items as $item){
+            /*
+            * 3. Tell both stock-log triggers:
+            *    all inventory changes below are this restock.
+            */
+            DB::statement(
+                "SELECT set_config('app.stock_source_type', ?, true)",
+                ['restock']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_source_id', ?, true)",
+                [(string) $expenseId]
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_order_id', ?, true)",
+                ['']
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_expense_id', ?, true)",
+                [(string) $expenseId]
+            );
+
+            DB::statement(
+                "SELECT set_config('app.stock_remarks', ?, true)",
+                [$description]
+            );
+
+            /*
+            * 4. Update each ingredient.
+            *
+            * Existing branch_inventory:
+            *     UPDATE → log_stock_update trigger
+            *
+            * Missing branch_inventory:
+            *     INSERT → log_opening_stock trigger
+            */
+            foreach ($request->items as $item) {
 
                 $branchInventory = DB::table('laravel.branch_inventory')
                     ->where('branch_id', $branchId)
@@ -171,14 +221,16 @@ class ExpenseController extends Controller
 
                 if ($branchInventory) {
 
-                    // WAC CALCULATION
                     $currentTotalValue = $branchInventory->stock_quantity * $branchInventory->purchase_price;
+
                     $newTotalValue = $currentTotalValue + $totalCost;
+
                     $newTotalStock = $branchInventory->stock_quantity + $qty;
 
-                    $newWacPrice = $newTotalStock > 0
-                        ? round($newTotalValue / $newTotalStock, 2)
-                        : $branchInventory->purchase_price;
+                    $newWacPrice =
+                        $newTotalStock > 0
+                            ? round($newTotalValue / $newTotalStock, 2)
+                            : $branchInventory->purchase_price;
 
                     DB::table('laravel.branch_inventory')
                         ->where('id', $branchInventory->id)
@@ -192,7 +244,7 @@ class ExpenseController extends Controller
                         'branch_id' => $branchId,
                         'ingredient_id' => $item['ingredient_id'],
                         'stock_quantity' => $qty,
-                        'purchase_price' => $unitCost, // use entered price
+                        'purchase_price' => $unitCost,
                         'alert_threshold' => 5,
                         'created_at' => now(),
                         'updated_at' => now()
@@ -200,14 +252,28 @@ class ExpenseController extends Controller
                 }
             }
 
-            $this->logActivity('created', 'restock', $expenseId, "Processed restock at Branch {$branchId}: {$description}");
+            $this->logActivity(
+                'created',
+                'restock',
+                $expenseId,
+                "Processed restock at Branch {$branchId}: {$description}"
+            );
 
             DB::commit();
-            return back()->with('success', 'Restock added successfully!');
 
-        } catch(\Exception $e){
-            DB::rollback();
-            return back()->with('error', 'Something went wrong: '. $e->getMessage());
+            return back()->with(
+                'success',
+                'Restock added successfully!'
+            );
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return back()->with(
+                'error',
+                'Something went wrong: ' . $e->getMessage()
+            );
         }
     }
 

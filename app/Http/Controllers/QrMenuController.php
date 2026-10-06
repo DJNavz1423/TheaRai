@@ -307,6 +307,35 @@ public function success(Request $request)
             'updated_at' => now()
         ]);
 
+        /*
+        * Tell PostgreSQL that all inventory changes
+        * in this transaction are caused by this QR order.
+        */
+        DB::statement(
+            "SELECT set_config('app.stock_source_type', ?, true)",
+            ['order']
+        );
+
+        DB::statement(
+            "SELECT set_config('app.stock_source_id', ?, true)",
+            [(string) $orderId]
+        );
+
+        DB::statement(
+            "SELECT set_config('app.stock_order_id', ?, true)",
+            [(string) $orderId]
+        );
+
+        DB::statement(
+            "SELECT set_config('app.stock_expense_id', ?, true)",
+            ['']
+        );
+
+        DB::statement(
+            "SELECT set_config('app.stock_remarks', ?, true)",
+            ["QR Order {$pendingOrder['receipt_no']}"]
+        );
+
         $orderItems = [];
 
         foreach ($pendingOrder['items'] as $item) {
