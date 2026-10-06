@@ -35,7 +35,7 @@
     flex-wrap: wrap;
   }
 
-  .row > * {
+  .row > :not(.filters) {
     min-width: 0;
   }
 
@@ -70,8 +70,8 @@
   }
 
   .searchbox {
-    width: 100%;
-    min-width: 0;
+    width: 100% !important;
+    min-width: 0 !important;
   }
 
   .filters {
