@@ -94,6 +94,9 @@ Route::middleware(['auth'])->group(function(){
 
         Route::get('/inventory/stock-audit', [StockAuditController::class, 'index']) 
             ->name('admin.inventory.stock-audit');
+
+        Route::get('/inventory/stock-audit/download', [StockAuditController::class, 'download'])
+            ->name('admin.inventory.stock-audit.download');
         
 
 
