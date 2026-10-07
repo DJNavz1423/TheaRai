@@ -24,3 +24,11 @@ Schedule::call(function (){
         ->where('deleted_at', '<', $cutoffDate)
         ->delete();
 })->dailyAt('00:00');
+
+Schedule::command('reports:email daily')
+    ->dailyAt('07:00')
+    ->timezone('Asia/Manila');
+
+Schedule::command('reports:email monthly')
+    ->monthlyOn(1, '07:00')
+    ->timezone('Asia/Manila');
