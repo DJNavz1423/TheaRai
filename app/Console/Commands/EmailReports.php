@@ -96,6 +96,30 @@ class EmailReports extends Command
             $this->formatPeso($sales->sum('total_amount')),
         ];
 
+        $inventoryRows = $inventory->map(fn ($item) => [
+            $item->branch_name,
+            $item->ingredient_name,
+            $item->stock_quantity,
+            $item->unit,
+            $this->formatPeso($item->purchase_price),
+            $this->formatPeso((float) $item->stock_quantity * (float) $item->purchase_price),
+            $item->alert_threshold,
+            $item->stock_quantity <= $item->alert_threshold ? 'LOW STOCK' : 'OK',
+        ])->all();
+
+        $inventoryRows[] = [
+            'OVERALL TOTAL',
+            '',
+            '',
+            '',
+            '',
+            $this->formatPeso($inventory->sum(
+                fn ($item) => (float) $item->stock_quantity * (float) $item->purchase_price
+            )),
+            '',
+            '',
+        ];
+
         Mail::to($recipient)->send(new ReportsEmail(
             $period,
             $dateLabel,
@@ -105,16 +129,7 @@ class EmailReports extends Command
             ),
             $this->toCsv(
                 ['Branch', 'Ingredient', 'Stock Quantity', 'Unit', 'Purchase Price', 'Stock Value', 'Alert Threshold', 'Stock Status'],
-                $inventory->map(fn ($item) => [
-                    $item->branch_name,
-                    $item->ingredient_name,
-                    $item->stock_quantity,
-                    $item->unit,
-                    $this->formatPeso($item->purchase_price),
-                    $this->formatPeso((float) $item->stock_quantity * (float) $item->purchase_price),
-                    $item->alert_threshold,
-                    $item->stock_quantity <= $item->alert_threshold ? 'LOW STOCK' : 'OK',
-                ])->all()
+                $inventoryRows
             )
         ));
 
