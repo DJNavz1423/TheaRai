@@ -46,7 +46,7 @@
 
     <div id="best-seller-section" class="category-section best-seller-section">
         <h3 class="category-heading">
-            Best Seller Foods
+            Best Sellers
         </h3>
 
         <div id="best-seller-container" class="menu-grid"></div>

@@ -104,7 +104,14 @@ class QrMenuController extends Controller
 
     $receiptNo = 'QR-' . strtoupper(Str::random(8));
 
-    $secretKey = env('XENDIT_SECRET_KEY');
+    $secretKey = config('services.xendit.secret_key');
+
+    if (!is_string($secretKey) || $secretKey === '') {
+        return response()->json([
+            'success' => false,
+            'message' => 'Online payments are not configured. Please contact the restaurant.',
+        ], 503);
+    }
 
     try {
 
@@ -191,7 +198,11 @@ public function success(Request $request)
             return "Payment information is missing.";
         }
 
-        $secretKey = env('XENDIT_SECRET_KEY');
+        $secretKey = config('services.xendit.secret_key');
+
+        if (!is_string($secretKey) || $secretKey === '') {
+            return response('Online payments are not configured. Please contact the restaurant.', 503);
+        }
 
         // Ask Xendit for the actual invoice status.
         $response = Http::withBasicAuth($secretKey, '')

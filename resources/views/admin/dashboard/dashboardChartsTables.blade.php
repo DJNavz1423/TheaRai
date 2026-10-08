@@ -6,21 +6,27 @@
           <div class="section-header mb-1">
           <h2>Cashflow Overview</h2>
 
-          <div class="filters">
-          <select name="chart-timeframe" id="chart-timeframe" class="unit-selector">
-            <option value="{{ $dailyToken }}">Daily</option>
-            <option value="{{ $monthlyToken }}">Monthly</option>
-          </select>
-        </div>
+          @if($metabaseConfigured)
+            <div class="filters">
+              <select name="chart-timeframe" id="chart-timeframe" class="unit-selector">
+                <option value="{{ $dailyToken }}">Daily</option>
+                <option value="{{ $monthlyToken }}">Monthly</option>
+              </select>
+            </div>
+          @endif
         </div>
 
         <div class="chart-card">
-          <metabase-question
-            id="mb-chart"
-            token="{{ $dailyToken }}"
-            with-title="false"
-            with-downloads="true">
-          </metabase-question>
+          @if($metabaseConfigured)
+            <metabase-question
+              id="mb-chart"
+              token="{{ $dailyToken }}"
+              with-title="false"
+              with-downloads="true">
+            </metabase-question>
+          @else
+            <p class="text-muted">Metabase charts are unavailable. The dashboard totals remain available above.</p>
+          @endif
         </div>
 
         <div class="row chart-details">

@@ -124,26 +124,29 @@ class DashboardController extends Controller
 
         $recentActivities = $activityLogs;
 
-        $metabaseSecretKey = env('METABASE_SECRET_KEY');
-        $metabaseSiteUrl = env('METABASE_SITE_URL', 'http://localhost:3000');
+        $metabaseSecretKey = config('services.metabase.secret_key');
+        $metabaseSiteUrl = rtrim((string) config('services.metabase.site_url', ''), '/');
+        $metabaseConfigured = is_string($metabaseSecretKey)
+            && $metabaseSecretKey !== ''
+            && $metabaseSiteUrl !== '';
+        $dailyToken = null;
+        $monthlyToken = null;
 
-        $dailyPayload = [
-            'resource' => ['question' => 44],
-            'params' => (object)[],
-            'iat' => time(),
-            'exp' => time() + (60 * 60)
-        ];
+        if ($metabaseConfigured) {
+            $dailyToken = JWT::encode([
+                'resource' => ['question' => 44],
+                'params' => (object)[],
+                'iat' => time(),
+                'exp' => time() + (60 * 60),
+            ], $metabaseSecretKey, 'HS256');
 
-        $dailyToken = JWT::encode($dailyPayload, $metabaseSecretKey, 'HS256');
-
-        $monthlyPayload = [
-            'resource' => ['question' => 43], 
-            'params' => (object)[],
-            'iat' => time(),
-            'exp' => time() + (60 * 15)
-        ];
-
-        $monthlyToken = JWT::encode($monthlyPayload, $metabaseSecretKey, 'HS256');
+            $monthlyToken = JWT::encode([
+                'resource' => ['question' => 43],
+                'params' => (object)[],
+                'iat' => time(),
+                'exp' => time() + (15 * 60),
+            ], $metabaseSecretKey, 'HS256');
+        }
 
         return view('admin.dashboard.dashboard', compact(
             'totalInventoryValue',
@@ -159,7 +162,8 @@ class DashboardController extends Controller
             'recentActivities',
             'dailyToken',
             'monthlyToken',
-            'metabaseSiteUrl'
+            'metabaseSiteUrl',
+            'metabaseConfigured'
         ));
     }
 }

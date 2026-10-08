@@ -75,11 +75,15 @@
     <div class="col dashboard-section" style="grid-area: box1;">
       <div class="section-content border" style="background-color: rgb(7, 23, 34);">
         <div class="chart-card">
-        <metabase-dashboard
-          token="{{ $token }}"
-          with-title="false"
-          with-downloads="true">
-        </metabase-dashboard>
+          @if($metabaseConfigured)
+            <metabase-dashboard
+              token="{{ $token }}"
+              with-title="false"
+              with-downloads="true">
+            </metabase-dashboard>
+          @else
+            <p class="text-muted">Metabase charts are unavailable. The analytics totals remain available above.</p>
+          @endif
       </div>
       </div>
     </div>
@@ -212,21 +216,17 @@
 @once
   @push('scripts')
   <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}" defer></script>
-  <script defer src="{{ $metabaseSiteUrl }}/app/embed.js"></script>
+  @if($metabaseConfigured)
+    <script defer src="{{ $metabaseSiteUrl }}/app/embed.js"></script>
     <script>
-      function defineMetabaseConfig(config) {
-        window.metabaseConfig = config;
-      }
-    </script>
-
-    <script>
-      defineMetabaseConfig({
+      window.metabaseConfig = {
         "theme": {
           "preset": "dark"
         },
         "isGuest": true,
-        "instanceUrl": "{{ $metabaseSiteUrl }}"
-      });
+        "instanceUrl": @json($metabaseSiteUrl)
+      };
     </script>
+  @endif
   @endpush
 @endonce

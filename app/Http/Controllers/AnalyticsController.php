@@ -132,23 +132,26 @@ class AnalyticsController extends Controller
 
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
-        $metabaseSecretKey = env('METABASE_SECRET_KEY');
-        $metabaseSiteUrl = env('METABASE_SITE_URL', 'http://localhost:3000');
+        $metabaseSecretKey = config('services.metabase.secret_key');
+        $metabaseSiteUrl = rtrim((string) config('services.metabase.site_url', ''), '/');
+        $metabaseConfigured = is_string($metabaseSecretKey)
+            && $metabaseSecretKey !== ''
+            && $metabaseSiteUrl !== '';
+        $token = null;
 
-        $dashboardId = 2;
-
-        $payload = array(
-            "resource" => ["dashboard" => $dashboardId],
-            "params" => (object) array(),
-            "iat" => time(),
-            "exp" => time() + 60*60
-        );
-
-        $token = JWT::encode($payload, $metabaseSecretKey, 'HS256');
+        if ($metabaseConfigured) {
+            $token = JWT::encode([
+                'resource' => ['dashboard' => 2],
+                'params' => (object)[],
+                'iat' => time(),
+                'exp' => time() + (60 * 60),
+            ], $metabaseSecretKey, 'HS256');
+        }
 
         return view('admin.analytics.analytics', compact(
             'token', 
             'metabaseSiteUrl',
+            'metabaseConfigured',
             'salesData',
             'fastestMovers',
             'activeMenuCount',

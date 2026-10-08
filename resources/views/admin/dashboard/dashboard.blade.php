@@ -52,33 +52,31 @@
 @once 
   @push('scripts')
     <script type="text/javascript" src="{{ asset('js/utils/currency.js') }}"></script>
-    <script defer src="{{ $metabaseSiteUrl }}/app/embed.js"></script>
+    @if($metabaseConfigured)
+      <script defer src="{{ $metabaseSiteUrl }}/app/embed.js"></script>
+    @endif
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelect.js') }}"></script>
     <script type="text/javascript" src="{{ asset('js/tomSelect/tomSelectConfig.js') }}"></script>
-    
-    <script>
-      function defineMetabaseConfig(config){
-        window.metabaseConfig = config;
-      }
-    </script>
 
-    <script>
-      defineMetabaseConfig({
-        "theme": {"preset": "light"},
-        "isGuest": true,
-        "instanceUrl": "{{ $metabaseSiteUrl }}"
-      });
-    </script>
+    @if($metabaseConfigured)
+      <script>
+        window.metabaseConfig = {
+          "theme": {"preset": "light"},
+          "isGuest": true,
+          "instanceUrl": @json($metabaseSiteUrl)
+        };
+      </script>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function(){
-        const timeframeSelect = document.getElementById('chart-timeframe');
-        const metabaseChart = document.getElementById('mb-chart');
+      <script>
+        document.addEventListener('DOMContentLoaded', function(){
+          const timeframeSelect = document.getElementById('chart-timeframe');
+          const metabaseChart = document.getElementById('mb-chart');
 
-        timeframeSelect.addEventListener('change', function(){
-          metabaseChart.setAttribute('token', this.value);
+          timeframeSelect.addEventListener('change', function(){
+            metabaseChart.setAttribute('token', this.value);
+          });
         });
-      });
-    </script>
+      </script>
+    @endif
   @endpush
 @endonce

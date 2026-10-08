@@ -1,7 +1,16 @@
 <?php
 
-test('the application returns a successful response', function () {
-    $response = $this->get('/');
+test('the home page redirects to the login page', function () {
+    $this->get('/')
+        ->assertRedirect(route('login'));
+});
 
-    $response->assertStatus(200);
+test('the login page loads successfully', function () {
+    $this->get('/login')
+        ->assertOk();
+});
+
+test('the application health endpoint responds successfully', function () {
+    $this->get('/up')
+        ->assertOk();
 });

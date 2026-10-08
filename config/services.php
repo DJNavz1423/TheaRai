@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'metabase' => [
+        'secret_key' => env('METABASE_SECRET_KEY'),
+        'site_url' => env('METABASE_SITE_URL'),
+    ],
+
+    'xendit' => [
+        'secret_key' => env('XENDIT_SECRET_KEY'),
+    ],
+
 ];
