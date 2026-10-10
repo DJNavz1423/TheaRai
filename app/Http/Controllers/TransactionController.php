@@ -22,12 +22,14 @@ class TransactionController extends Controller {
         if ($isAdminLevel) {
 
             $branches = DB::table('laravel.branches')
+                ->select('id', 'name')
                 ->orderBy('name')
                 ->get();
 
         } else {
 
             $branches = DB::table('laravel.branches')
+                ->select('id', 'name')
                 ->where('id', $user->branch_id)
                 ->get();
         }
@@ -50,17 +52,14 @@ class TransactionController extends Controller {
                 'orders.id',
                 'orders.receipt_no',
                 'orders.total_amount',
-                'orders.cash_tendered',
-                'orders.change_amount',
                 'orders.payment_method',
-                'orders.reference_number',
                 'orders.payment_status',
-                'orders.status',
                 'orders.created_at',
                 'orders.branch_id',
                 'branches.name as branch_name'
             )
-            ->orderByDesc('orders.created_at');
+            ->orderByDesc('orders.created_at')
+            ->orderByDesc('orders.id');
 
         /*
         |--------------------------------------------------------------------------
@@ -75,7 +74,7 @@ class TransactionController extends Controller {
             );
         }
 
-        $transactions = $query->get();
+        $transactions = $query->simplePaginate(50)->withQueryString();
 
 
         /*
@@ -84,24 +83,26 @@ class TransactionController extends Controller {
         |--------------------------------------------------------------------------
         */
 
-        $paymentMethods = $transactions
-            ->pluck('payment_method')
-            ->filter()
-            ->unique()
-            ->values();
+        $paymentMethodsQuery = DB::table('laravel.orders')
+            ->whereNotNull('payment_method');
 
+        $paymentStatusesQuery = DB::table('laravel.orders')
+            ->whereNotNull('payment_status');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Payment statuses for filter
-        |--------------------------------------------------------------------------
-        */
+        if (!$isAdminLevel) {
+            $paymentMethodsQuery->where('branch_id', $user->branch_id);
+            $paymentStatusesQuery->where('branch_id', $user->branch_id);
+        }
 
-        $paymentStatuses = $transactions
-            ->pluck('payment_status')
-            ->filter()
-            ->unique()
-            ->values();
+        $paymentMethods = $paymentMethodsQuery
+            ->distinct()
+            ->orderBy('payment_method')
+            ->pluck('payment_method');
+
+        $paymentStatuses = $paymentStatusesQuery
+            ->distinct()
+            ->orderBy('payment_status')
+            ->pluck('payment_status');
 
 
         /*
@@ -134,7 +135,7 @@ class TransactionController extends Controller {
         $startOfDay = now('Asia/Manila')->startOfDay()->utc();
         $endOfDay = now('Asia/Manila')->endOfDay()->utc();
 
-        $transactions = DB::table('laravel.orders as orders')
+        $transactionsQuery = DB::table('laravel.orders as orders')
             ->leftJoin(
                 'laravel.branches as branches',
                 'orders.branch_id',
@@ -150,30 +151,34 @@ class TransactionController extends Controller {
                 'orders.id',
                 'orders.receipt_no',
                 'orders.total_amount',
-                'orders.cash_tendered',
-                'orders.change_amount',
                 'orders.payment_method',
-                'orders.reference_number',
                 'orders.payment_status',
-                'orders.status',
                 'orders.created_at',
                 'orders.branch_id',
                 'branches.name as branch_name'
             )
             ->orderByDesc('orders.created_at')
-            ->get();
+            ->orderByDesc('orders.id');
 
-        $paymentMethods = $transactions
-            ->pluck('payment_method')
-            ->filter()
-            ->unique()
-            ->values();
+        $transactions = $transactionsQuery
+            ->simplePaginate(50)
+            ->withQueryString();
 
-        $paymentStatuses = $transactions
-            ->pluck('payment_status')
-            ->filter()
-            ->unique()
-            ->values();
+        $paymentMethods = DB::table('laravel.orders')
+            ->where('branch_id', $user->branch_id)
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->whereNotNull('payment_method')
+            ->distinct()
+            ->orderBy('payment_method')
+            ->pluck('payment_method');
+
+        $paymentStatuses = DB::table('laravel.orders')
+            ->where('branch_id', $user->branch_id)
+            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->whereNotNull('payment_status')
+            ->distinct()
+            ->orderBy('payment_status')
+            ->pluck('payment_status');
 
         return view(
             'admin.transaction.transaction',
