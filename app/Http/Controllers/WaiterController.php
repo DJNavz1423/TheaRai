@@ -21,7 +21,11 @@ class WaiterController extends Controller
                 'tables.id'
             )
             ->select(
-                'orders.*',
+                'orders.id',
+                'orders.receipt_no',
+                'orders.order_source',
+                'orders.payment_method',
+                'orders.created_at',
                 'tables.table_number'
             )
             ->where('orders.branch_id', $branchId)
@@ -32,24 +36,32 @@ class WaiterController extends Controller
             ->orderBy('orders.created_at', 'asc')
             ->get();
 
-        foreach ($pendingOrders as $order) {
-            $order->items = DB::table('laravel.order_items')
+        $orderItems = $pendingOrders->isEmpty()
+            ? collect()
+            : DB::table('laravel.order_items')
                 ->join(
                     'laravel.menu_items',
                     'order_items.menu_item_id',
                     '=',
                     'menu_items.id'
                 )
-                ->where('order_items.order_id', $order->id)
+                ->whereIn('order_items.order_id', $pendingOrders->pluck('id'))
                 ->select(
+                    'order_items.order_id',
                     'order_items.quantity',
                     'menu_items.name',
                     'menu_items.img_url'
                 )
-                ->get();
+                ->get()
+                ->groupBy('order_id');
+
+        foreach ($pendingOrders as $order) {
+            $order->items = $orderItems->get($order->id, collect());
         }
 
         $pendingCount = $pendingOrders->count();
+        $posCount = $pendingOrders->where('order_source', 'pos')->count();
+        $qrCount = $pendingOrders->where('order_source', 'qr')->count();
 
         $startOfDay = now('Asia/Manila')->startOfDay()->utc();
         $endOfDay = now('Asia/Manila')->endOfDay()->utc();
@@ -69,20 +81,6 @@ class WaiterController extends Controller
             )
             ->orderByDesc('created_at')
             ->get();
-
-        $posCount = DB::table('laravel.orders')
-            ->where('branch_id', $branchId)
-            ->where('payment_status', 'paid')
-            ->where('status', 'pending')
-            ->where('order_source', 'pos')
-            ->count();
-
-        $qrCount = DB::table('laravel.orders')
-            ->where('branch_id', $branchId)
-            ->where('payment_status', 'paid')
-            ->where('status', 'pending')
-            ->where('order_source', 'qr')
-            ->count();
 
         return view('waiter.dashboard', compact(
             'user',
@@ -115,8 +113,6 @@ class WaiterController extends Controller
             ->where('orders.payment_status', 'paid')
             ->where('orders.status', 'pending');
 
-        $count = (clone $ordersQuery)->count();
-
         $latestOrder = $ordersQuery
             ->select(
                 'orders.id',
@@ -128,18 +124,19 @@ class WaiterController extends Controller
             ->orderByDesc('orders.created_at')
             ->first();
 
-        $posCount = (clone $ordersQuery)
-            ->where('orders.order_source', 'pos')
-            ->count();
-
-        $qrCount = (clone $ordersQuery)
-            ->where('orders.order_source', 'qr')
-            ->count();
+        $orderCounts = DB::table('laravel.orders')
+            ->where('branch_id', $branchId)
+            ->where('payment_status', 'paid')
+            ->where('status', 'pending')
+            ->selectRaw('COUNT(*) as total')
+            ->selectRaw("COUNT(*) FILTER (WHERE order_source = 'pos') as pos_count")
+            ->selectRaw("COUNT(*) FILTER (WHERE order_source = 'qr') as qr_count")
+            ->first();
 
         return response()->json([
-            'count' => $count,
-            'pos_count' => $posCount,
-            'qr_count' => $qrCount,
+            'count' => (int) $orderCounts->total,
+            'pos_count' => (int) $orderCounts->pos_count,
+            'qr_count' => (int) $orderCounts->qr_count,
             'latest_order' => $latestOrder,
         ]);
     }

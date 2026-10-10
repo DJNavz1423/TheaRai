@@ -6,6 +6,8 @@ The app can deploy against the existing Supabase PostgreSQL database; a schema d
 
 Do not run `migrate:fresh` or seed production. Check `php artisan migrate:status` and apply only reviewed migrations that are genuinely pending for the existing database. Back up Supabase before any schema change.
 
+The controller query optimization migration adds PostgreSQL indexes concurrently to the existing `laravel` tables. After deploying the code, review the pending migration and apply it with `php artisan migrate --force`; concurrent index builds avoid blocking normal reads and writes while the indexes are created.
+
 ## Server checklist
 
 - Use an Ubuntu 22.04/24.04 VM (OCI Ampere is ARM64) with a supported PHP version (8.2+) and Nginx/PHP-FPM.

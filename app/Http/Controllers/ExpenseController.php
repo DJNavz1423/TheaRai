@@ -29,20 +29,25 @@ class ExpenseController extends Controller
             
         $branches = DB::table('laravel.branches')->get();
 
-        // Calculate available system cash for each branch
+        $cashInByBranch = DB::table('laravel.orders')
+            ->where('payment_method', 'cash')
+            ->select('branch_id')
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as total')
+            ->groupBy('branch_id')
+            ->pluck('total', 'branch_id');
+
+        $cashOutByBranch = DB::table('laravel.cash_transactions')
+            ->where('transaction_type', 'expense')
+            ->where('fund_source', 'cash_in_hand')
+            ->select('branch_id')
+            ->selectRaw('COALESCE(SUM(amount), 0) as total')
+            ->groupBy('branch_id')
+            ->pluck('total', 'branch_id');
+
         foreach ($branches as $branch) {
-            $totalSystemCashIn = DB::table('laravel.orders')
-                ->where('branch_id', $branch->id)
-                ->where('payment_method', 'cash')
-                ->sum('total_amount');
-
-            $totalSystemCashSpent = DB::table('laravel.cash_transactions')
-                ->where('branch_id', $branch->id)
-                ->where('transaction_type', 'expense')
-                ->where('fund_source', 'cash_in_hand')
-                ->sum('amount');
-
-            $branch->available_cash = $totalSystemCashIn - $totalSystemCashSpent;
+            $branch->available_cash =
+                (float) $cashInByBranch->get($branch->id, 0)
+                - (float) $cashOutByBranch->get($branch->id, 0);
         }
 
         return view('admin.expenses.expenses', compact('expenses', 'ingredients', 'branches'));
@@ -213,6 +218,7 @@ class ExpenseController extends Controller
                 $branchInventory = DB::table('laravel.branch_inventory')
                     ->where('branch_id', $branchId)
                     ->where('ingredient_id', $item['ingredient_id'])
+                    ->whereNull('deleted_at')
                     ->first();
 
                 $qty = $item['quantity'];
@@ -236,19 +242,43 @@ class ExpenseController extends Controller
                         ->where('id', $branchInventory->id)
                         ->update([
                             'stock_quantity' => $newTotalStock,
-                            'purchase_price' => $newWacPrice
+                            'purchase_price' => $newWacPrice,
                         ]);
 
                 } else {
-                    DB::table('laravel.branch_inventory')->insert([
-                        'branch_id' => $branchId,
-                        'ingredient_id' => $item['ingredient_id'],
-                        'stock_quantity' => $qty,
-                        'purchase_price' => $unitCost,
-                        'alert_threshold' => 5,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]);
+                    $archivedInventory = DB::table('laravel.branch_inventory')
+                        ->where('branch_id', $branchId)
+                        ->where('ingredient_id', $item['ingredient_id'])
+                        ->whereNotNull('deleted_at')
+                        ->orderByDesc('deleted_at')
+                        ->first();
+
+                    if ($archivedInventory) {
+                        $newTotalStock =
+                            (float) $archivedInventory->stock_quantity + $qty;
+                        $newTotalValue =
+                            (float) $archivedInventory->stock_quantity
+                                * (float) $archivedInventory->purchase_price
+                            + $totalCost;
+
+                        DB::table('laravel.branch_inventory')
+                            ->where('id', $archivedInventory->id)
+                            ->update([
+                                'stock_quantity' => $newTotalStock,
+                                'purchase_price' => $newTotalStock > 0
+                                    ? round($newTotalValue / $newTotalStock, 2)
+                                    : $unitCost,
+                                'deleted_at' => null,
+                            ]);
+                    } else {
+                        DB::table('laravel.branch_inventory')->insert([
+                            'branch_id' => $branchId,
+                            'ingredient_id' => $item['ingredient_id'],
+                            'stock_quantity' => $qty,
+                            'purchase_price' => $unitCost,
+                            'alert_threshold' => 5,
+                        ]);
+                    }
                 }
             }
 

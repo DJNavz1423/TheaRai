@@ -364,25 +364,32 @@ public function success(Request $request)
         /*
          * Deduct inventory only AFTER payment.
          */
+        $recipesByMenuItem = DB::table('laravel.menu_item_ingredient as pivot')
+            ->join(
+                'laravel.ingredients as ing',
+                'pivot.ingredient_id',
+                '=',
+                'ing.id'
+            )
+            ->select(
+                'pivot.menu_item_id',
+                'ing.id',
+                'pivot.quantity_used',
+                'pivot.unit_id',
+                'ing.primary_unit_id',
+                'ing.secondary_unit_id',
+                'ing.conversion_factor'
+            )
+            ->whereIn(
+                'pivot.menu_item_id',
+                collect($pendingOrder['items'])->pluck('id')->unique()
+            )
+            ->get()
+            ->groupBy('menu_item_id');
+
         foreach ($pendingOrder['items'] as $item) {
 
-            $recipeItems = DB::table('laravel.menu_item_ingredient as pivot')
-                ->join(
-                    'laravel.ingredients as ing',
-                    'pivot.ingredient_id',
-                    '=',
-                    'ing.id'
-                )
-                ->select(
-                    'ing.id',
-                    'pivot.quantity_used',
-                    'pivot.unit_id',
-                    'ing.primary_unit_id',
-                    'ing.secondary_unit_id',
-                    'ing.conversion_factor'
-                )
-                ->where('pivot.menu_item_id', $item['id'])
-                ->get();
+            $recipeItems = $recipesByMenuItem->get((int) $item['id'], collect());
 
             foreach ($recipeItems as $ingredient) {
 

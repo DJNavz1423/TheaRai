@@ -9,44 +9,32 @@ class ManageBranchController extends Controller
 {
     public function index()
     {
+        $menuCounts = DB::table('laravel.branch_menu_items')
+            ->where('is_available', true)
+            ->select('branch_id')
+            ->selectRaw('COUNT(DISTINCT menu_item_id) as dishes_available')
+            ->groupBy('branch_id');
+
+        $inventoryValues = DB::table('laravel.branch_inventory')
+            ->whereNull('deleted_at')
+            ->select('branch_id')
+            ->selectRaw('COALESCE(SUM(total_item_value), 0) as inventory_value')
+            ->groupBy('branch_id');
+
         $branches = DB::table('laravel.branches as branches')
-            ->leftJoin(
-                'laravel.branch_menu_items as branch_menu_items',
-                'branches.id',
-                '=',
-                'branch_menu_items.branch_id'
-            )
-            ->leftJoin(
-                'laravel.branch_inventory as branch_inventory',
-                function ($join) {
-                    $join->on(
-                        'branches.id',
-                        '=',
-                        'branch_inventory.branch_id'
-                    )
-                    ->whereNull('branch_inventory.deleted_at');
-                }
-            )
+            ->leftJoinSub($menuCounts, 'menu_counts', function ($join) {
+                $join->on('branches.id', '=', 'menu_counts.branch_id');
+            })
+            ->leftJoinSub($inventoryValues, 'inventory_values', function ($join) {
+                $join->on('branches.id', '=', 'inventory_values.branch_id');
+            })
             ->select(
                 'branches.id',
                 'branches.name',
                 'branches.address',
-                'branches.created_at'
-            )
-            ->selectRaw(
-                'COUNT(DISTINCT CASE
-                    WHEN branch_menu_items.is_available = true
-                    THEN branch_menu_items.menu_item_id
-                END) as dishes_available'
-            )
-            ->selectRaw(
-                'COALESCE(SUM(branch_inventory.total_item_value), 0) as inventory_value'
-            )
-            ->groupBy(
-                'branches.id',
-                'branches.name',
-                'branches.address',
-                'branches.created_at'
+                'branches.created_at',
+                DB::raw('COALESCE(menu_counts.dishes_available, 0) as dishes_available'),
+                DB::raw('COALESCE(inventory_values.inventory_value, 0) as inventory_value')
             )
             ->orderByDesc('branches.created_at')
             ->get();

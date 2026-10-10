@@ -31,7 +31,13 @@ class QrOrderController extends Controller
 
         $qrOrders = DB::table('laravel.orders')
             ->join('laravel.tables', 'orders.table_id', '=', 'tables.id')
-            ->select('orders.*', 'tables.table_number')
+            ->select(
+                'orders.id',
+                'orders.receipt_no',
+                'orders.payment_method',
+                'orders.created_at',
+                'tables.table_number'
+            )
             ->where('orders.branch_id', $branchId)
             ->where('orders.payment_status', 'paid')
             ->where('orders.status', 'pending')
@@ -75,12 +81,22 @@ class QrOrderController extends Controller
             ->orderByDesc('orders.created_at')
             ->get();
 
-        foreach ($qrOrders as $order) {
-            $order->items = DB::table('laravel.order_items')
+        $orderItems = $qrOrders->isEmpty()
+            ? collect()
+            : DB::table('laravel.order_items')
                 ->join('laravel.menu_items', 'order_items.menu_item_id', '=', 'menu_items.id')
-                ->where('order_items.order_id', $order->id)
-                ->select('order_items.quantity', 'menu_items.name', 'menu_items.img_url')
-                ->get();
+                ->whereIn('order_items.order_id', $qrOrders->pluck('id'))
+                ->select(
+                    'order_items.order_id',
+                    'order_items.quantity',
+                    'menu_items.name',
+                    'menu_items.img_url'
+                )
+                ->get()
+                ->groupBy('order_id');
+
+        foreach ($qrOrders as $order) {
+            $order->items = $orderItems->get($order->id, collect());
         }
 
         return view('pos.qr_orders', compact('qrOrders', 'activeBranch', 'todayQrTransactions'));

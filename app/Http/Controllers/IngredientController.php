@@ -22,22 +22,28 @@ class IngredientController extends Controller
         $categories = DB::table('laravel.ingredient_categories')->get();
         $units = DB::table('laravel.units')->get();
 
+        $cashInByBranch = DB::table('laravel.orders')
+            ->where('payment_method', 'cash')
+            ->where('payment_status', 'paid')
+            ->select('branch_id')
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as total')
+            ->groupBy('branch_id')
+            ->pluck('total', 'branch_id');
+
+        $cashSpentByBranch = DB::table('laravel.expenses')
+            ->where('fund_source', 'cash_in_hand')
+            ->select('branch_id')
+            ->selectRaw('COALESCE(SUM(total_amount), 0) as total')
+            ->groupBy('branch_id')
+            ->pluck('total', 'branch_id');
+
         $branches = DB::table('laravel.branches')
             ->get()
-            ->map(function($branch) {
-
-                $cashIn = DB::table('laravel.orders')
-                    ->where('branch_id', $branch->id)
-                    ->where('payment_method', 'cash')
-                    ->where('payment_status', 'paid')
-                    ->sum('total_amount');
-
-                $cashSpent = DB::table('laravel.expenses')
-                    ->where('branch_id', $branch->id)
-                    ->where('fund_source', 'cash_in_hand')
-                    ->sum('total_amount');
-
+            ->map(function ($branch) use ($cashInByBranch, $cashSpentByBranch) {
+                $cashIn = (float) $cashInByBranch->get($branch->id, 0);
+                $cashSpent = (float) $cashSpentByBranch->get($branch->id, 0);
                 $branch->cash_in_hand = max(0, $cashIn - $cashSpent);
+
                 return $branch;
             });
 
@@ -503,29 +509,52 @@ class IngredientController extends Controller
             $branchInventory = DB::table('laravel.branch_inventory')
                 ->where('ingredient_id', $id)
                 ->where('branch_id', $validated['branch_id'])
+                ->whereNull('deleted_at')
                 ->first();
 
             if (!$branchInventory) {
 
-                /*
-                * New branch inventory record.
-                *
-                * log_opening_stock trigger handles the stock_logs row.
-                */
                 $inheritedThreshold = DB::table('laravel.branch_inventory')
                     ->where('ingredient_id', $id)
+                    ->whereNull('deleted_at')
                     ->whereNotNull('alert_threshold')
                     ->value('alert_threshold') ?? 0;
 
-                DB::table('laravel.branch_inventory')->insert([
-                    'branch_id' => $validated['branch_id'],
-                    'ingredient_id' => $id,
-                    'stock_quantity' => $addedQuantityPrimary,
-                    'purchase_price' => $validated['unit_price'],
-                    'alert_threshold' => $inheritedThreshold,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                $archivedInventory = DB::table('laravel.branch_inventory')
+                    ->where('ingredient_id', $id)
+                    ->where('branch_id', $validated['branch_id'])
+                    ->whereNotNull('deleted_at')
+                    ->orderByDesc('deleted_at')
+                    ->first();
+
+                if ($archivedInventory) {
+                    $newTotalStock =
+                        (float) $archivedInventory->stock_quantity
+                        + $addedQuantityPrimary;
+                    $newTotalValue =
+                        (float) $archivedInventory->stock_quantity
+                            * (float) $archivedInventory->purchase_price
+                        + $actualTotalCost;
+
+                    DB::table('laravel.branch_inventory')
+                        ->where('id', $archivedInventory->id)
+                        ->update([
+                            'stock_quantity' => $newTotalStock,
+                            'purchase_price' => $newTotalStock > 0
+                                ? round($newTotalValue / $newTotalStock, 2)
+                                : $validated['unit_price'],
+                            'alert_threshold' => $archivedInventory->alert_threshold ?? $inheritedThreshold,
+                            'deleted_at' => null,
+                        ]);
+                } else {
+                    DB::table('laravel.branch_inventory')->insert([
+                        'branch_id' => $validated['branch_id'],
+                        'ingredient_id' => $id,
+                        'stock_quantity' => $addedQuantityPrimary,
+                        'purchase_price' => $validated['unit_price'],
+                        'alert_threshold' => $inheritedThreshold,
+                    ]);
+                }
 
             } else {
 
@@ -548,7 +577,7 @@ class IngredientController extends Controller
                     ->where('id', $branchInventory->id)
                     ->update([
                         'stock_quantity' => $newTotalStock,
-                        'purchase_price' => $newWacPrice
+                        'purchase_price' => $newWacPrice,
                     ]);
             }
 

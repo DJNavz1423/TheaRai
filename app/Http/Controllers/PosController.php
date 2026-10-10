@@ -10,6 +10,87 @@ use Illuminate\Support\Facades\Crypt;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PosController extends Controller{
+    private function getRecipeItemsByMenuItemIds(array $menuItemIds)
+    {
+        if ($menuItemIds === []) {
+            return collect();
+        }
+
+        return DB::table('laravel.menu_item_ingredient as pivot')
+            ->join(
+                'laravel.ingredients as ing',
+                'pivot.ingredient_id',
+                '=',
+                'ing.id'
+            )
+            ->select(
+                'pivot.menu_item_id',
+                'pivot.ingredient_id',
+                'pivot.ingredient_id as id',
+                'pivot.quantity_used',
+                'pivot.unit_id',
+                'ing.primary_unit_id',
+                'ing.secondary_unit_id',
+                'ing.conversion_factor'
+            )
+            ->whereIn('pivot.menu_item_id', $menuItemIds)
+            ->get()
+            ->groupBy('menu_item_id');
+    }
+
+    private function getInsufficientMenuItemIds(
+        $recipesByMenuItem,
+        int $branchId,
+        array $quantities = []
+    ): array {
+        $ingredientIds = $recipesByMenuItem
+            ->flatten(1)
+            ->pluck('ingredient_id')
+            ->unique()
+            ->all();
+
+        $stockByIngredient = $ingredientIds === []
+            ? collect()
+            : DB::table('laravel.branch_inventory')
+                ->where('branch_id', $branchId)
+                ->whereNull('deleted_at')
+                ->whereIn('ingredient_id', $ingredientIds)
+                ->pluck('stock_quantity', 'ingredient_id');
+
+        $insufficient = [];
+
+        foreach ($recipesByMenuItem as $menuItemId => $recipeItems) {
+            foreach ($recipeItems as $ingredient) {
+                if ($ingredient->unit_id == $ingredient->primary_unit_id) {
+                    $unitFactor = 1;
+                } elseif ($ingredient->unit_id == $ingredient->secondary_unit_id) {
+                    if (!$ingredient->conversion_factor || $ingredient->conversion_factor <= 0) {
+                        throw new \Exception(
+                            "Invalid conversion factor for ingredient {$ingredient->ingredient_id}"
+                        );
+                    }
+
+                    $unitFactor = 1 / $ingredient->conversion_factor;
+                } else {
+                    throw new \Exception(
+                        "Invalid recipe unit for ingredient {$ingredient->ingredient_id}"
+                    );
+                }
+
+                $requiredAmount = (float) $ingredient->quantity_used
+                    * ($quantities[$menuItemId] ?? 1)
+                    * $unitFactor;
+
+                if ((float) $stockByIngredient->get($ingredient->ingredient_id, 0) < $requiredAmount) {
+                    $insufficient[$menuItemId] = true;
+                    break;
+                }
+            }
+        }
+
+        return $insufficient;
+    }
+
     private function getActiveBranchId() {
         $user = auth()->user();
         if(in_array($user->role, ['admin', 'dev', 'owner'])) {
@@ -49,6 +130,7 @@ class PosController extends Controller{
 
     $stockByIngredient = DB::table('laravel.branch_inventory')
         ->where('branch_id', $branchId)
+        ->whereNull('deleted_at')
         ->whereIn('ingredient_id', $ingredientIds)
         ->pluck('stock_quantity', 'ingredient_id');
 
@@ -136,26 +218,24 @@ class PosController extends Controller{
             ->where(DB::raw('COALESCE(bmi.branch_price, mi.final_price)'), '>', 0)
             ->get();
         
-        $menuItems->transform(function ($item) use ($activeBranchId) {
-            $item->out_of_stock =
-                $this->hasInsufficientIngredients(
-                    (int) $item->id,
-                    (int) $activeBranchId
-                );
+        $recipesByMenuItem = $this->getRecipeItemsByMenuItemIds(
+            $menuItems->pluck('id')->all()
+        );
+        $outOfStockMenuItems = $this->getInsufficientMenuItemIds(
+            $recipesByMenuItem,
+            (int) $activeBranchId
+        );
+
+        $menuItemsToDisable = [];
+        $menuItems->transform(function ($item) use ($outOfStockMenuItems, &$menuItemsToDisable) {
+            $item->out_of_stock = isset($outOfStockMenuItems[$item->id]);
 
             /*
             * Automatically disable an AVAILABLE item when
             * one or more required ingredients are insufficient.
             */
             if ($item->out_of_stock && ($item->is_available === true || $item->is_available == 1)) {
-
-                DB::table('laravel.branch_menu_items')
-                    ->where('id', $item->id)
-                    ->where('branch_id', $activeBranchId)
-                    ->update([
-                        'is_available' => false,
-                        'disabled_reason' => 'out_of_stock',
-                    ]);
+                $menuItemsToDisable[] = $item->id;
 
                 $item->is_available = false;
                 $item->disabled_reason = 'out_of_stock';
@@ -163,6 +243,17 @@ class PosController extends Controller{
 
             return $item;
         });
+
+        if ($menuItemsToDisable !== []) {
+            DB::table('laravel.branch_menu_items')
+                ->where('branch_id', $activeBranchId)
+                ->whereIn('menu_item_id', $menuItemsToDisable)
+                ->where('is_available', true)
+                ->update([
+                    'is_available' => false,
+                    'disabled_reason' => 'out_of_stock',
+                ]);
+        }
 
         return view('pos.pos', compact('categories', 'menuItems', 'layout', 'activeBranch'));
     }
@@ -187,25 +278,34 @@ class PosController extends Controller{
         try{
             DB::beginTransaction();
 
+            $quantitiesByMenuItem = [];
             foreach ($request->cart as $cartItem) {
+                $menuItemId = (int) $cartItem['id'];
+                $quantitiesByMenuItem[$menuItemId] =
+                    ($quantitiesByMenuItem[$menuItemId] ?? 0)
+                    + (int) $cartItem['quantity'];
+            }
 
-    if (
-        $this->hasInsufficientIngredients(
-            (int) $cartItem['id'],
-            $activeBranchId,
-            (int) $cartItem['quantity']
-        )
-    ) {
+            $recipesByMenuItem = $this->getRecipeItemsByMenuItemIds(
+                array_keys($quantitiesByMenuItem)
+            );
+            $insufficientMenuItems = $this->getInsufficientMenuItemIds(
+                $recipesByMenuItem,
+                (int) $activeBranchId,
+                $quantitiesByMenuItem
+            );
 
-        $itemName = DB::table('laravel.menu_items')
-            ->where('id', $cartItem['id'])
-            ->value('name');
+            if ($insufficientMenuItems !== []) {
+                $itemNames = DB::table('laravel.menu_items')
+                    ->whereIn('id', array_keys($insufficientMenuItems))
+                    ->pluck('name', 'id');
 
-        throw new \Exception(
-            "Insufficient ingredients for {$itemName}."
-        );
-    }
-}
+                $itemName = $itemNames->first() ?? 'Menu item';
+
+                throw new \Exception(
+                    "Insufficient ingredients for {$itemName}."
+                );
+            }
 
             $receiptNo = $request->input('receipt_no')
                 ?: 'REC-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
@@ -297,28 +397,27 @@ class PosController extends Controller{
                 ["POS Order {$receiptNo}"]
             );
 
-            // 2. Process Cart Items
+            $orderItems = [];
             foreach ($request->cart as $cartItem){
-                DB::table('laravel.order_items')->insert([
+                $orderItems[] = [
                     'order_id' => $orderId,
                     'menu_item_id' => $cartItem['id'],
                     'quantity' => $cartItem['quantity'],
                     'price_at_time' => $cartItem['price'],
                     'subtotal' => $cartItem['price'] * $cartItem['quantity'],
                     'created_at' => now(),
-                ]);
+                ];
+            }
 
+            DB::table('laravel.order_items')->insert($orderItems);
+
+            // 2. Process Cart Items
+            foreach ($request->cart as $cartItem){
                 // 3. Fetch Recipe
-                $recipeItems = DB::table('laravel.menu_item_ingredient as pivot')
-                    ->join('laravel.ingredients as ing', 'pivot.ingredient_id', '=', 'ing.id')
-                    ->select('ing.id', 
-                             'pivot.quantity_used',
-                             'pivot.unit_id',
-                             'ing.primary_unit_id',
-                             'ing.secondary_unit_id', 
-                             'ing.conversion_factor')
-                    ->where('pivot.menu_item_id', $cartItem['id'])
-                    ->get();
+                $recipeItems = $recipesByMenuItem->get(
+                    (int) $cartItem['id'],
+                    collect()
+                );
 
                 // 4. Deduct Inventory from the SPECIFIC BRANCH
                 foreach ($recipeItems as $ingredient){
@@ -345,6 +444,7 @@ class PosController extends Controller{
                     DB::table('laravel.branch_inventory')
                         ->where('ingredient_id', $ingredient->id)
                         ->where('branch_id', $activeBranchId)
+                        ->whereNull('deleted_at')
                         ->decrement('stock_quantity', $primaryUnitsUsed);
                 }
             }
