@@ -205,6 +205,7 @@ class PosController extends Controller{
         $menuItems = DB::table('laravel.branch_menu_items as bmi')
             ->join('laravel.menu_items as mi', 'bmi.menu_item_id', '=', 'mi.id')
             ->where('bmi.branch_id', $activeBranchId)
+            ->whereNull('mi.deleted_at')
             ->select(
                 'mi.id',
                 'mi.name',
@@ -637,6 +638,7 @@ class PosController extends Controller{
                 '>',
                 0
             )
+            ->whereNull('mi.deleted_at')
             ->get();
 
         return response()->json([
