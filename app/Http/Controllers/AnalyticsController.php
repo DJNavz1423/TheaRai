@@ -16,22 +16,24 @@ class AnalyticsController extends Controller
         $startOfDay = $manilaNow->copy()->startOfDay()->utc();
         $endOfDay = $manilaNow->copy()->endOfDay()->utc();
 
-        $todayCash = DB::table('laravel.orders')
-            ->where('payment_status', 'paid')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->where('payment_method', 'cash')
-            ->sum('total_amount');
+        $orderTotals = DB::table('laravel.orders')
+            ->selectRaw(
+                'COALESCE(SUM(CASE WHEN payment_status = ? AND payment_method = ? AND created_at BETWEEN ? AND ? THEN total_amount ELSE 0 END), 0) as today_cash,
+                COALESCE(SUM(CASE WHEN payment_status = ? AND payment_method != ? AND created_at BETWEEN ? AND ? THEN total_amount ELSE 0 END), 0) as today_digital,
+                COUNT(CASE WHEN payment_status = ? AND created_at BETWEEN ? AND ? THEN 1 END) as daily_count,
+                COALESCE(SUM(CASE WHEN payment_method = ? AND payment_status = ? THEN total_amount ELSE 0 END), 0) as total_money_in',
+                [
+                    'paid', 'cash', $startOfDay, $endOfDay,
+                    'paid', 'cash', $startOfDay, $endOfDay,
+                    'paid', $startOfDay, $endOfDay,
+                    'cash', 'paid',
+                ]
+            )
+            ->first();
 
-        $todayDigital = DB::table('laravel.orders')
-            ->where('payment_status', 'paid')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->where('payment_method', '!=', 'cash')
-            ->sum('total_amount');
-
-        $dailyCount = DB::table('laravel.orders')
-            ->where('payment_status', 'paid')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->count();
+        $todayCash = $orderTotals->today_cash;
+        $todayDigital = $orderTotals->today_digital;
+        $dailyCount = $orderTotals->daily_count;
 
         $totalToday = $todayCash + $todayDigital;
 
@@ -120,10 +122,7 @@ class AnalyticsController extends Controller
             ->limit(7)
             ->get();
 
-        $totalMoneyIn = DB::table('laravel.orders')
-            ->where('payment_method', 'cash')
-            ->where('payment_status', 'paid')
-            ->sum('total_amount');
+        $totalMoneyIn = $orderTotals->total_money_in;
 
         $totalMoneyOut = DB::table('laravel.cash_transactions')
                 ->where('transaction_type', 'expense')
