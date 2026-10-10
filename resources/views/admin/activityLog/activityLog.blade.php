@@ -5,7 +5,7 @@
 @section('content')
   <div class="container">
     <div class="row mb-3">
-      <h1 class="heading">Activity Logs ({{ count($activityLogs) }})</h1>
+      <h1 class="heading">Activity Logs</h1>
     </div>
   </div>
 
@@ -34,7 +34,7 @@
               All Types
           </option>
 
-          @foreach($activityLogs->pluck('model_type')->unique()->sort() as $modelType)
+          @foreach($modelTypes as $modelType)
 
               <option value="{{ strtolower($modelType) }}">
                   {{ ucwords(str_replace('_', ' ', $modelType)) }}
@@ -48,7 +48,7 @@
               All Users
           </option>
 
-          @foreach($activityLogs->pluck('user_name')->filter()->unique()->sort() as $userName)
+          @foreach($userNames as $userName)
 
               <option value="{{ strtolower($userName) }}">
                   {{ $userName }}
@@ -306,6 +306,11 @@
 
       </table>
     </div>
+    @if($activityLogs->hasPages())
+      <div class="activity-log-pagination">
+        {{ $activityLogs->links() }}
+      </div>
+    @endif
   </div>
 
 
@@ -326,6 +331,7 @@
   <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelect.css') }}">
   <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/activityLogPagination.css') }}">
   @endpush
 @endonce
 

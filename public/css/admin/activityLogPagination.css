@@ -1,0 +1,39 @@
+.activity-log-pagination {
+    padding: 1rem;
+}
+
+.activity-log-pagination nav[aria-label="Pagination Navigation"] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.activity-log-pagination nav > a,
+.activity-log-pagination nav > span {
+    display: inline-flex;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--secondary-soft);
+    border-radius: 6px;
+    background: var(--light-pure);
+    color: var(--secondary);
+    font-size: 0.85rem;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.activity-log-pagination nav > a:hover {
+    border-color: var(--primary);
+    background: var(--light-warm);
+    color: var(--primary);
+}
+
+.activity-log-pagination nav > span {
+    background: var(--light-fade);
+    color: var(--secondary-light);
+    cursor: not-allowed;
+}

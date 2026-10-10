@@ -13,15 +13,36 @@ class ActivityLogsController extends Controller
             ->leftJoin('laravel.users as users', 'logs.user_id', '=', 'users.id')
             ->whereNull('logs.deleted_at')
             ->select(
-                'logs.*',
+                'logs.id',
+                'logs.action',
+                'logs.model_type',
+                'logs.description',
+                'logs.created_at',
                 'users.name as user_name'
             )
             ->orderBy('logs.created_at', 'desc')
-            ->get();
+            ->orderBy('logs.id', 'desc')
+            ->simplePaginate(50)
+            ->withQueryString();
+
+        $modelTypes = DB::table('laravel.activity_logs')
+            ->whereNull('deleted_at')
+            ->whereNotNull('model_type')
+            ->distinct()
+            ->orderBy('model_type')
+            ->pluck('model_type');
+
+        $userNames = DB::table('laravel.activity_logs as logs')
+            ->join('laravel.users as users', 'logs.user_id', '=', 'users.id')
+            ->whereNull('logs.deleted_at')
+            ->whereNotNull('users.name')
+            ->distinct()
+            ->orderBy('users.name')
+            ->pluck('users.name');
 
         return view(
             'admin.activityLog.activityLog',
-            compact('activityLogs')
+            compact('activityLogs', 'modelTypes', 'userNames')
         );
     }
 
