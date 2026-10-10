@@ -491,7 +491,7 @@
                     currentStock: 0
                 };
 
-                document.getElementById('reduceStockModalTitle').innerText = `Reduce Stock from ${itemName}`;
+                document.getElementById('reduceStockModalTitle').innerText = `Record Waste: ${itemName}`;
 
                 document.getElementById('reduceStockForm').action = "{{ url('/admin/inventory') }}/" + id + "/reduce-stock";
 
@@ -502,6 +502,7 @@
                 );
 
                 document.getElementById('reduce_quantity').value = '';
+                document.getElementById('reduce_reason').value = '';
                 document.getElementById('reduce_remarks').value = '';
 
                 document.getElementById('reduce_new_stock_wrapper').style.display = 'none';

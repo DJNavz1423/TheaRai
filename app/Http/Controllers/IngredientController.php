@@ -586,47 +586,106 @@ class IngredientController extends Controller
     public function reduceStock(Request $request, $id) {
         $validated = $request->validate([
             'branch_id' => 'required|exists:pgsql.laravel.branches,id',
-            'quantity'  => 'required|numeric|min:0.01',
+            'quantity'  => 'required|numeric|gt:0',
             'unit_type' => 'required|in:primary,secondary',
-            'remarks'   => 'nullable|string|max:255'
+            'reason'    => 'required|in:expired,spoiled,damaged,spilled,contaminated,overproduction,other',
+            'remarks'   => 'required|string|max:1000'
         ]);
 
-        $ingredient = DB::table('laravel.ingredients')
-            ->where('id', $id)
-            ->first();
+        $remarks = trim($validated['remarks']);
 
-        if (!$ingredient) {
-            return back()->with('error', 'Ingredient not found!');
+        if ($remarks === '') {
+            return back()->withInput()->withErrors([
+                'remarks' => 'Remarks are required.',
+            ]);
         }
 
-        $branchInventory = DB::table('laravel.branch_inventory')
-            ->where('ingredient_id', $id)
-            ->where('branch_id', $validated['branch_id'])
+        $ingredient = DB::table('laravel.ingredients as ingredients')
+            ->leftJoin(
+                'laravel.units as units',
+                'ingredients.primary_unit_id',
+                '=',
+                'units.id'
+            )
+            ->whereNull('ingredients.deleted_at')
+            ->where('ingredients.id', $id)
+            ->select(
+                'ingredients.id',
+                'ingredients.name',
+                'ingredients.conversion_factor',
+                'units.abbreviation as primary_unit_abbr'
+            )
             ->first();
 
-        if (!$branchInventory) {
-            return back()->with(
+        if (!$ingredient || (float) $ingredient->conversion_factor <= 0) {
+            return back()->withInput()->with(
                 'error',
-                'This branch does not have this ingredient in stock.'
+                'Ingredient not found or has an invalid conversion factor.'
             );
         }
 
-        $reducedQuantityPrimary = $validated['unit_type'] === 'primary' ? $validated['quantity'] : ($validated['quantity'] / $ingredient->conversion_factor);
+        $reducedQuantityPrimary = round(
+            $validated['unit_type'] === 'primary'
+                ? (float) $validated['quantity']
+                : (float) $validated['quantity'] / (float) $ingredient->conversion_factor,
+            4
+        );
 
-        if ($reducedQuantityPrimary > $branchInventory->stock_quantity) {
-            return back()->with(
+        if ($reducedQuantityPrimary <= 0) {
+            return back()->withInput()->with(
                 'error',
-                'Cannot reduce more stock than available in this branch!'
+                'The quantity is too small to record.'
             );
         }
 
         DB::beginTransaction();
 
         try {
+            $branchInventory = DB::table('laravel.branch_inventory')
+                ->where('ingredient_id', $id)
+                ->where('branch_id', $validated['branch_id'])
+                ->whereNull('deleted_at')
+                ->lockForUpdate()
+                ->first();
 
-            /*
-            * Tell PostgreSQL this UPDATE is a manual reduction.
-            */
+            if (!$branchInventory) {
+                DB::rollBack();
+
+                return back()->withInput()->with(
+                    'error',
+                    'This branch does not have an active inventory record for this ingredient.'
+                );
+            }
+
+            $currentStock = (float) $branchInventory->stock_quantity;
+
+            if ($reducedQuantityPrimary > $currentStock) {
+                DB::rollBack();
+
+                return back()->withInput()->with(
+                    'error',
+                    'Waste quantity cannot exceed the available branch stock.'
+                );
+            }
+
+            $unitCost = max(0, (float) $branchInventory->purchase_price);
+            $totalCost = round($reducedQuantityPrimary * $unitCost, 2);
+            $reasonLabel = ucfirst(str_replace('_', ' ', $validated['reason']));
+            $stockRemarks = "Waste - {$reasonLabel}: {$remarks}";
+
+            $wasteId = DB::table('laravel.inventory_waste')->insertGetId([
+                'branch_id' => $validated['branch_id'],
+                'ingredient_id' => $id,
+                'quantity' => $reducedQuantityPrimary,
+                'unit_abbreviation' => $ingredient->primary_unit_abbr ?: 'unit',
+                'unit_cost' => $unitCost,
+                'total_cost' => $totalCost,
+                'reason' => $validated['reason'],
+                'remarks' => $remarks,
+                'recorded_by' => auth()->id(),
+                'created_at' => now(),
+            ]);
+
             DB::statement(
                 "SELECT set_config('app.stock_source_type', ?, true)",
                 ['manual_reduction']
@@ -634,7 +693,7 @@ class IngredientController extends Controller
 
             DB::statement(
                 "SELECT set_config('app.stock_source_id', ?, true)",
-                ['']
+                [(string) $wasteId]
             );
 
             DB::statement(
@@ -649,47 +708,46 @@ class IngredientController extends Controller
 
             DB::statement(
                 "SELECT set_config('app.stock_remarks', ?, true)",
-                [$validated['remarks']]
+                [$stockRemarks]
             );
 
-            /*
-            * This UPDATE automatically fires log_stock_update.
-            */
-            DB::table('laravel.branch_inventory')
-                ->where('id', $branchInventory->id)
-                ->update([
-                    'stock_quantity' => DB::raw(
-                        "stock_quantity - {$reducedQuantityPrimary}"
-                    )
-                ]);
+            $updatedRows = DB::update(
+                'UPDATE laravel.branch_inventory
+                SET stock_quantity = stock_quantity - ?
+                WHERE id = ? AND stock_quantity >= ?',
+                [
+                    $reducedQuantityPrimary,
+                    $branchInventory->id,
+                    $reducedQuantityPrimary,
+                ]
+            );
 
-            DB::table('laravel.ingredients')
-                ->where('id', $id)
-                ->update([
-                    'updated_at' => now()
-                ]);
+            if ($updatedRows !== 1) {
+                throw new \RuntimeException('Branch stock changed before the waste reduction was applied.');
+            }
 
             $this->logActivity(
                 'updated',
                 'ingredient_stock',
                 $id,
-                "Reduced stock from branch {$validated['branch_id']} for: {$ingredient->name}. Reason: {$validated['remarks']}"
+                "Recorded {$reducedQuantityPrimary} {$ingredient->primary_unit_abbr} as {$reasonLabel} waste for {$ingredient->name} at branch {$validated['branch_id']}. Remarks: {$remarks}"
             );
 
             DB::commit();
 
-            return back()->with(
+            return redirect()->route('admin.inventory.index')->with(
                 'success',
-                'Stock reduced successfully!'
+                'Waste recorded and branch stock updated.'
             );
 
-        } catch (\Exception $e) {
-
+        } catch (\Throwable $e) {
             DB::rollBack();
 
-            return back()->with(
+            report($e);
+
+            return back()->withInput()->with(
                 'error',
-                'An error occurred: ' . $e->getMessage()
+                'Waste could not be recorded. No changes were saved.'
             );
         }
     }

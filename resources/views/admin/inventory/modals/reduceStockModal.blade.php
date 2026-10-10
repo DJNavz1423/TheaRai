@@ -29,8 +29,8 @@
                     <div class="input-group">
                         <label for="reduce_quantity">Quantity To Reduce (Spoilage, Waste, etc.)</label>
                         <div>
-                            <input type="text" inputmode="decimal" pattern="[0-9]*(\.[0-9]+)?" step="0.01" min="0.01" name="quantity" id="reduce_quantity" required placeholder="Enter quantity here" oninput="calculateLiveStock('reduce')">
-                        <select name="unit_type" id="reduce_unit" class="unit-toggle" onchange="calculateLiveStock('reduce')"></select>
+                            <input type="number" inputmode="decimal" min="0.0001" step="any" name="quantity" id="reduce_quantity" required placeholder="Enter quantity here" oninput="calculateLiveStock('reduce')">
+                            <select name="unit_type" id="reduce_unit" class="unit-toggle" onchange="calculateLiveStock('reduce')"></select>
                         </div>
                         
                         <div>
@@ -42,8 +42,24 @@
 
                 <div class="row">
                     <div class="input-group">
-                        <label for="reduce_remarks">Reason / Remarks</label>
-                        <input type="text" name="remarks" id="reduce_remarks" placeholder="e.g., Spoiled, Spilled, etc." required>
+                        <label for="reduce_reason">Waste Reason</label>
+                        <select name="reason" id="reduce_reason" class="unit-selector" required>
+                            <option value="">Select reason</option>
+                            <option value="expired">Expired</option>
+                            <option value="spoiled">Spoiled</option>
+                            <option value="damaged">Damaged</option>
+                            <option value="spilled">Spilled</option>
+                            <option value="contaminated">Contaminated</option>
+                            <option value="overproduction">Overproduction</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="input-group">
+                        <label for="reduce_remarks">Remarks</label>
+                        <textarea name="remarks" id="reduce_remarks" rows="3" maxlength="1000" required placeholder="Explain why the ingredient was discarded"></textarea>
                     </div>
                 </div>
             </div>
