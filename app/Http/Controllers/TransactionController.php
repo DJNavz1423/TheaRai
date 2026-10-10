@@ -215,6 +215,8 @@ class TransactionController extends Controller {
                 'orders.payment_method',
                 'orders.reference_number',
                 'orders.payment_status',
+                'orders.refund_reason',
+                'orders.refund_condition',
                 'orders.created_at',
                 'orders.branch_id',
                 'branches.name as branch_name'
@@ -424,9 +426,34 @@ class TransactionController extends Controller {
                         $totalQuantity;
                 }
 
+                DB::statement(
+                    "SELECT set_config('app.stock_source_type', ?, true)",
+                    ['refund']
+                );
 
-                /*
-                |--------------------------------------------------------------------------
+                DB::statement(
+                    "SELECT set_config('app.stock_source_id', ?, true)",
+                    [(string) $transaction->id]
+                );
+
+                DB::statement(
+                    "SELECT set_config('app.stock_order_id', ?, true)",
+                    [(string) $transaction->id]
+                );
+
+                DB::statement(
+                    "SELECT set_config('app.stock_expense_id', ?, true)",
+                    ['']
+                );
+
+                DB::statement(
+                    "SELECT set_config('app.stock_remarks', ?, true)",
+                    ["Refund {$transaction->receipt_no} (resellable)"]
+                );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
                 | Restore branch inventory
                 |--------------------------------------------------------------------------
                 */

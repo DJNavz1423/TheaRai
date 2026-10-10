@@ -47,6 +47,16 @@
                     <span id="detail-payment-status"></span>
                 </div>
 
+                <div class="row mb-3" id="detail-refund-reason-row" style="display: none;">
+                    <strong>Refund Reason</strong>
+                    <span id="detail-refund-reason"></span>
+                </div>
+
+                <div class="row mb-3" id="detail-refund-condition-row" style="display: none;">
+                    <strong>Refund Condition</strong>
+                    <span id="detail-refund-condition"></span>
+                </div>
+
                 <div class="row mb-3">
                     <strong>Date</strong>
                     <span id="detail-date"></span>

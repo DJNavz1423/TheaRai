@@ -33,6 +33,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const detailPaymentStatus =
         document.getElementById('detail-payment-status');
 
+    const detailRefundReasonRow =
+        document.getElementById('detail-refund-reason-row');
+
+    const detailRefundReason =
+        document.getElementById('detail-refund-reason');
+
+    const detailRefundConditionRow =
+        document.getElementById('detail-refund-condition-row');
+
+    const detailRefundCondition =
+        document.getElementById('detail-refund-condition');
+
     const detailDate =
         document.getElementById('detail-date');
 
@@ -151,6 +163,34 @@ document.addEventListener('DOMContentLoaded', function () {
                                     char.toUpperCase()
                                 )
                             : 'Unknown';
+
+                    const isRefunded =
+                        transaction.payment_status === 'refunded';
+
+                    const refundReasons = {
+                        food_quality: 'Food Quality',
+                        wrong_order: 'Wrong Order',
+                        customer_complaint: 'Customer Complaint',
+                        allergy_safety: 'Allergy / Safety',
+                        other: 'Other'
+                    };
+
+                    detailRefundReasonRow.style.display =
+                        isRefunded ? 'flex' : 'none';
+                    detailRefundConditionRow.style.display =
+                        isRefunded ? 'flex' : 'none';
+
+                    detailRefundReason.textContent =
+                        refundReasons[transaction.refund_reason] ||
+                        transaction.refund_reason ||
+                        'Not recorded';
+
+                    detailRefundCondition.textContent =
+                        transaction.refund_condition === 'resellable'
+                            ? 'Untouched / Resellable'
+                            : transaction.refund_condition === 'wasted'
+                                ? 'Opened / Consumed / Discarded'
+                                : 'Not recorded';
 
 
                     const date =
