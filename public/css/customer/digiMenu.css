@@ -15,7 +15,7 @@ header {
   box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
   position: sticky; 
   top: 0; 
-  z-index: 100; 
+  z-index: 1000; 
 }
 
 header h2 { 
@@ -49,17 +49,84 @@ header p {
 
 .menu-card{
   position: relative;
-  background: var(--light-pure);
+  perspective: 1000px;
   border-radius: 12px;
   border: 2px solid var(--light-dim);
   overflow: hidden;
-  transition: 300ms ease;
+  transition: box-shadow 300ms ease, border-color 300ms ease, transform 300ms ease;
+}
+
+.menu-card-inner{
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 500ms ease;
+}
+
+.menu-card.is-flipped .menu-card-inner{
+  transform: rotateY(180deg);
+}
+
+.menu-card-face{
+  grid-row: 1;
+  grid-column: 1;
+  min-width: 0;
+  background: var(--light-pure);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 500ms ease, visibility 0s linear 250ms;
+}
+
+.menu-card-back{
+  visibility: hidden;
+  transform: rotateY(180deg);
+}
+
+.menu-card.is-flipped .menu-card-front{
+  visibility: hidden;
+  transform: rotateY(-180deg);
+}
+
+.menu-card.is-flipped .menu-card-back{
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.dish-description{
+  max-height: 90px;
+  overflow-y: auto;
+  margin: 4px 0;
+  color: var(--secondary-light);
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.see-more-btn,
+.see-less-btn{
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--light-dim);
+  color: var(--secondary-dark);
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.see-more-btn:hover,
+.see-less-btn:hover{
+  background: var(--secondary-soft);
 }
 
 .menu-card:hover{
   transform: translateY(-4px) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   border-color: var(--primary-dark);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .menu-card-inner{
+    transition: none;
+  }
 }
 
 .menu-card .dish-img { 

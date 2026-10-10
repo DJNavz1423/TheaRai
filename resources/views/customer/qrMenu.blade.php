@@ -94,28 +94,94 @@
 
         const formatPeso = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' });
 
+        function formatDishDescription(description) {
+            return String(description || 'No description available.')
+                .replace(/\s+(?=\d+(?:\.\d+)?\s+portions?\b)/gi, '\n')
+                .trim();
+        }
+
         // Helper function to build a single card HTML
         function createCardElement(item) {
-            const initialChar = item.name.charAt(0).toUpperCase();
-            const imgHTML = item.img_url 
-                ? `<img src="${item.img_url}" alt="${item.name}">` 
-                : `<div class="placeholder">${initialChar}</div>`;
-
             const card = document.createElement('div');
             card.className = 'menu-card';
             card.innerHTML = `
-                <div class="dish-img">${imgHTML}</div>
-                <div class="dish-info">
-                    <span class="dish-name">${item.name}</span>
-                    <span class="dish-price">${formatPeso.format(item.price)}</span>
-                    <button class="btn add-btn" onclick="addToCart(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.price}, '${item.img_url || ''}')">
-                    <span class="icon-wrapper">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>    
-                    </span>  
-                    Add to Order
-                </button>
+                <div class="menu-card-inner">
+                    <div class="menu-card-face menu-card-front">
+                        <div class="dish-img"></div>
+                        <div class="dish-info">
+                            <span class="dish-name"></span>
+                            <span class="dish-price"></span>
+                            <button type="button" class="btn see-more-btn" aria-expanded="false">See more</button>
+                            <button type="button" class="btn add-btn">
+                                <span class="icon-wrapper">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+                                </span>
+                                Add to Order
+                            </button>
+                        </div>
+                    </div>
+                    <div class="menu-card-face menu-card-back" aria-hidden="true" inert>
+                        <div class="dish-info">
+                            <span class="dish-name"></span>
+                            <span class="dish-price"></span>
+                            <p class="dish-description"></p>
+                            <button type="button" class="btn see-less-btn" aria-expanded="true">See less</button>
+                        </div>
+                    </div>
                 </div>
             `;
+
+            const imageContainer = card.querySelector('.dish-img');
+            if (item.img_url) {
+                const image = document.createElement('img');
+                image.src = item.img_url;
+                image.alt = item.name;
+                imageContainer.appendChild(image);
+            } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder';
+                placeholder.textContent = item.name.charAt(0).toUpperCase();
+                imageContainer.appendChild(placeholder);
+            }
+
+            card.querySelectorAll('.dish-name').forEach(element => {
+                element.textContent = item.name;
+            });
+            card.querySelectorAll('.dish-price').forEach(element => {
+                element.textContent = formatPeso.format(item.price);
+            });
+            card.querySelector('.dish-description').textContent =
+                formatDishDescription(item.description);
+
+            const seeMoreButton = card.querySelector('.see-more-btn');
+            const seeLessButton = card.querySelector('.see-less-btn');
+            const frontFace = card.querySelector('.menu-card-front');
+            const backFace = card.querySelector('.menu-card-back');
+
+            seeMoreButton.addEventListener('click', event => {
+                event.stopPropagation();
+                card.classList.add('is-flipped');
+                seeMoreButton.setAttribute('aria-expanded', 'true');
+                seeLessButton.setAttribute('aria-expanded', 'true');
+                frontFace.inert = true;
+                backFace.inert = false;
+                frontFace.setAttribute('aria-hidden', 'true');
+                backFace.setAttribute('aria-hidden', 'false');
+            });
+            seeLessButton.addEventListener('click', event => {
+                event.stopPropagation();
+                card.classList.remove('is-flipped');
+                seeMoreButton.setAttribute('aria-expanded', 'false');
+                seeLessButton.setAttribute('aria-expanded', 'false');
+                frontFace.inert = false;
+                backFace.inert = true;
+                frontFace.setAttribute('aria-hidden', 'false');
+                backFace.setAttribute('aria-hidden', 'true');
+            });
+            card.querySelector('.add-btn').addEventListener('click', () => {
+                addToCart(item.id, item.name, item.price, item.img_url || '');
+            });
+
             return card;
         }
 

@@ -211,6 +211,7 @@ class PosController extends Controller{
             ->select(
                 'mi.id',
                 'mi.name',
+                'mi.description',
                 'mi.category_id',
                 'mi.img_url',
                 'mi.created_at',
@@ -618,6 +619,7 @@ class PosController extends Controller{
             ->select(
                 'mi.id',
                 'mi.name',
+                'mi.description',
                 'mi.category_id',
                 'mi.img_url',
                 'mi.created_at',

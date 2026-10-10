@@ -38,6 +38,7 @@ class QrMenuController extends Controller
             ->select(
                 'mi.id', 
                 'mi.name', 
+                'mi.description',
                 'mi.img_url', 
                 'mi.category_id', 
                 DB::raw('COALESCE(bmi.branch_price, mi.final_price) as price')
@@ -58,6 +59,7 @@ class QrMenuController extends Controller
             ->select(
                 'mi.id',
                 'mi.name',
+                'mi.description',
                 'mi.img_url',
                 'mi.category_id',
                 'bmi.branch_price',
@@ -68,6 +70,7 @@ class QrMenuController extends Controller
             ->groupBy(
                 'mi.id',
                 'mi.name',
+                'mi.description',
                 'mi.img_url',
                 'mi.category_id',
                 'bmi.branch_price',

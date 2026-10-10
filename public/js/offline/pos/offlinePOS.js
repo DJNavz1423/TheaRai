@@ -396,6 +396,9 @@ document.addEventListener(
                         .charAt(0)
                         .toUpperCase();
 
+                const description = String(
+                    item.description || 'No description available.'
+                ).replace(/\s+(?=\d+(?:\.\d+)?\s+portions?\b)/gi, '\n').trim();
 
                 const imageHTML =
                     item.img_url
@@ -419,15 +422,16 @@ document.addEventListener(
 
 
                 card.innerHTML = `
-
-                    <div class="dish-img">
+                    <div class="dish-card-inner">
+                      <div class="dish-card-face dish-card-front">
+                       <div class="dish-img">
 
                         ${imageHTML}
 
-                    </div>
+                       </div>
 
 
-                    <div class="dish-info">
+                       <div class="dish-info">
 
                         <span class="dish-name">
                             ${escapeHtml(
@@ -448,6 +452,9 @@ document.addEventListener(
 
                         </span>
 
+                        <button type="button" class="btn see-more-btn" aria-expanded="false">
+                            See more
+                        </button>
 
                         <button
                             type="button"
@@ -456,14 +463,43 @@ document.addEventListener(
                             Add To Cart
                         </button>
 
+                       </div>
+                      </div>
+                      <div class="dish-card-face dish-card-back" aria-hidden="true" inert>
+                        <div class="dish-info">
+                            <span class="dish-name">${escapeHtml(item.name)}</span>
+                            <span class="dish-price">${window.formatPeso ? window.formatPeso.format(price) : `₱${price.toFixed(2)}`}</span>
+                            <p class="dish-description">${escapeHtml(description)}</p>
+                            <button type="button" class="btn see-less-btn" aria-expanded="true">See less</button>
+                        </div>
+                      </div>
                     </div>
 
                 `;
 
+                card.querySelectorAll('.see-more-btn, .see-less-btn').forEach(button => {
+                    button.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        const isFlipped = card.classList.toggle('is-flipped');
+                        card.querySelector('.see-more-btn').setAttribute('aria-expanded', String(isFlipped));
+                        card.querySelector('.see-less-btn').setAttribute('aria-expanded', String(isFlipped));
+                        card.querySelector('.dish-card-front').inert = isFlipped;
+                        card.querySelector('.dish-card-back').inert = !isFlipped;
+                        card.querySelector('.dish-card-front').setAttribute('aria-hidden', String(isFlipped));
+                        card.querySelector('.dish-card-back').setAttribute('aria-hidden', String(!isFlipped));
+                    });
+                });
 
                 card.addEventListener(
                     'click',
-                    function () {
+                    function (event) {
+                        if (card.classList.contains('is-flipped')) {
+                            return;
+                        }
+
+                        if (event.target.closest('.see-more-btn, .see-less-btn')) {
+                            return;
+                        }
 
                         addToCart(item);
 

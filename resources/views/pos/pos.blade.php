@@ -286,15 +286,28 @@
             });
             
             //render menu items
+            function formatDishDescription(description) {
+                return String(description || 'No description available.')
+                    .replace(/\s+(?=\d+(?:\.\d+)?\s+portions?\b)/gi, '\n')
+                    .trim();
+            }
+
             function renderMenu(items){
                 dishGrid.innerHTML = '';
 
                 items.forEach(item => {
                     const price = window.formatPeso.format(item.final_price);
                     const initialChar = item.name.charAt(0).toUpperCase();
+                    const escapePosHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    })[character]);
                     const imgHTML = item.img_url 
-                    ? `<img src="${item.img_url}" alt="${item.name}">` 
-                    : `<div class="placeholder">${initialChar}</div>`;
+                    ? `<img src="${escapePosHtml(item.img_url)}" alt="${escapePosHtml(item.name)}">`
+                    : `<div class="placeholder">${escapePosHtml(initialChar)}</div>`;
 
                     const isAvailable = item.is_available === true || item.is_available == 1;
                     
@@ -321,24 +334,50 @@
                     card.className = `dish-card ${soldOutClass}`;
 
                     card.innerHTML = `
-                        <div class="dish-img">
-                            ${imgHTML}
+                        <div class="dish-card-inner">
+                            <div class="dish-card-face dish-card-front">
+                                <div class="dish-img">${imgHTML}</div>
+                                <div class="dish-info">
+                                    <span class="dish-name">${escapePosHtml(item.name)}</span>
+                                    <span class="dish-price">${price}</span>
+                                    <button type="button" class="btn see-more-btn" aria-expanded="false">See more</button>
+                                    <button type="button" class="btn card-btn">
+                                        <span class="icon-wrapper">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>
+                                        </span>
+                                        Add To Cart
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="dish-card-face dish-card-back" aria-hidden="true" inert>
+                                <div class="dish-info">
+                                    <span class="dish-name">${escapePosHtml(item.name)}</span>
+                                    <span class="dish-price">${price}</span>
+                                    <p class="dish-description">${escapePosHtml(formatDishDescription(item.description))}</p>
+                                    <button type="button" class="btn see-less-btn" aria-expanded="true">See less</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="dish-info">
-                            <span class="dish-name">${item.name}</span>
-                            <span class="dish-price">${price}</span>
-                            <button type="button" class="btn card-btn">
-                                <span class="icon-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H240q-17 0-28.5-11.5T200-480q0-17 11.5-28.5T240-520h200v-200q0-17 11.5-28.5T480-760q17 0 28.5 11.5T520-720v200h200q17 0 28.5 11.5T760-480q0 17-11.5 28.5T720-440H520v200q0 17-11.5 28.5T480-200q-17 0-28.5-11.5T440-240v-200Z"/></svg>    
-                                </span>  
-                                Add To Cart  
-                            </button>
-                        </div>
-                        <button class="toggle-avail-btn ${btnClass}" data-id="${item.id}">${btnText}</button>
+                        <button type="button" class="toggle-avail-btn ${btnClass}" data-id="${item.id}">${btnText}</button>
                     `;
+
+                    card.querySelectorAll('.see-more-btn, .see-less-btn').forEach(button => {
+                        button.addEventListener('click', event => {
+                            event.stopPropagation();
+                            const isFlipped = card.classList.toggle('is-flipped');
+                            card.querySelector('.see-more-btn').setAttribute('aria-expanded', String(isFlipped));
+                            card.querySelector('.see-less-btn').setAttribute('aria-expanded', String(isFlipped));
+                            card.querySelector('.dish-card-front').inert = isFlipped;
+                            card.querySelector('.dish-card-back').inert = !isFlipped;
+                            card.querySelector('.dish-card-front').setAttribute('aria-hidden', String(isFlipped));
+                            card.querySelector('.dish-card-back').setAttribute('aria-hidden', String(!isFlipped));
+                        });
+                    });
 
                     card.addEventListener('click', (e) => {
                         if(e.target.classList.contains('toggle-avail-btn')) return;
+
+                        if(card.classList.contains('is-flipped')) return;
 
                         if(!isAvailable) return;
 
