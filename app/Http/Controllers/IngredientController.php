@@ -19,7 +19,9 @@ class IngredientController extends Controller
             ->whereNull('deleted_at')
             ->get();
         
-        $categories = DB::table('laravel.ingredient_categories')->get();
+        $categories = DB::table('laravel.ingredient_categories')    
+            ->whereNull('deleted_at')
+            ->get();
         $units = DB::table('laravel.units')->get();
 
         $cashInByBranch = DB::table('laravel.orders')

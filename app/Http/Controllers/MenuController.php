@@ -23,6 +23,7 @@ class MenuController extends Controller
             ->get();
 
         $categories = DB::table('laravel.menu_categories')
+            ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
             

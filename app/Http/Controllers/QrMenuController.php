@@ -26,7 +26,9 @@ class QrMenuController extends Controller
             return "Table or Branch not found.";
         }
 
-        $categories = DB::table('laravel.menu_categories')->get();
+        $categories = DB::table('laravel.menu_categories')
+            ->whereNull('deleted_at')
+            ->get();
 
         $menuItems = DB::table('laravel.branch_menu_items as bmi')
             ->join('laravel.menu_items as mi', 'bmi.menu_item_id', '=', 'mi.id')
