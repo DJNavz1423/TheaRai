@@ -13,21 +13,6 @@ class WaiterController extends Controller
         $user = auth()->user();
         $branchId = $user->branch_id;
 
-        $posExpireBefore = now('Asia/Manila')
-            ->subMinutes(25)
-            ->utc();
-
-        DB::table('laravel.orders')
-            ->where('branch_id', $branchId)
-            ->where('order_source', 'pos')
-            ->where('payment_status', 'paid')
-            ->where('status', 'pending')
-            ->where('created_at', '<', $posExpireBefore)
-            ->update([
-                'status' => 'served',
-                'updated_at' => now(),
-            ]);
-
         $pendingOrdersQuery = DB::table('laravel.orders')
             ->leftJoin(
                 'laravel.tables',
@@ -112,27 +97,6 @@ class WaiterController extends Controller
     public function getNotifications() {
         $user = auth()->user();
         $branchId = $user->branch_id;
-
-        $posExpireBefore = now('Asia/Manila')
-            ->subMinutes(30)
-            ->utc();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Automatically serve expired POS orders
-        |--------------------------------------------------------------------------
-        */
-
-        DB::table('laravel.orders')
-            ->where('branch_id', $branchId)
-            ->where('order_source', 'pos')
-            ->where('payment_status', 'paid')
-            ->where('status', 'pending')
-            ->where('created_at', '<', $posExpireBefore)
-            ->update([
-                'status' => 'served',
-                'updated_at' => now(),
-            ]);
 
         /*
         |--------------------------------------------------------------------------

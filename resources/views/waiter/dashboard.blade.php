@@ -260,18 +260,17 @@
 
 @once
     @push('scripts')
+        <script>
+            (() => {
+                const errorMessage = @json(session('error'));
+                const successMessage = @json(session('success'));
 
-        @if(session('error'))
-            <script>
-                alert("🚨 ERROR: {{ session('error') }}");
-            </script>
-        @endif
-
-        @if(session('success'))
-            <script>
-                alert("✅ SUCCESS: {{ session('success') }}");
-            </script>
-        @endif
-
+                if (errorMessage) {
+                    window.alert(`ERROR: ${errorMessage}`);
+                } else if (successMessage) {
+                    window.alert(`SUCCESS: ${successMessage}`);
+                }
+            })();
+        </script>
     @endpush
 @endonce
