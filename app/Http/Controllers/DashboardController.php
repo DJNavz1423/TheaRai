@@ -20,6 +20,7 @@ class DashboardController extends Controller
         $endOfMonth = $manilaNow->copy()->endOfMonth()->utc();
 
         $totalInventoryValue = DB::table('laravel.branch_inventory')
+            ->whereNull('deleted_at')
             ->selectRaw('COALESCE(SUM(stock_quantity * purchase_price), 0) as total')
             ->value('total');
 
@@ -65,46 +66,46 @@ class DashboardController extends Controller
             ->limit(7)
             ->get();
         
+        $orderTotals = DB::table('laravel.orders')
+            ->selectRaw(
+                'COALESCE(SUM(CASE WHEN payment_status = ? AND created_at BETWEEN ? AND ? THEN total_amount ELSE 0 END), 0) as monthly_total,
+                COALESCE(SUM(CASE WHEN payment_status = ? AND created_at BETWEEN ? AND ? THEN total_amount ELSE 0 END), 0) as daily_total,
+                COUNT(CASE WHEN payment_status = ? AND created_at BETWEEN ? AND ? THEN 1 END) as daily_count,
+                COALESCE(SUM(CASE WHEN payment_method = ? AND payment_status = ? AND created_at BETWEEN ? AND ? THEN total_amount ELSE 0 END), 0) as today_cash_in,
+                COALESCE(SUM(CASE WHEN payment_method = ? AND payment_status = ? THEN total_amount ELSE 0 END), 0) as total_money_in',
+                [
+                    'paid', $startOfMonth, $endOfMonth,
+                    'paid', $startOfDay, $endOfDay,
+                    'paid', $startOfDay, $endOfDay,
+                    'cash', 'paid', $startOfDay, $endOfDay,
+                    'cash', 'paid',
+                ]
+            )
+            ->first();
+
         $salesData = (object) [
-            'monthly_total' => DB::table('laravel.orders')
-                ->where('payment_status', 'paid')
-                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                ->sum('total_amount'),
-
-            'daily_total' => DB::table('laravel.orders')
-                ->where('payment_status', 'paid')
-                ->whereBetween('created_at', [$startOfDay, $endOfDay])
-                ->sum('total_amount'),
-
-            'daily_count' => DB::table('laravel.orders')  
-                ->where('payment_status', 'paid')              
-                ->whereBetween('created_at', [$startOfDay, $endOfDay])
-                ->count(),
+            'monthly_total' => $orderTotals->monthly_total,
+            'daily_total' => $orderTotals->daily_total,
+            'daily_count' => $orderTotals->daily_count,
         ];
 
-        $expensesData = (object) [
-            'monthly_total' => DB::table('laravel.cash_transactions')
-                ->where('transaction_type', 'expense')
-                ->where('fund_source', 'cash_in_hand')
-                ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
-                ->sum('amount'),
-        ];
-
-        $todayCashIn = DB::table('laravel.orders')
-            ->where('payment_method', 'cash')
-            ->where('payment_status', 'paid')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->sum('total_amount');
-
-        $totalMoneyIn = DB::table('laravel.orders')
-            ->where('payment_method', 'cash')
-            ->where('payment_status', 'paid')
-            ->sum('total_amount');
-
-        $totalMoneyOut = DB::table('laravel.cash_transactions')
+        $cashTransactionTotals = DB::table('laravel.cash_transactions')
             ->where('transaction_type', 'expense')
             ->where('fund_source', 'cash_in_hand')
-            ->sum('amount');
+            ->selectRaw(
+                'COALESCE(SUM(CASE WHEN created_at BETWEEN ? AND ? THEN amount ELSE 0 END), 0) as monthly_total,
+                COALESCE(SUM(amount), 0) as total_money_out',
+                [$startOfMonth, $endOfMonth]
+            )
+            ->first();
+
+        $expensesData = (object) [
+            'monthly_total' => $cashTransactionTotals->monthly_total,
+        ];
+
+        $todayCashIn = $orderTotals->today_cash_in;
+        $totalMoneyIn = $orderTotals->total_money_in;
+        $totalMoneyOut = $cashTransactionTotals->total_money_out;
 
         $currentCashBalance = $totalMoneyIn - $totalMoneyOut;
 
