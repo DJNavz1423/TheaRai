@@ -147,6 +147,11 @@
         </tbody>
       </table>
     </div>
+    @if($transactions->hasPages())
+      <div class="transaction-pagination">
+        {{ $transactions->links() }}
+      </div>
+    @endif
   </div>
 
   {{-- Modals --}}
@@ -167,6 +172,7 @@
   <link rel="stylesheet" href="{{ asset('css/tomSelect/tomSelectCssConfig.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/filters.css') }}">
   <link rel="stylesheet" href="{{ asset('css/admin/transaction/transactionDetails.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin/transaction/transactionPagination.css') }}">
   @endpush
 @endonce
 
