@@ -233,6 +233,12 @@
     color: #c084fc;
 }
 
+.movement-refund {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #b45309 !important;
+    border: 1px solid rgba(180, 83, 9, 0.25);
+}
+
 .movement-reduction {
     background: rgba(239, 68, 68, 0.15);
     color: #f87171;

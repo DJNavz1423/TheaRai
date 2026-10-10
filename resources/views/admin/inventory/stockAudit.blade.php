@@ -173,6 +173,10 @@
                         Paid Order
                     </option>
 
+                    <option value="refund" {{ $sourceType === 'refund' ? 'selected' : '' }}>
+                        Refund
+                    </option>
+
                     <option value="manual_reduction" {{ $sourceType === 'manual_reduction' ? 'selected' : '' }}>
                         Manual Reduction
                     </option>
@@ -265,13 +269,24 @@
 
                             @php
 
-                                $movementLabel = match($log->source_type) {
+                                $movementType = $log->source_type === 'refund'
+                                    || (
+                                        $log->payment_status === 'refunded'
+                                        && $log->refund_condition === 'wasted'
+                                    )
+                                    ? 'refund'
+                                    : $log->source_type;
+
+                                $movementLabel = match($movementType) {
 
                                     'new_ingredient'
                                         => 'New Ingredient',
 
                                     'restock'
                                         => 'Restock',
+
+                                    'refund'
+                                        => 'Refund',
 
                                     'order'
                                         => 'Paid Order',
@@ -284,13 +299,16 @@
 
                                 };
 
-                                $movementClass = match($log->source_type) {
+                                $movementClass = match($movementType) {
 
                                     'new_ingredient'
                                         => 'movement-new',
 
                                     'restock'
                                         => 'movement-restock',
+
+                                    'refund'
+                                        => 'movement-refund',
 
                                     'order'
                                         => 'movement-order',
@@ -376,7 +394,24 @@
                         {{-- REFERENCE --}}
                         <td role="cell">
 
-                            @if($log->source_type === 'order' && $log->order_id)
+                            @if($log->order_id && $movementType === 'refund')
+
+                                <div class="audit-reference">
+
+                                    <strong>
+                                        {{ $log->receipt_no ?? 'Order #' . $log->order_id }}
+                                    </strong>
+
+                                    <span>
+                                        Refund
+                                        @if($log->refund_condition)
+                                            · {{ $log->refund_condition === 'resellable' ? 'Resellable' : 'Wasted' }}
+                                        @endif
+                                    </span>
+
+                                </div>
+
+                            @elseif($log->source_type === 'order' && $log->order_id)
 
                                 <div class="audit-reference">
 

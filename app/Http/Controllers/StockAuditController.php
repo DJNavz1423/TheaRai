@@ -15,7 +15,7 @@ class StockAuditController extends Controller
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date|after_or_equal:date_from',
             'branch_id' => 'nullable|integer|exists:pgsql.laravel.branches,id',
-            'source_type' => 'nullable|in:all,new_ingredient,restock,order,manual_reduction,unclassified',
+            'source_type' => 'nullable|in:all,new_ingredient,restock,order,refund,manual_reduction,unclassified',
             'search' => 'nullable|string|max:100',
         ]);
 
@@ -92,8 +92,7 @@ class StockAuditController extends Controller
             )
 
             /*
-             * Order stock consumption should represent
-             * successful paid orders only.
+             * Keep stock movements for both paid and refunded orders.
              */
             ->where(function ($query) {
 
@@ -109,9 +108,9 @@ class StockAuditController extends Controller
                         'stock_logs.source_type',
                         'order'
                     )
-                    ->where(
+                    ->whereIn(
                         'orders.payment_status',
-                        'paid'
+                        ['paid', 'refunded']
                     );
                 })
 
@@ -141,16 +140,41 @@ class StockAuditController extends Controller
 
         if ($sourceType === 'unclassified') {
 
-            $baseQuery->whereNull(
-                'stock_logs.source_type'
-            );
+            $baseQuery
+                ->where(function ($query) {
+                    $query
+                        ->whereNull('stock_logs.source_type')
+                        ->orWhere(
+                            'stock_logs.source_type',
+                            'inventory_adjustment'
+                        );
+                })
+                ->where(function ($query) {
+                    $query
+                        ->whereNull('orders.payment_status')
+                        ->orWhere('orders.payment_status', '!=', 'refunded');
+                });
+
+        } elseif ($sourceType === 'refund') {
+
+            $baseQuery->where(function ($query) {
+                $query
+                    ->where('stock_logs.source_type', 'refund')
+                    ->orWhere(function ($query) {
+                        $query
+                            ->where('stock_logs.source_type', 'order')
+                            ->where('orders.payment_status', 'refunded')
+                            ->where('orders.refund_condition', 'wasted');
+                    });
+            });
+
+        } elseif ($sourceType === 'order') {
+
+            $baseQuery->where('stock_logs.source_type', 'order');
 
         } elseif ($sourceType !== 'all') {
 
-            $baseQuery->where(
-                'stock_logs.source_type',
-                $sourceType
-            );
+            $baseQuery->where('stock_logs.source_type', $sourceType);
         }
 
         /*
@@ -233,8 +257,9 @@ class StockAuditController extends Controller
                 COUNT(
                     DISTINCT CASE
                         WHEN stock_logs.source_type = \'order\'
-                        THEN stock_logs.order_id
-                    END
+                        AND orders.payment_status = \'paid\'
+                    THEN stock_logs.order_id
+                END
                 ) AS orders,
 
                 COUNT(
@@ -275,6 +300,7 @@ class StockAuditController extends Controller
                 'orders.receipt_no',
                 'orders.payment_method',
                 'orders.payment_status',
+                'orders.refund_condition',
                 'expenses.description as expense_description',
                 'expenses.total_amount as expense_amount'
             )
@@ -304,7 +330,7 @@ class StockAuditController extends Controller
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date|after_or_equal:date_from',
             'branch_id' => 'nullable|integer|exists:pgsql.laravel.branches,id',
-            'source_type' => 'nullable|in:all,new_ingredient,restock,order,manual_reduction,unclassified',
+            'source_type' => 'nullable|in:all,new_ingredient,restock,order,refund,manual_reduction,unclassified',
             'search' => 'nullable|string|max:100',
         ]);
 
@@ -381,9 +407,9 @@ class StockAuditController extends Controller
                         'stock_logs.source_type',
                         'order'
                     )
-                    ->where(
+                    ->whereIn(
                         'orders.payment_status',
-                        'paid'
+                        ['paid', 'refunded']
                     );
                 })
 
@@ -410,16 +436,41 @@ class StockAuditController extends Controller
 
         if ($sourceType === 'unclassified') {
 
-            $query->whereNull(
-                'stock_logs.source_type'
-            );
+            $query
+                ->where(function ($query) {
+                    $query
+                        ->whereNull('stock_logs.source_type')
+                        ->orWhere(
+                            'stock_logs.source_type',
+                            'inventory_adjustment'
+                        );
+                })
+                ->where(function ($query) {
+                    $query
+                        ->whereNull('orders.payment_status')
+                        ->orWhere('orders.payment_status', '!=', 'refunded');
+                });
+
+        } elseif ($sourceType === 'refund') {
+
+            $query->where(function ($query) {
+                $query
+                    ->where('stock_logs.source_type', 'refund')
+                    ->orWhere(function ($query) {
+                        $query
+                            ->where('stock_logs.source_type', 'order')
+                            ->where('orders.payment_status', 'refunded')
+                            ->where('orders.refund_condition', 'wasted');
+                    });
+            });
+
+        } elseif ($sourceType === 'order') {
+
+            $query->where('stock_logs.source_type', 'order');
 
         } elseif ($sourceType !== 'all') {
 
-            $query->where(
-                'stock_logs.source_type',
-                $sourceType
-            );
+            $query->where('stock_logs.source_type', $sourceType);
         }
 
         if ($request->filled('search')) {
@@ -472,6 +523,8 @@ class StockAuditController extends Controller
                 'stock_logs.remarks',
                 'orders.receipt_no',
                 'orders.payment_method',
+                'orders.payment_status',
+                'orders.refund_condition',
                 'expenses.description as expense_description'
             )
             ->orderByDesc('stock_logs.created_at')
@@ -518,13 +571,24 @@ class StockAuditController extends Controller
                     ->setTimezone('Asia/Manila')
                     ->format('M j, Y g:i A');
 
-                $movement = match ($log->source_type) {
+                $movementType = $log->source_type === 'refund'
+                    || (
+                        $log->payment_status === 'refunded'
+                        && $log->refund_condition === 'wasted'
+                    )
+                    ? 'refund'
+                    : $log->source_type;
+
+                $movement = match ($movementType) {
 
                     'new_ingredient' =>
                         'New Ingredient',
 
                     'restock' =>
                         'Restock',
+
+                    'refund' =>
+                        'Refund',
 
                     'order' =>
                         'Paid Order',
@@ -573,6 +637,24 @@ class StockAuditController extends Controller
                     . $unit;
 
                 if (
+                    $log->order_id
+                    && $movementType === 'refund'
+                ) {
+
+                    $reference =
+                        $log->receipt_no
+                        ?? 'Order #' . $log->order_id;
+
+                    $reference .= ' - Refund';
+
+                    if ($log->refund_condition) {
+                        $reference .=
+                            ' (' .
+                            ($log->refund_condition === 'resellable' ? 'Resellable' : 'Wasted') .
+                            ')';
+                    }
+
+                } elseif (
                     $log->source_type === 'order'
                     && $log->order_id
                 ) {
