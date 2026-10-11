@@ -114,10 +114,23 @@
                     <span>Edit</span>
                   </button>
                     </div>
+
+                    <div class="dropdown-section">
+                  <button
+                      type="button"
+                      class="btn dropdown-item dropdown-red branch-archive-btn"
+                      data-name="{{ $branch->name }}"
+                      data-archive-url="{{ route('admin.branches.destroy', $branch->id) }}"
+                  >
+                  <span class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520q-17 0-28.5-11.5T160-760q0-17 11.5-28.5T200-800h160q0-17 11.5-28.5T400-840h160q17 0 28.5 11.5T600-800h160q17 0 28.5 11.5T800-760q0 17-11.5 28.5T760-720v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM428.5-291.5Q440-303 440-320v-280q0-17-11.5-28.5T400-640q-17 0-28.5 11.5T360-600v280q0 17 11.5 28.5T400-280q17 0 28.5-11.5Zm160 0Q600-303 600-320v-280q0-17-11.5-28.5T560-640q-17 0-28.5 11.5T520-600v280q0 17 11.5 28.5T560-280q17 0 28.5-11.5ZM280-720v520-520Z"/></svg>
+                  </span>
+                      <span>Delete</span>
+                  </button>
+              </div>
                   </div>
                 </div>
               </td>
-
             </tr>
 
           @endforeach
@@ -129,6 +142,7 @@
   {{-- Modals --}}
   @include('admin.branch.modals.addModal')
   @include('admin.branch.modals.editModal')
+  @include('admin.branch.modals.deleteModal')
 @endsection
 
 @once
@@ -150,6 +164,20 @@
   <script type="text/javascript" src="{{ asset('js/dashboard/toggleDropdown.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/filters/tsBranchFilter.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/dashboard/modal/branchModal.js') }}" defer></script>
+
+  <script>
+    document.querySelectorAll('.branch-archive-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        document.getElementById('archiveForm').action =
+            this.dataset.archiveUrl;
+
+        document.getElementById('archiveBranchName').textContent =
+            this.dataset.name;
+
+        document.getElementById('archiveModal').style.display = 'flex';
+    });
+});
+  </script>
 
   @if(session('error'))
     <script>

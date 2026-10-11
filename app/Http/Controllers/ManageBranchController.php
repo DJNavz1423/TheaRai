@@ -22,6 +22,7 @@ class ManageBranchController extends Controller
             ->groupBy('branch_id');
 
         $branches = DB::table('laravel.branches as branches')
+            ->whereNull('branches.deleted_at')
             ->leftJoinSub($menuCounts, 'menu_counts', function ($join) {
                 $join->on('branches.id', '=', 'menu_counts.branch_id');
             })
@@ -71,6 +72,7 @@ class ManageBranchController extends Controller
 
         $branch = DB::table('laravel.branches')
             ->where('id', $id)
+            ->whereNull('branches.deleted_at')
             ->first();
 
         if (!$branch) {
@@ -88,5 +90,54 @@ class ManageBranchController extends Controller
             'success',
             'Branch updated successfully!'
         );
+    }
+
+    public function delete($id) {
+        $branch = DB::table('laravel.branches as branches')
+            ->where('branches.id', $id)
+            ->whereNull('branches.deleted_at')
+            ->select('branches.id')
+            ->selectRaw(
+                'EXISTS (
+                    SELECT 1
+                    FROM laravel.branch_inventory
+                    WHERE branch_inventory.branch_id = branches.id
+                ) as has_ingredients'
+            )
+            ->selectRaw(
+                'EXISTS (
+                    SELECT 1
+                    FROM laravel.users
+                    WHERE users.branch_id = branches.id
+                ) as has_users'
+            )
+            ->first();
+
+        if (!$branch) {
+            return back()->with('error', 'Branch not found or already archived.');
+        }
+
+        if ($branch->has_ingredients) {
+            return back()->with(
+                'error',
+                'Cannot archive this branch because it has ingredients assigned to it.'
+            );
+        }
+
+        if ($branch->has_users) {
+            return back()->with(
+                'error',
+                'Cannot archive this branch because there are users assigned to it.'
+            );
+        }
+
+        DB::table('laravel.branches')
+            ->where('id', $id)
+            ->whereNull('deleted_at')
+            ->update([
+                'deleted_at' => now(),
+            ]);
+
+        return back()->with('success', 'Branch archived successfully!');
     }
 }

@@ -226,6 +226,9 @@ Route::middleware(['auth'])->group(function(){
 
         Route::put('/branches/{id}', [ManageBranchController::class, 'update'])
             ->name('admin.branches.update');
+
+        Route::delete('/branches/{id}',  [ManageBranchController::class, 'delete'])
+            ->name('admin.branches.destroy');
     });
 
 
