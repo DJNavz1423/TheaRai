@@ -59,7 +59,7 @@ header p {
 .menu-card-inner{
   display: grid;
   transform-style: preserve-3d;
-  transition: transform 500ms ease;
+  transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 .menu-card.is-flipped .menu-card-inner{
@@ -73,22 +73,11 @@ header p {
   background: var(--light-pure);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform 500ms ease, visibility 0s linear 250ms;
+  transform-style: preserve-3d;
 }
 
 .menu-card-back{
-  visibility: hidden;
   transform: rotateY(180deg);
-}
-
-.menu-card.is-flipped .menu-card-front{
-  visibility: hidden;
-  transform: rotateY(-180deg);
-}
-
-.menu-card.is-flipped .menu-card-back{
-  visibility: visible;
-  transition-delay: 0s;
 }
 
 .dish-description{
@@ -124,7 +113,8 @@ header p {
 }
 
 @media (prefers-reduced-motion: reduce){
-  .menu-card-inner{
+  .menu-card-inner,
+  .menu-card-face{
     transition: none;
   }
 }
