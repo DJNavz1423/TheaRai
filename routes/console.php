@@ -24,6 +24,7 @@ Schedule::call(function () {
         'tables',
         'expenses',
         'users',
+        'branches',
     ] as $table) {
         DB::table("laravel.{$table}")
             ->whereNotNull('deleted_at')
