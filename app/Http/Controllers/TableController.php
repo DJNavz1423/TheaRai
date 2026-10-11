@@ -10,7 +10,7 @@ class TableController extends Controller
 {
     public function index(): View {
         $tables = DB::table('laravel.tables')
-            ->whereNull('deleted_at')
+            ->whereNull('tables.deleted_at')
             ->join('laravel.branches', 'tables.branch_id', '=', 'branches.id')
             ->select('tables.*', 'branches.name as branch_name')
             ->orderBy('branches.name')
