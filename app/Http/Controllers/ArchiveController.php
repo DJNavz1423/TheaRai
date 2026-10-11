@@ -9,8 +9,8 @@ use Illuminate\View\View;
 class ArchiveController extends Controller
 {
     public function index(): View{
-
-        $trashedIngredients = DB::table('laravel.ingredients')
+        $archiveQueries = [
+            DB::table('laravel.ingredients')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -19,10 +19,9 @@ class ArchiveController extends Controller
                 DB::raw("'ingredient' as filter_type"),
                 'deleted_at',
                 DB::raw("'ingredients' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedBranchInventory = DB::table('laravel.branch_inventory as bi')
+            DB::table('laravel.branch_inventory as bi')
             ->join('laravel.ingredients as i', 'bi.ingredient_id', '=', 'i.id')
             ->join('laravel.branches as b', 'bi.branch_id', '=', 'b.id')
             ->whereNotNull('bi.deleted_at')
@@ -33,10 +32,9 @@ class ArchiveController extends Controller
                 DB::raw("'ingredient' as filter_type"),
                 'bi.deleted_at',
                 DB::raw("'branch_inventory' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedCategories = DB::table('laravel.ingredient_categories')
+            DB::table('laravel.ingredient_categories')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -45,10 +43,9 @@ class ArchiveController extends Controller
                 DB::raw("'ingredient category' as filter_type"),
                 'deleted_at',
                 DB::raw("'ingredient_categories' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedUnits = DB::table('laravel.units')
+            DB::table('laravel.units')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -57,10 +54,9 @@ class ArchiveController extends Controller
                 DB::raw("'unit' as filter_type"),
                 'deleted_at',
                 DB::raw("'units' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedMenuCategories = DB::table('laravel.menu_categories')
+            DB::table('laravel.menu_categories')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -69,10 +65,9 @@ class ArchiveController extends Controller
                 DB::raw("'menu category' as filter_type"),
                 'deleted_at',
                 DB::raw("'menu_categories' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedMenuItems = DB::table('laravel.menu_items')
+            DB::table('laravel.menu_items')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -81,10 +76,9 @@ class ArchiveController extends Controller
                 DB::raw("'menu item' as filter_type"),
                 'deleted_at',
                 DB::raw("'menu_items' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedUsers = DB::table('laravel.users')
+            DB::table('laravel.users')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -93,10 +87,9 @@ class ArchiveController extends Controller
                 DB::raw("'user' as filter_type"),
                 'deleted_at',
                 DB::raw("'users' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedTables = DB::table('laravel.tables')
+            DB::table('laravel.tables')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -105,10 +98,9 @@ class ArchiveController extends Controller
                 DB::raw("'table' as filter_type"),
                 'deleted_at',
                 DB::raw("'tables' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedExpenses = DB::table('laravel.expenses')
+            DB::table('laravel.expenses')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -117,10 +109,9 @@ class ArchiveController extends Controller
                 DB::raw("'expense' as filter_type"),
                 'deleted_at',
                 DB::raw("'expenses' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedActivityLogs = DB::table('laravel.activity_logs')
+            DB::table('laravel.activity_logs')
             ->leftJoin('laravel.users', 'activity_logs.user_id', '=', 'users.id')
             ->whereNotNull('activity_logs.deleted_at')
             ->select(
@@ -130,10 +121,9 @@ class ArchiveController extends Controller
                 DB::raw("'activity log' as filter_type"),
                 'activity_logs.deleted_at',
                 DB::raw("'activity_logs' as table_name")
-            )
-            ->get();
+            ),
 
-        $trashedBranches = DB::table('laravel.branches')
+            DB::table('laravel.branches')
             ->whereNotNull('deleted_at')
             ->select(
                 'id',
@@ -142,21 +132,18 @@ class ArchiveController extends Controller
                 DB::raw("'branch' as filter_type"),
                 'deleted_at',
                 DB::raw("'branches' as table_name")
-            )
-            ->get();
+            ),
+        ];
 
-        $archives = $trashedIngredients
-            ->merge($trashedBranchInventory)
-            ->merge($trashedCategories)
-            ->merge($trashedUnits)
-            ->merge($trashedMenuCategories)
-            ->merge($trashedMenuItems)
-            ->merge($trashedUsers)
-            ->merge($trashedTables)
-            ->merge($trashedExpenses)
-            ->merge($trashedActivityLogs)
-            ->merge($trashedBranches)
-            ->sortByDesc('deleted_at');
+        $archivesQuery = array_shift($archiveQueries);
+        foreach ($archiveQueries as $archiveQuery) {
+            $archivesQuery->unionAll($archiveQuery);
+        }
+
+        $archives = DB::query()
+            ->fromSub($archivesQuery, 'archives')
+            ->orderByDesc('deleted_at')
+            ->get();
 
         return view('admin.archive.archives', compact('archives'));
     }

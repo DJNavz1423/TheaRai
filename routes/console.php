@@ -31,7 +31,7 @@ Schedule::call(function () {
             ->where('deleted_at', '<=', $cutoffDate)
             ->delete();
     }
-})->everyMinute();
+})->everyFiveMinutes();
 
 Schedule::call(function () {
     $now = now('Asia/Manila');
