@@ -72,6 +72,7 @@
             <th>Total Amount</th>
             <th>Payment Method</th>
             <th>Payment Status</th>
+            <th>Status</th>
             <th>Date</th>
           </tr>
         </thead>
@@ -85,6 +86,7 @@
               data-amount="{{ number_format($transaction->total_amount, 2) }}"
               data-payment="{{ strtolower($transaction->payment_method ?? '') }}"
               data-payment-status="{{ strtolower($transaction->payment_status ?? '') }}"
+              data-status="{{ strtolower($transaction->status ?? '') }}"
               data-date="{{ strtolower(\Carbon\Carbon::parse($transaction->created_at)->format('M j, Y g:i A')) }}"
               data-created="{{ \Carbon\Carbon::parse($transaction->created_at)->timestamp }}">
 
@@ -97,6 +99,8 @@
                 <td role="cell">{{ ucwords($transaction->payment_method ?? 'Unknown') }}</td>
 
                 <td role="cell">{{ ucwords($transaction->payment_status ?? 'Unknown') }}</td>
+
+                <td role="cell">{{ ucwords($transaction->status ?? 'Unknown') }}</td>
 
                 <td role="cell">
                   <div class="d-flex item-group">

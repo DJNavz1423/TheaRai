@@ -54,6 +54,7 @@ class TransactionController extends Controller {
                 'orders.total_amount',
                 'orders.payment_method',
                 'orders.payment_status',
+                'orders.status',
                 'orders.created_at',
                 'orders.branch_id',
                 'branches.name as branch_name'
@@ -153,6 +154,7 @@ class TransactionController extends Controller {
                 'orders.total_amount',
                 'orders.payment_method',
                 'orders.payment_status',
+                'orders.status',
                 'orders.created_at',
                 'orders.branch_id',
                 'branches.name as branch_name'
