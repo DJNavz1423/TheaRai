@@ -585,7 +585,9 @@ class PosController extends Controller{
     // Shows the branch selection screen for Admins
     public function selectBranch()
     {
-        $branches = DB::table('laravel.branches')->get();
+        $branches = DB::table('laravel.branches')
+        ->whereNull('deleted_at')
+        ->get();
         return view('admin.pos.select-branch', compact('branches'));
     }
 
