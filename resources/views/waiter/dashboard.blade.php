@@ -189,6 +189,7 @@
                     <th>Total Amount</th>
                     <th>Payment Method</th>
                     <th>Payment Status</th>
+                    <th>Status</th>
                     <th>Time</th>
                 </tr>
             </thead>
@@ -216,6 +217,10 @@
 
                         <td role="cell">
                             {{ ucwords($transaction->payment_status ?? 'Unknown') }}
+                        </td>
+
+                         <td role="cell">
+                            {{ ucwords($transaction->status ?? 'Unknown') }}
                         </td>
 
                         <td role="cell">
