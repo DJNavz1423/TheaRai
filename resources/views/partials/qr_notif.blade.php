@@ -47,6 +47,8 @@
     const qrOrdersUrl = @json($qrOrdersUrl);
     
     let alertTimer = null;
+    const initializedQrBranches = new Set();
+    const lastSeenQrOrders = {};
 
 
     /*
@@ -129,21 +131,38 @@
 
     function checkForNewQrOrder(data) {
 
-        if (!data.branch_id || !data.latest_order
-        ) {
+        if (!data.branch_id) {
+            return;
+        }
+
+        const storageKey = `qr_notif_last_seen_${data.branch_id}`;
+        const initializedKey = `qr_notif_initialized_${data.branch_id}`;
+        const branchKey = String(data.branch_id);
+        let branchInitialized =
+            initializedQrBranches.has(branchKey);
+
+        try {
+            branchInitialized = branchInitialized ||
+                sessionStorage.getItem(initializedKey) === 'true';
+        } catch (error) {
+            console.warn('Could not read QR notification state.', error);
+        }
+
+        if (!data.latest_order) {
+            rememberInitializedBranch(data.branch_id, initializedKey);
             return;
         }
 
         const order = data.latest_order;
 
-        const storageKey = `qr_notif_last_seen_${data.branch_id}`;
+        let lastSeen = lastSeenQrOrders[branchKey] || null;
 
-        let lastSeen = null;
-
-        try {
-            lastSeen = JSON.parse(localStorage.getItem(storageKey));
-        } catch (error) {
-            lastSeen = null;
+        if (!lastSeen) {
+            try {
+                lastSeen = JSON.parse(sessionStorage.getItem(storageKey));
+            } catch (error) {
+                console.warn('Could not read QR notification state.', error);
+            }
         }
 
 
@@ -154,38 +173,56 @@
         const lastTime = lastSeen && lastSeen.created_at ? new Date(lastSeen.created_at).getTime() : 0;
 
 
-        const isNewOrder = !lastSeen || currentTime > lastTime || (currentTime === lastTime && Number(order.id) > Number(lastSeen.id || 0));
+        const isNewerOrder = Boolean(
+            !lastSeen ||
+            currentTime > lastTime ||
+            (
+                currentTime === lastTime &&
+                Number(order.id) > Number(lastSeen.id || 0)
+            )
+        );
+        const isNewOrder = branchInitialized && isNewerOrder;
+
+        /*
+        * Remember this order in this tab so a different
+        * open admin tab can show the same new-order alert.
+        */
+
+        if (isNewerOrder) {
+            const currentOrder = {
+                id: order.id,
+                created_at: order.created_at
+            };
+
+            lastSeenQrOrders[branchKey] = currentOrder;
+
+            try {
+                sessionStorage.setItem(
+                    storageKey,
+                    JSON.stringify(currentOrder)
+                );
+            } catch (error) {
+                console.warn('Could not save QR notification state.', error);
+            }
+        }
+
+        rememberInitializedBranch(data.branch_id, initializedKey);
 
         if (!isNewOrder) {
             return;
         }
 
+        showQrOrderAlert(order);
+    }
 
-        /*
-        * Remember this order so navigating between
-        * pages does not show the same alert again.
-        */
+    function rememberInitializedBranch(branchId, storageKey) {
+        initializedQrBranches.add(String(branchId));
 
         try {
-
-            localStorage.setItem(
-                storageKey,
-                JSON.stringify({
-                    id: order.id,
-                    created_at: order.created_at
-                })
-            );
-
+            sessionStorage.setItem(storageKey, 'true');
         } catch (error) {
-
-            console.warn(
-                'Could not save QR notification state.',
-                error
-            );
-
+            console.warn('Could not save QR notification state.', error);
         }
-
-        showQrOrderAlert(order);
     }
 
 
@@ -195,20 +232,34 @@
     |--------------------------------------------------------------------------
     */
 
+    let notificationRequestInProgress = false;
+
     async function fetchQrNotifications() {
 
-    if (document.hidden) {
+    if (document.hidden || notificationRequestInProgress) {
         return;
     }
+
+    notificationRequestInProgress = true;
 
     try {
 
         const response =
             await fetch(
-                '{{ route("qr.orders.notifications") }}'
+                '{{ route("qr.orders.notifications") }}',
+                {
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    cache: 'no-store'
+                }
             );
 
         if (!response.ok) {
+            console.warn(
+                'Notification request failed:',
+                response.status
+            );
             return;
         }
 
@@ -261,6 +312,8 @@
             error
         );
 
+    } finally {
+        notificationRequestInProgress = false;
     }
 
 }

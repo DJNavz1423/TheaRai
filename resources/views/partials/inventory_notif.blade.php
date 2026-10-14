@@ -70,6 +70,7 @@
 
     let outTimer = null;
     let lowTimer = null;
+    let inventoryStates = {};
 
 
     function showAlert(alertBox, messageElement, message, timerType) {
@@ -89,7 +90,7 @@
 
             outTimer = setTimeout(function () {
                 hideAlert(alertBox);
-            }, 600000);
+            }, 30000);
 
         } else {
 
@@ -97,7 +98,7 @@
 
             lowTimer = setTimeout(function () {
                 hideAlert(alertBox);
-            }, 600000);
+            }, 30000);
         }
     }
 
@@ -133,7 +134,7 @@
                     </div>
 
                     <div class="inventory-item-stock">
-                        ${stock} ${unit}
+                        ${stock.toFixed(2)} ${unit}
                     </div>
 
                     <div class="inventory-item-branch">
@@ -168,14 +169,6 @@
         const lowStock =
             data.low_stock || [];
 
-        if (
-            outOfStock.length === 0 &&
-            lowStock.length === 0
-        ) {
-            return;
-        }
-
-
         /*
         * Use the current Laravel session ID.
         * A new login gets a new session ID,
@@ -187,57 +180,68 @@
         const storageKey =
             `inventory_notif_${sessionId}_${data.inventory_scope}`;
 
+        let previousState = inventoryStates[storageKey];
 
-        /*
-        * Only show the inventory warning once
-        * during the current login session.
-        */
-
-        let alreadyShown = false;
-
-        try {
-            alreadyShown =
-                sessionStorage.getItem(storageKey) === 'shown';
-        } catch (error) {
-            alreadyShown = false;
+        if (!previousState) {
+            try {
+                previousState = JSON.parse(
+                    sessionStorage.getItem(storageKey) || '{}'
+                );
+            } catch (error) {
+                previousState = {};
+            }
         }
 
+        if (
+            typeof previousState !== 'object' ||
+            previousState === null ||
+            Array.isArray(previousState)
+        ) {
+            previousState = {};
+        }
 
-        if (alreadyShown) {
+        const currentState = {};
+        const newOutOfStock = outOfStock.filter(function (item) {
+            const itemKey = `${item.branch_id}:${item.id}`;
+            currentState[itemKey] = 'out';
+
+            return previousState[itemKey] !== 'out';
+        });
+        const newLowStock = lowStock.filter(function (item) {
+            const itemKey = `${item.branch_id}:${item.id}`;
+            currentState[itemKey] = 'low';
+
+            return previousState[itemKey] !== 'low';
+        });
+
+        inventoryStates[storageKey] = currentState;
+
+        try {
+            sessionStorage.setItem(storageKey, JSON.stringify(currentState));
+        } catch (error) {
+            console.warn('Could not save inventory notification state.', error);
+        }
+
+        if (newOutOfStock.length === 0 && newLowStock.length === 0) {
             return;
         }
 
-
-        try {
-            sessionStorage.setItem(
-                storageKey,
-                'shown'
-            );
-        } catch (error) {
-            console.warn(
-                'Could not save inventory notification state.',
-                error
-            );
-        }
-
-
-        if (outOfStock.length > 0) {
+        if (newOutOfStock.length > 0) {
 
             showAlert(
                 outAlert,
                 outMessage,
-                buildMessage(outOfStock),
+                buildMessage(newOutOfStock),
                 'out'
             );
         }
 
-
-        if (lowStock.length > 0) {
+        if (newLowStock.length > 0) {
 
             showAlert(
                 lowAlert,
                 lowMessage,
-                buildMessage(lowStock),
+                buildMessage(newLowStock),
                 'low'
             );
         }
