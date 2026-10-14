@@ -40,6 +40,7 @@ class IngredientController extends Controller
             ->pluck('total', 'branch_id');
 
         $branches = DB::table('laravel.branches')
+            ->whereNull('deleted_at')
             ->get()
             ->map(function ($branch) use ($cashInByBranch, $cashSpentByBranch) {
                 $cashIn = (float) $cashInByBranch->get($branch->id, 0);
