@@ -873,6 +873,11 @@ discountAmountInput.addEventListener('input', function () {
                 .then(response => response.json())
                 .then(data => {
                     if(data.success){
+                        window.showFlashModal(
+                            data.message || 'Transaction completed successfully.',
+                            'success'
+                        );
+
                         // Reset button and hide preview
                         confirmBtn.disabled = false;
                         confirmBtn.innerText = 'Confirm & Print';

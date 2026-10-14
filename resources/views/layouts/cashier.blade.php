@@ -152,6 +152,8 @@
     </section>
   </main>
 
+  @include('partials.flash_modal')
+
   <script type="text/javascript" src="{{ asset('js/dashboard/sidebarToggles.js') }}" defer></script>
   <script type="text/javascript" src="{{ asset('js/utils/liveClock.js') }}" defer></script>
 

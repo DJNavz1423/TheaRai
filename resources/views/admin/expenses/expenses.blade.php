@@ -475,23 +475,5 @@ fundSource.addEventListener('change', updateRestockCashDisplay);
   }
 </script>
 
-  @if(session('error'))
-      <script>alert("🚨 ERROR: {{ session('error') }}");</script>
-  @endif
-
-  @if(session('success'))
-      <script>alert("✅ SUCCESS: {{ session('success') }}");</script>
-  @endif
-
-  @if($errors->any())
-      <script>
-          let errorMsgs = "⚠️ Please fix these errors:\n";
-          @foreach ($errors->all() as $error)
-              errorMsgs += "• {{ $error }}\n";
-          @endforeach
-          alert(errorMsgs);
-      </script>
-  @endif
-  
     @endpush
 @endonce

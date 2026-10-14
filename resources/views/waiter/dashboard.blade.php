@@ -262,20 +262,3 @@
         </style>
     @endpush
 @endonce
-
-@once
-    @push('scripts')
-        <script>
-            (() => {
-                const errorMessage = @json(session('error'));
-                const successMessage = @json(session('success'));
-
-                if (errorMessage) {
-                    window.alert(`ERROR: ${errorMessage}`);
-                } else if (successMessage) {
-                    window.alert(`SUCCESS: ${successMessage}`);
-                }
-            })();
-        </script>
-    @endpush
-@endonce

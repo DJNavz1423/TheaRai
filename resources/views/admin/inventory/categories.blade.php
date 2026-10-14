@@ -295,16 +295,5 @@ function openUnitEditModal(id, name, abbreviation) {
       }
   </script>
 
-  @if(session('error'))
-    <script>
-        alert("🚨 ERROR: {{ session('error') }}");
-    </script>
-@endif
-
-@if(session('success'))
-    <script>
-        alert("✅ SUCCESS: {{ session('success') }}");
-    </script>
-@endif
   @endpush
 @endonce

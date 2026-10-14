@@ -694,26 +694,5 @@
             });
         </script>
 
-        @if(session('error'))
-    <script>
-        alert("🚨 ERROR: {{ session('error') }}");
-    </script>
-@endif
-
-@if(session('success'))
-    <script>
-        alert("✅ SUCCESS: {{ session('success') }}");
-    </script>
-@endif
-
-@if($errors->any())
-    <script>
-        let errorMessages = "⚠️ Please fix the following errors:\n\n";
-        @foreach ($errors->all() as $error)
-            errorMessages += "• {{ $error }}\n";
-        @endforeach
-        alert(errorMessages);
-    </script>
-@endif
     @endpush
 @endonce
