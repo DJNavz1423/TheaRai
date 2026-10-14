@@ -84,7 +84,7 @@
                         <div class="d-flex item-group">
                             <span class="item-img">
                                 @empty($dish->img_url)
-                                <span>{{ $dish->name[0] }}</span>
+                                <span>{{ Str::upper($dish->name[0]) }}</span>
                                 @else
                                 <img src="{{ $dish->img_url }}" alt="Dish Image">
                                 @endempty
