@@ -26,7 +26,10 @@ class UserController extends Controller
             ->orderBy('users.created_at', 'desc')
             ->get();
             
-        $branches = DB::table('laravel.branches')->orderBy('name')->get();
+        $branches = DB::table('laravel.branches')
+            ->whereNull('deleted_at')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.peopleManagement.users', compact('users', 'branches'));
     }
