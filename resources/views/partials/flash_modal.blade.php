@@ -130,7 +130,7 @@
             }, 250);
         }
 
-        window.showFlashModal = function (message, type = 'success') {
+        window.showFlashModal = function (message, type = 'success', customTitle = null) {
             const isError = type === 'error';
             const messages = Array.isArray(message) ? message : [message];
             const list = document.createElement('ul');
@@ -146,7 +146,7 @@
             modal.setAttribute('role', isError ? 'alert' : 'status');
             modal.setAttribute('aria-live', isError ? 'assertive' : 'polite');
             icon.textContent = isError ? '!' : '✓';
-            title.textContent = isError ? 'Something went wrong' : 'Success';
+            title.textContent = customTitle || (isError ? 'Something went wrong' : 'Success');
             text.replaceChildren(list);
 
             window.clearTimeout(dismissTimer);

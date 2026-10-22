@@ -216,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const badges = document.querySelectorAll('.qr-notif-badge');
 
     let lastOrderId = null;
+    let notificationsInitialized = false;
 
     async function fetchWaiterNotifications() {
 
@@ -256,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (
                 latestOrder &&
-                lastOrderId !== null &&
+                notificationsInitialized &&
                 String(latestOrder.id) !== String(lastOrderId)
             ) {
 
@@ -270,14 +271,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         ? `Table ${latestOrder.table_number ?? 'Unknown'}`
                         : 'Counter Order';
 
-                alert(
-                    `🔔 NEW ${orderType}\n\n${location}\nReceipt: ${latestOrder.receipt_no}`
+                window.showFlashModal(
+                    `${orderType} received at ${location}. Receipt: ${latestOrder.receipt_no}`,
+                    'success',
+                    'New order received'
                 );
             }
 
             if (latestOrder) {
                 lastOrderId = latestOrder.id;
             }
+
+            notificationsInitialized = true;
 
         } catch (error) {
             console.log(
