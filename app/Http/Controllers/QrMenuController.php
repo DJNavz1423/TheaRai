@@ -235,9 +235,42 @@ public function success(Request $request)
                 $xenditData
             );
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
-            return "Payment was received, but the order could not be created. Please contact the staff.";
+            // Another request may have created this order already.
+            $existingOrder = DB::table('laravel.orders')
+                ->where('receipt_no', $receiptNo)
+                ->where('payment_status', 'paid')
+                ->first();
+
+            if ($existingOrder) {
+                // Reuse the existing order instead of showing an error.
+                $orderId = $existingOrder->id;
+
+                \Illuminate\Support\Facades\Log::info(
+                    'QR payment success reused existing order',
+                    ['receipt_no' => $receiptNo]
+                );
+
+            } else {
+                // No completed order exists, so record the actual failure.
+                \Illuminate\Support\Facades\Log::error(
+                    'QR paid order creation failed',
+                    [
+                        'receipt_no' => $receiptNo,
+                        'payment_reference' =>
+                            $pendingOrder['payment_reference'] ?? null,
+                        'error' => $e->getMessage(),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                    ]
+                );
+
+                return response(
+                    'Payment was received, but the order could not be created. Please contact the staff.',
+                    500
+                );
+            }
         }
 
         // Remove the temporary pending order data.

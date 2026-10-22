@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class ArchiveController extends Controller
@@ -256,9 +258,29 @@ class ArchiveController extends Controller
                 ->value('name');
         }
 
-        DB::table('laravel.' . $table)
-            ->where('id', $id)
-            ->delete();
+        try {
+            $deleted = DB::table('laravel.' . $table)
+                ->where('id', $id)
+                ->delete();
+        } catch (QueryException $exception) {
+            Log::error('Failed to permanently delete archived item.', [
+                'table' => $table,
+                'id' => $id,
+                'exception' => $exception,
+            ]);
+
+            $isForeignKeyViolation = (string) $exception->getCode() === '23503'
+                || ($exception->errorInfo[0] ?? null) === '23503';
+            $message = $isForeignKeyViolation
+                ? 'This item cannot be permanently deleted because it is still referenced by other records. Remove or update those records first.'
+                : 'The item could not be permanently deleted. Please try again.';
+
+            return back()->with('error', $message);
+        }
+
+        if ($deleted === 0) {
+            return back()->with('error', 'This item could not be found or has already been deleted.');
+        }
 
         // Map the table name to a singular module name for clean logging
         $modules = [

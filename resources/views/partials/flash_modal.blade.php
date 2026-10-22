@@ -94,8 +94,8 @@
         margin: 0;
     }
 
-    .flash-message-modal__text ul {
-        padding-left: 1.2rem;
+    .flash-message-modal__text ul li {
+        text-wrap: wrap;
     }
 
     .flash-message-modal__close {
