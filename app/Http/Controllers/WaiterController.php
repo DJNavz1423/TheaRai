@@ -113,31 +113,49 @@ class WaiterController extends Controller
             ->where('orders.payment_status', 'paid')
             ->where('orders.status', 'pending');
 
-        $latestOrder = $ordersQuery
+        $pendingOrders = $ordersQuery
             ->select(
                 'orders.id',
                 'orders.receipt_no',
                 'orders.order_source',
+                'orders.payment_method',
                 'orders.created_at',
                 'tables.table_number'
             )
-            ->orderByDesc('orders.created_at')
-            ->first();
+            ->orderBy('orders.created_at')
+            ->get();
 
-        $orderCounts = DB::table('laravel.orders')
-            ->where('branch_id', $branchId)
-            ->where('payment_status', 'paid')
-            ->where('status', 'pending')
-            ->selectRaw('COUNT(*) as total')
-            ->selectRaw("COUNT(*) FILTER (WHERE order_source = 'pos') as pos_count")
-            ->selectRaw("COUNT(*) FILTER (WHERE order_source = 'qr') as qr_count")
-            ->first();
+        $orderItems = $pendingOrders->isEmpty()
+            ? collect()
+            : DB::table('laravel.order_items')
+                ->join(
+                    'laravel.menu_items',
+                    'order_items.menu_item_id',
+                    '=',
+                    'menu_items.id'
+                )
+                ->whereIn('order_items.order_id', $pendingOrders->pluck('id'))
+                ->select(
+                    'order_items.order_id',
+                    'order_items.quantity',
+                    'menu_items.name',
+                    'menu_items.img_url'
+                )
+                ->get()
+                ->groupBy('order_id');
+
+        foreach ($pendingOrders as $order) {
+            $order->items = $orderItems->get($order->id, collect());
+        }
+
+        $latestOrder = $pendingOrders->sortByDesc('created_at')->first();
 
         return response()->json([
-            'count' => (int) $orderCounts->total,
-            'pos_count' => (int) $orderCounts->pos_count,
-            'qr_count' => (int) $orderCounts->qr_count,
+            'count' => $pendingOrders->count(),
+            'pos_count' => $pendingOrders->where('order_source', 'pos')->count(),
+            'qr_count' => $pendingOrders->where('order_source', 'qr')->count(),
             'latest_order' => $latestOrder,
+            'pending_orders' => $pendingOrders->values(),
         ]);
     }
 

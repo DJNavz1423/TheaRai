@@ -38,6 +38,7 @@
                 <h3 class="kpi-label">POS Orders</h3>
 
                 <data
+                    id="pos-orders-count"
                     value="{{ $posCount }}"
                     class="kpi-value"
                 >
@@ -59,6 +60,7 @@
                 <h3 class="kpi-label">QR Orders</h3>
 
                 <data
+                    id="qr-orders-count"
                     value="{{ $qrCount }}"
                     class="kpi-value"
                 >
@@ -80,7 +82,11 @@
         <h2 class="heading">Pending Orders</h2>
     </div>
 
-    <div class="order-grid">
+    <div
+        id="pending-orders-list"
+        class="order-grid"
+        data-serve-url="{{ url('/waiter/orders') }}"
+    >
 
         @forelse($pendingOrders as $order)
 

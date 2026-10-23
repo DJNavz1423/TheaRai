@@ -214,9 +214,108 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     const badges = document.querySelectorAll('.qr-notif-badge');
+    const pendingOrdersList = document.getElementById('pending-orders-list');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
     let lastOrderId = null;
     let notificationsInitialized = false;
+    let lastPendingOrdersSignature = null;
+
+    function renderPendingOrders(orders) {
+        pendingOrdersList.replaceChildren();
+
+        if (orders.length === 0) {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.className = 'text-muted';
+            emptyMessage.textContent = 'No pending orders at the moment.';
+            pendingOrdersList.appendChild(emptyMessage);
+            return;
+        }
+
+        orders.forEach(function (order) {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.dataset.orderSource = order.order_source;
+            card.dataset.orderId = order.id;
+
+            const header = document.createElement('div');
+            header.className = 'card-header border-b';
+
+            const details = document.createElement('div');
+            const heading = document.createElement('h2');
+            heading.textContent = order.order_source === 'qr'
+                ? `Table ${order.table_number ?? 'Unknown'}`
+                : 'POS Order';
+            details.appendChild(heading);
+
+            [
+                `Receipt: ${order.receipt_no}`,
+                `Order Type: ${String(order.order_source).toUpperCase()}`,
+                `Paid via: ${String(order.payment_method ?? 'Unknown').toUpperCase()}`
+            ].forEach(function (text) {
+                const paragraph = document.createElement('p');
+                paragraph.textContent = text;
+                details.appendChild(paragraph);
+            });
+
+            const formContainer = document.createElement('div');
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `${pendingOrdersList.dataset.serveUrl}/${encodeURIComponent(order.id)}/serve`;
+
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
+            const serveButton = document.createElement('button');
+            serveButton.type = 'submit';
+            serveButton.className = 'btn';
+            serveButton.textContent = 'Mark as Served';
+            form.appendChild(serveButton);
+            formContainer.appendChild(form);
+
+            header.append(details, formContainer);
+            card.appendChild(header);
+
+            const itemsList = document.createElement('ul');
+            itemsList.className = 'order-list';
+
+            (order.items || []).forEach(function (item) {
+                const listItem = document.createElement('li');
+                const itemGroup = document.createElement('div');
+                itemGroup.className = 'item-group';
+
+                const itemImage = document.createElement('div');
+                itemImage.className = 'item-image';
+
+                if (item.img_url) {
+                    const image = document.createElement('img');
+                    image.src = item.img_url;
+                    image.alt = item.name;
+                    itemImage.appendChild(image);
+                } else {
+                    const placeholder = document.createElement('span');
+                    placeholder.className = 'placeholder';
+                    placeholder.textContent = String(item.name).charAt(0).toUpperCase();
+                    itemImage.appendChild(placeholder);
+                }
+
+                const itemDescription = document.createElement('p');
+                const quantity = document.createElement('strong');
+                quantity.textContent = `${item.quantity}x`;
+                itemDescription.append(quantity, ` ${item.name}`);
+
+                itemGroup.append(itemImage, itemDescription);
+                listItem.appendChild(itemGroup);
+                itemsList.appendChild(listItem);
+            });
+
+            card.appendChild(itemsList);
+            pendingOrdersList.appendChild(card);
+        });
+    }
 
     async function fetchWaiterNotifications() {
 
@@ -246,6 +345,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const count =
                 Number(data.count || 0);
 
+            if (pendingOrdersList) {
+                const pendingCount = document.getElementById('pending-orders-count');
+                const posCount = document.getElementById('pos-orders-count');
+                const qrCount = document.getElementById('qr-orders-count');
+                const posOrderCount = Number(data.pos_count || 0);
+                const qrOrderCount = Number(data.qr_count || 0);
+
+                pendingCount.value = count;
+                pendingCount.textContent = count;
+                posCount.value = posOrderCount;
+                posCount.textContent = posOrderCount;
+                qrCount.value = qrOrderCount;
+                qrCount.textContent = qrOrderCount;
+            }
+
             badges.forEach(badge => {
               badge.textContent = count;
               badge.style.display =
@@ -254,6 +368,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const latestOrder =
                 data.latest_order;
+
+            const pendingOrders = Array.isArray(data.pending_orders)
+                ? data.pending_orders
+                : [];
+            const pendingOrdersSignature = JSON.stringify(pendingOrders);
+
+            if (
+                pendingOrdersList &&
+                pendingOrdersSignature !== lastPendingOrdersSignature
+            ) {
+                renderPendingOrders(pendingOrders);
+                lastPendingOrdersSignature = pendingOrdersSignature;
+            }
 
             if (
                 latestOrder &&
