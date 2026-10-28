@@ -133,8 +133,8 @@ class TransactionController extends Controller {
     public function waiterIndex() {
         $user = auth()->user();
 
-        $startOfDay = now('Asia/Manila')->startOfDay()->utc();
-        $endOfDay = now('Asia/Manila')->endOfDay()->utc();
+        $startOfDay = now('Asia/Manila')->startOfDay();
+        $endOfDay = now('Asia/Manila')->endOfDay();
 
         $transactionsQuery = DB::table('laravel.orders as orders')
             ->leftJoin(

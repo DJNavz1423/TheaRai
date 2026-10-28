@@ -45,13 +45,10 @@ class EmailReports extends Command
             $dateLabel = $reportDate->format('F Y');
         }
 
-        $startUtc = $start->copy()->utc();
-        $endUtc = $end->copy()->utc();
-
         $sales = DB::table('laravel.orders as orders')
             ->leftJoin('laravel.branches as branches', 'orders.branch_id', '=', 'branches.id')
             ->where('orders.payment_status', 'paid')
-            ->whereBetween('orders.created_at', [$startUtc, $endUtc])
+            ->whereBetween('orders.created_at', [$start, $end])
             ->select(
                 'orders.receipt_no',
                 'orders.created_at',

@@ -801,6 +801,7 @@ discountAmountInput.addEventListener('input', function () {
                 year: 'numeric', 
                 hour: '2-digit', 
                 minute: '2-digit', 
+                timeZone: 'Asia/Manila',
                 hour12: true });
 
                 document.getElementById('preview-payment-method').innerText = selectedMethod.toUpperCase();

@@ -98,6 +98,7 @@ return [
             'schema' => 'laravel',
             'search_path' => 'laravel, public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'timezone' => 'Asia/Manila',
         ],
 
         'sqlsrv' => [

@@ -38,13 +38,13 @@ class StockAuditController extends Controller
             'Y-m-d',
             $dateFrom,
             'Asia/Manila'
-        )->startOfDay()->utc();
+        )->startOfDay();
 
         $endDate = Carbon::createFromFormat(
             'Y-m-d',
             $dateTo,
             'Asia/Manila'
-        )->endOfDay()->utc();
+        )->endOfDay();
 
         /*
          * Main stock audit query.
@@ -350,13 +350,13 @@ class StockAuditController extends Controller
             'Y-m-d',
             $dateFrom,
             'Asia/Manila'
-        )->startOfDay()->utc();
+        )->startOfDay();
 
         $endDate = Carbon::createFromFormat(
             'Y-m-d',
             $dateTo,
             'Asia/Manila'
-        )->endOfDay()->utc();
+        )->endOfDay();
 
         $query = DB::table('laravel.stock_logs as stock_logs')
             ->leftJoin(

@@ -63,8 +63,8 @@ class WaiterController extends Controller
         $posCount = $pendingOrders->where('order_source', 'pos')->count();
         $qrCount = $pendingOrders->where('order_source', 'qr')->count();
 
-        $startOfDay = now('Asia/Manila')->startOfDay()->utc();
-        $endOfDay = now('Asia/Manila')->endOfDay()->utc();
+        $startOfDay = now('Asia/Manila')->startOfDay();
+        $endOfDay = now('Asia/Manila')->endOfDay();
 
         $todayTransactions = DB::table('laravel.orders')
             ->where('branch_id', $branchId)

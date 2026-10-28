@@ -340,6 +340,8 @@ public function success(Request $request)
             $xenditData['payment_channel'] ?? 'xendit'
         );
 
+        $orderCreatedAt = now();
+
         $orderId = DB::table('laravel.orders')->insertGetId([
             'branch_id' => $pendingOrder['branch_id'],
             'table_id' => $pendingOrder['table_id'],
@@ -352,8 +354,8 @@ public function success(Request $request)
             'cash_tendered' => $pendingOrder['total_amount'],
             'change_amount' => 0,
             'payment_reference' => $pendingOrder['payment_reference'],
-            'created_at' => now(),
-            'updated_at' => now()
+            'created_at' => $orderCreatedAt,
+            'updated_at' => $orderCreatedAt
         ]);
 
         /*

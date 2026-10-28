@@ -311,8 +311,9 @@ class PosController extends Controller{
                 );
             }
 
+            $orderCreatedAt = now();
             $receiptNo = $request->input('receipt_no')
-                ?: 'REC-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+                ?: 'REC-' . $orderCreatedAt->format('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
 
             $existingOrder = DB::table('laravel.orders')
                 ->where('receipt_no', $receiptNo)
@@ -369,7 +370,7 @@ class PosController extends Controller{
                 'reference_number' => $request->reference_number,
                 'order_source' => 'pos',
                 'status' => 'pending',
-                'created_at' => now(),
+                'created_at' => $orderCreatedAt,
             ]);
 
             /*
@@ -409,7 +410,7 @@ class PosController extends Controller{
                     'quantity' => $cartItem['quantity'],
                     'price_at_time' => $cartItem['price'],
                     'subtotal' => $cartItem['price'] * $cartItem['quantity'],
-                    'created_at' => now(),
+                    'created_at' => $orderCreatedAt,
                 ];
             }
 

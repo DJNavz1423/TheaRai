@@ -13,8 +13,8 @@ class AnalyticsController extends Controller
     public function index() : View
     {   
         $manilaNow = now()->timezone('Asia/Manila');
-        $startOfDay = $manilaNow->copy()->startOfDay()->utc();
-        $endOfDay = $manilaNow->copy()->endOfDay()->utc();
+        $startOfDay = $manilaNow->copy()->startOfDay();
+        $endOfDay = $manilaNow->copy()->endOfDay();
 
         $orderTotals = DB::table('laravel.orders')
             ->selectRaw(

@@ -13,11 +13,11 @@ class DashboardController extends Controller
     public function index(): View{
         $manilaNow = now()->timezone('Asia/Manila');
         
-        $startOfDay = $manilaNow->copy()->startOfDay()->utc();
-        $endOfDay = $manilaNow->copy()->endOfDay()->utc();
+        $startOfDay = $manilaNow->copy()->startOfDay();
+        $endOfDay = $manilaNow->copy()->endOfDay();
         
-        $startOfMonth = $manilaNow->copy()->startOfMonth()->utc();
-        $endOfMonth = $manilaNow->copy()->endOfMonth()->utc();
+        $startOfMonth = $manilaNow->copy()->startOfMonth();
+        $endOfMonth = $manilaNow->copy()->endOfMonth();
 
         $totalInventoryValue = DB::table('laravel.branch_inventory')
             ->whereNull('deleted_at')

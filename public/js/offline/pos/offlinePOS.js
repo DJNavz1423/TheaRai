@@ -1461,11 +1461,21 @@ document.addEventListener(
 
 function createOfflineReceiptNo() {
 
-    const timestamp =
-        new Date()
-            .toISOString()
-            .replace(/\D/g, '')
-            .slice(0, 14);
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Manila',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+    }).formatToParts(new Date()).reduce((values, part) => {
+        values[part.type] = part.value;
+        return values;
+    }, {});
+
+    const timestamp = `${parts.year}${parts.month}${parts.day}${parts.hour}${parts.minute}${parts.second}`;
 
 
     const random =

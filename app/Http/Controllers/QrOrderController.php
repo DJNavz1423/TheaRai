@@ -49,13 +49,11 @@ class QrOrderController extends Controller
 
         $todayStart = $philippineNow
             ->copy()
-            ->startOfDay()
-            ->utc();
+            ->startOfDay();
 
         $todayEnd = $philippineNow
             ->copy()
-            ->endOfDay()
-            ->utc();
+            ->endOfDay();
 
         $todayQrTransactions = DB::table('laravel.orders as orders')
             ->leftJoin(
