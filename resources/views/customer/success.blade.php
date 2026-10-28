@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
+    <link rel="icon" href="{{ asset('img/logos/TheaRaiLogo_Secondary.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{  asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
     <link rel="stylesheet" href="{{ asset('css/customer/success.css') }}">
@@ -20,7 +21,7 @@
         }
     </style>
     
-    <title>Order Successful</title>
+    <title>QR-Order Successful</title>
 </head>
 <body>
     @include('partials.loader')
