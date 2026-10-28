@@ -97,17 +97,25 @@ class QrMenuController extends Controller
 
     $totalAmount = 0;
 
-    $tableName = DB::table('laravel.tables')
+    $table = DB::table('laravel.tables')
         ->where('id', $validated['table_id'])
-        ->value('table_number');
+        ->where('branch_id', $validated['branch_id'])
+        ->first(['id', 'table_number']);
 
-    $description = "TheaRai Eatery - Order for Table " . $tableName;
+    if (!$table) {
+        return response()->json([
+            'success' => false,
+            'message' => 'The selected table could not be found.',
+        ], 422);
+    }
+
+    $description = "TheaRai Eatery - Order for Table " . $table->table_number;
 
     foreach ($validated['items'] as $item) {
         $totalAmount += ($item['price'] * $item['quantity']);
     }
 
-    $receiptNo = 'QR-' . strtoupper(Str::random(8));
+    $checkoutId = 'QR-PAY-' . strtoupper((string) Str::uuid());
 
     $secretKey = config('services.xendit.secret_key');
 
@@ -122,11 +130,11 @@ class QrMenuController extends Controller
 
         $response = Http::withBasicAuth($secretKey, '')
             ->post('https://api.xendit.co/v2/invoices', [
-                'external_id' => $receiptNo,
+                'external_id' => $checkoutId,
                 'amount' => $totalAmount,
                 'description' => $description,
                 'success_redirect_url' => url(
-                    '/qr-menu/success?receipt=' . $receiptNo
+                    '/qr-menu/success?receipt=' . $checkoutId
                 ),
                 'currency' => 'PHP',
                 'payment_methods' => ['GCASH', 'PAYMAYA']
@@ -141,11 +149,11 @@ class QrMenuController extends Controller
         $xenditData = $response->json();
 
         Cache::put(
-            'qr_pending_order:' . $receiptNo,
+            'qr_pending_order:' . $checkoutId,
             [
                 'branch_id' => $validated['branch_id'],
                 'table_id' => $validated['table_id'],
-                'receipt_no' => $receiptNo,
+                'checkout_id' => $checkoutId,
                 'total_amount' => $totalAmount,
                 'items' => $validated['items'],
                 'payment_reference' => $xenditData['id'] ?? null,
@@ -160,7 +168,7 @@ class QrMenuController extends Controller
 
     } catch (\Exception $e) {
 
-        Cache::forget('qr_pending_order:' . $receiptNo);
+        Cache::forget('qr_pending_order:' . $checkoutId);
 
         return response()->json([
             'success' => false,
@@ -171,11 +179,15 @@ class QrMenuController extends Controller
 
 public function success(Request $request)
 {
-    $receiptNo = $request->query('receipt');
+    $checkoutId = $request->query('receipt');
 
-    $cacheKey = 'qr_pending_order:' . $receiptNo;
+    $cacheKey = 'qr_pending_order:' . $checkoutId;
 
     $pendingOrder = Cache::get($cacheKey);
+
+    if ($pendingOrder && !isset($pendingOrder['checkout_id'])) {
+        $pendingOrder['checkout_id'] = $pendingOrder['receipt_no'] ?? $checkoutId;
+    }
 
     /*
      * If the temporary cache is already gone, check whether
@@ -187,7 +199,10 @@ public function success(Request $request)
     if (!$pendingOrder) {
 
         $existingOrder = DB::table('laravel.orders')
-            ->where('receipt_no', $receiptNo)
+            ->where(function ($query) use ($checkoutId) {
+                $query->where('reference_number', $checkoutId)
+                    ->orWhere('receipt_no', $checkoutId);
+            })
             ->where('payment_status', 'paid')
             ->first();
 
@@ -239,7 +254,10 @@ public function success(Request $request)
 
             // Another request may have created this order already.
             $existingOrder = DB::table('laravel.orders')
-                ->where('receipt_no', $receiptNo)
+                ->where(function ($query) use ($checkoutId) {
+                    $query->where('reference_number', $checkoutId)
+                        ->orWhere('receipt_no', $checkoutId);
+                })
                 ->where('payment_status', 'paid')
                 ->first();
 
@@ -249,7 +267,7 @@ public function success(Request $request)
 
                 \Illuminate\Support\Facades\Log::info(
                     'QR payment success reused existing order',
-                    ['receipt_no' => $receiptNo]
+                    ['checkout_id' => $checkoutId]
                 );
 
             } else {
@@ -257,7 +275,7 @@ public function success(Request $request)
                 \Illuminate\Support\Facades\Log::error(
                     'QR paid order creation failed',
                     [
-                        'receipt_no' => $receiptNo,
+                        'checkout_id' => $checkoutId,
                         'payment_reference' =>
                             $pendingOrder['payment_reference'] ?? null,
                         'error' => $e->getMessage(),
@@ -328,7 +346,13 @@ public function success(Request $request)
          * Prevent duplicate order creation.
          */
         $existingOrder = DB::table('laravel.orders')
-            ->where('receipt_no', $pendingOrder['receipt_no'])
+            ->where(function ($query) use ($pendingOrder) {
+                $query->where('reference_number', $pendingOrder['checkout_id']);
+
+                if (!empty($pendingOrder['receipt_no'])) {
+                    $query->orWhere('receipt_no', $pendingOrder['receipt_no']);
+                }
+            })
             ->first();
 
         if ($existingOrder) {
@@ -341,11 +365,16 @@ public function success(Request $request)
         );
 
         $orderCreatedAt = now();
+        $receiptNo = $this->nextQrReceiptNumber(
+            (int) $pendingOrder['table_id'],
+            $orderCreatedAt
+        );
 
         $orderId = DB::table('laravel.orders')->insertGetId([
             'branch_id' => $pendingOrder['branch_id'],
             'table_id' => $pendingOrder['table_id'],
-            'receipt_no' => $pendingOrder['receipt_no'],
+            'receipt_no' => $receiptNo,
+            'reference_number' => $pendingOrder['checkout_id'],
             'total_amount' => $pendingOrder['total_amount'],
             'payment_method' => $paymentMethod,
             'payment_status' => 'paid',
@@ -384,7 +413,7 @@ public function success(Request $request)
 
         DB::statement(
             "SELECT set_config('app.stock_remarks', ?, true)",
-            ["QR Order {$pendingOrder['receipt_no']}"]
+            ["QR Order {$receiptNo}"]
         );
 
         $orderItems = [];
@@ -479,4 +508,57 @@ public function success(Request $request)
         throw $e;
     }
 }
+
+    private function nextQrReceiptNumber(int $tableId, \Illuminate\Support\Carbon $createdAt): string
+    {
+        $tableNumber = DB::table('laravel.tables')
+            ->where('id', $tableId)
+            ->value('table_number');
+
+        if (
+            !is_string($tableNumber)
+            || !preg_match('/(\d+)\s*$/u', trim($tableNumber), $matches)
+        ) {
+            throw new \RuntimeException(
+                "Table {$tableId} does not have a table number ending in digits."
+            );
+        }
+
+        $tableCode = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+        $yearMonth = $createdAt->copy()->timezone('Asia/Manila')->format('ym');
+        $prefix = "QR-{$yearMonth}-{$tableCode}-";
+
+        DB::select(
+            'SELECT pg_advisory_xact_lock(hashtextextended(?, 0))',
+            [$prefix]
+        );
+
+        $usedNumbers = DB::table('laravel.orders')
+            ->where('receipt_no', 'like', $prefix . '%')
+            ->pluck('receipt_no')
+            ->mapWithKeys(function (string $receiptNo) use ($prefix) {
+                $suffix = substr($receiptNo, strlen($prefix));
+
+                return preg_match('/^\d{4}$/', $suffix)
+                    ? [(int) $suffix => true]
+                    : [];
+            });
+
+        $highestUsedNumber = $usedNumbers->keys()->max();
+        $nextNumber = $highestUsedNumber === null
+            ? 0
+            : ($highestUsedNumber + 1) % 10000;
+
+        for ($offset = 0; $offset < 10000; $offset++) {
+            $sequence = ($nextNumber + $offset) % 10000;
+
+            if (!$usedNumbers->has($sequence)) {
+                return $prefix . str_pad((string) $sequence, 4, '0', STR_PAD_LEFT);
+            }
+        }
+
+        throw new \RuntimeException(
+            "All QR receipt numbers for table {$tableCode} in {$yearMonth} are already in use."
+        );
+    }
 }
